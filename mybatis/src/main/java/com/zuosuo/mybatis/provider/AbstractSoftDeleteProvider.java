@@ -17,13 +17,14 @@ public abstract class AbstractSoftDeleteProvider<T extends BaseEntity> extends A
         return new SQL() {{
             UPDATE(getTable());
             SET(ProviderTool.softDelete());
-            WHERE(getPrimary()+"=#{"+getPrimary()+"}");
+            WHERE(getPrimary()+"=#{"+getPrimary()+"}", ProviderTool.normal());
         }}.toString();
     }
 
     @Override
     public String destroy(Map<String, Object> params) {
         ProviderOption options = (ProviderOption) params.get("options");
+        options.getConditions().add(ProviderTool.normal());
         String[] conditions = options.getConditions().toArray(new String[]{});
         return new SQL() {{
             UPDATE(getTable());
