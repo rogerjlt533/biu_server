@@ -1,0 +1,5 @@
+rootProject.name = 'biu'
+include 'mybatis'
+include 'component'
+include 'cache'
+
