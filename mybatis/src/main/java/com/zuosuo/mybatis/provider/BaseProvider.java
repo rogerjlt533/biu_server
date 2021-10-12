@@ -42,7 +42,7 @@ public interface BaseProvider<T extends BaseEntity> {
                 SET("`"+option.getColumn()+"`=#{"+option.getProperty()+"}");
             }
             if (softDelete()) {
-                WHERE(getPrimary()+"=#{"+getPrimary()+"}", ProviderTool.softDelete());
+                WHERE(getPrimary()+"=#{"+getPrimary()+"}", ProviderTool.normal());
             } else {
                 WHERE(getPrimary()+"=#{"+getPrimary()+"}");
             }
@@ -53,7 +53,7 @@ public interface BaseProvider<T extends BaseEntity> {
         ProviderOption options = (ProviderOption) params.get("options");
         String[] attributes = options.getAttributes().toArray(new String[]{});
         if (softDelete()) {
-            options.getConditions().add(ProviderTool.softDelete());
+            options.getConditions().add(ProviderTool.normal());
         }
         String[] conditions = options.getConditions().toArray(new String[]{});
         return new SQL() {{
