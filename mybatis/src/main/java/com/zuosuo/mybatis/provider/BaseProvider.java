@@ -41,6 +41,7 @@ public interface BaseProvider<T extends BaseEntity> {
             for (PropertyOption option: optionList) {
                 SET("`"+option.getColumn()+"`=#{"+option.getProperty()+"}");
             }
+            SET("`updated_at`=NOW()");
             if (softDelete()) {
                 WHERE(getPrimary()+"=#{"+getPrimary()+"}", ProviderTool.normal());
             } else {

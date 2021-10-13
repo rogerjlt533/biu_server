@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group 'com.zuosuo'
+version '1.0'
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":mybatis")
+    implementation project(":cache")
+    implementation 'org.mybatis:mybatis:3.5.6'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.3'
+    implementation 'org.springframework:spring-context:5.2.12.RELEASE'
+    implementation 'org.springframework.data:spring-data-redis:2.3.6.RELEASE'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
