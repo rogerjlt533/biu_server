@@ -19,6 +19,7 @@ public class HttpTool {
         try {
             HttpGet httpGet = new HttpGet(new URIBuilder(url).build());
             HttpResponse response = client.execute(httpGet);
+            result.setStatus(true);
             result.setResult(response.getEntity());
         } catch (URISyntaxException e) {
             result.setMessage("请求错误");
