@@ -13,12 +13,9 @@ repositories {
 }
 
 dependencies {
+    implementation project(":component")
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
     implementation 'com.alibaba:fastjson:1.2.58'
-    implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.41'
-    implementation 'org.springframework:spring-core:5.2.12.RELEASE'
-    implementation 'org.assertj:assertj-core:3.16.1'
-    compile group: 'org.sction', name: 'phprpc', version: '3.0.2'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 

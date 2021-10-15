@@ -3,4 +3,6 @@ include 'mybatis'
 include 'component'
 include 'cache'
 include 'biudb'
+include 'auth'
+include 'wechat'
 
