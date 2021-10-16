@@ -1,0 +1,13 @@
+rootProject.name = 'demo'
+include 'component'
+project(':component').projectDir = file('../component')
+include 'mybatis'
+project(':mybatis').projectDir = file('../mybatis')
+include 'biudb'
+project(':biudb').projectDir = file('../biudb')
+include 'cache'
+project(':cache').projectDir = file('../cache')
+include 'auth'
+project(':auth').projectDir = file('../auth')
+include 'wechat'
+project(':wechat').projectDir = file('../wechat')
