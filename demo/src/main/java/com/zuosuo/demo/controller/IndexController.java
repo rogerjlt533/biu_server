@@ -1,8 +1,8 @@
 package com.zuosuo.demo.controller;
 
-import com.hyva.demo.factory.RedisFactory;
-import com.hyva.officedb.factory.OfficeDbFactory;
+import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.demo.dto.TestDTO;
+import com.zuosuo.demo.factory.RedisFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 public class IndexController {
 
     @Autowired
-    private OfficeDbFactory officeDbFactory;
+    private BiuDbFactory biuDbFactory;
 
     @Autowired
     private RedisFactory redisFactory;
@@ -23,9 +23,9 @@ public class IndexController {
     @GetMapping("test")
     public String index(HttpServletRequest request, @Validated TestDTO dto, BindingResult bindingResult) {
 //        System.out.println(request.getParameter("name"));
-        redisFactory.getOffice().getOfficeRedisTool().getValueOperator().set("test", "test", 1000);
+        redisFactory.getBiuRedisFactory().getBiuRedisTool().getValueOperator().set("test", "test", 1000);
         if (bindingResult.hasErrors()) {
-            officeDbFactory.getOfficeUserDbFactory().getOfficeUserImpl().find(1);
+            biuDbFactory.getCommonDbFactory().getBiuAreaImpl().find(1);
             return bindingResult.getFieldError().getDefaultMessage();
         } else {
             return dto.getName();
