@@ -1,8 +1,9 @@
 package com.zuosuo.component.response;
 
+import java.io.Serializable;
 import java.util.function.Function;
 
-public class FuncResult {
+public class FuncResult implements Serializable {
 
     private boolean status;
     private String message;

@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@MapperScan(basePackages = {"com.zuosuo.biudb.mybatis.mapper"}, sqlSessionFactoryRef = "SqlSessionFactory")
+@MapperScan(basePackages = {"com.zuosuo.biudb.mapper"}, sqlSessionFactoryRef = "SqlSessionFactory")
 public class DynamicDataSourceConfig {
 
     @Bean(name = "DataSourceBiuMaster")

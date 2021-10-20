@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     implementation 'org.mybatis:mybatis:3.5.6'
+    implementation 'org.springframework:spring-context:5.2.12.RELEASE'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 

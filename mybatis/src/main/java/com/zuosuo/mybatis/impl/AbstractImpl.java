@@ -5,10 +5,12 @@ import com.zuosuo.mybatis.mapper.BaseMapper;
 import com.zuosuo.mybatis.provider.AbstractProvider;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
 
+@Component("AbstractImpl")
 public abstract class AbstractImpl<T extends BaseEntity, M extends BaseMapper, P extends AbstractProvider> {
     private M mapper;
     private P provider;
