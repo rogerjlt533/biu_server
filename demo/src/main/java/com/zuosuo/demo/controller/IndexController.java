@@ -22,18 +22,20 @@ public class IndexController {
 
     @GetMapping("test")
     public String index(HttpServletRequest request, @Validated TestDTO dto, BindingResult bindingResult) {
-//        System.out.println(request.getParameter("name"));
-        redisFactory.getBiuRedisFactory().getBiuRedisTool().getValueOperator().set("test", "test", 1000);
-        if (bindingResult.hasErrors()) {
-            biuDbFactory.getCommonDbFactory().getBiuAreaImpl().find(1);
-            return bindingResult.getFieldError().getDefaultMessage();
-        } else {
-            return dto.getName();
-        }
+        System.out.println(request.getParameter("test"));
+        System.out.println(dto.getName());
+//        redisFactory.getBiuRedisFactory().getBiuRedisTool().getValueOperator().set("test", "test", 1000);
+//        if (bindingResult.hasErrors()) {
+//            biuDbFactory.getCommonDbFactory().getBiuAreaImpl().find(1);
+//            return bindingResult.getFieldError().getDefaultMessage();
+//        } else {
+//            return dto.getName();
+//        }
 ////        System.out.println(System.currentTimeMillis());
 //        System.out.println(DataSourceOption.getDataBaseItem());
 //        officeUserImpl.find(1);
 //        System.out.println(DataSourceOption.getDataBaseItem());
 //        return officeUserImpl.find(1);
+        return "";
     }
 }

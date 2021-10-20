@@ -27,19 +27,18 @@ public class DynamicDataSourceConfig {
         return DataSourceBuilder.create().build();
     }
 
-    @Bean(name = "DataSourceBiuRead1")
-    @ConfigurationProperties(prefix = "spring.datasource.biu.read1")
-    public DataSource getDateSourceOfficeRead1() {
-        return DataSourceBuilder.create().build();
-    }
+//    @Bean(name = "DataSourceBiuRead1")
+//    @ConfigurationProperties(prefix = "spring.datasource.biu.read1")
+//    public DataSource getDateSourceOfficeRead1() {
+//        return DataSourceBuilder.create().build();
+//    }
 
     @Bean(name = "dynamicDataSource")
-    public DynamicDataSource officeDataSource(@Qualifier("DataSourceBiuMaster") DataSource dataSourceBiuMaster,
-                                              @Qualifier("DataSourceBiuRead1") DataSource dataSourceBiuRead1) {
+    public DynamicDataSource officeDataSource(@Qualifier("DataSourceBiuMaster") DataSource dataSourceBiuMaster) {
         // 这个地方是比较核心的 targetDataSource 集合是我们数据库和名字之间的映射
         Map<Object, Object> targetDataSource = new HashMap<>();
         targetDataSource.put(DataSourceOption.DataBaseItem.DATA_BIU, dataSourceBiuMaster);
-        targetDataSource.put(DataSourceOption.DataBaseItem.DATA_BIU_READ1, dataSourceBiuRead1);
+//        targetDataSource.put(DataSourceOption.DataBaseItem.DATA_BIU_READ1, dataSourceBiuRead1);
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSource);
         dataSource.setDefaultTargetDataSource(dataSourceBiuMaster); // 设置默认对象

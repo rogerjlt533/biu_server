@@ -10,11 +10,11 @@ public class DataSourceOption {
 
     // 内部枚举类，用于选择特定的数据类型
     public enum DataBaseType {
-        DATA_BIU, DATA_TEST
+        DATA_BIU
     }
 
     public enum DataBaseItem {
-        DATA_BIU, DATA_BIU_READ1
+        DATA_BIU
     }
 
     public enum OperateType {
@@ -65,7 +65,7 @@ public class DataSourceOption {
             DATA_SET = new HashMap<>();
             DatabaseSet biuSet = new DatabaseSet();
             biuSet.addMasterItem(DataBaseItem.DATA_BIU);
-            biuSet.addSlaveItem(DataBaseItem.DATA_BIU_READ1);
+//            biuSet.addSlaveItem(DataBaseItem.DATA_BIU_READ1);
             DATA_SET.put(DataBaseType.DATA_BIU, biuSet);
         }
         return DATA_SET;
@@ -91,7 +91,8 @@ public class DataSourceOption {
         DatabaseSet itemSet = getItemMap().get(TYPE.get());
         List<DataBaseItem> itemList = null;
         if(operateType == OperateType.READ) {
-            itemList = itemSet.getSlaves();
+//            itemList = itemSet.getSlaves();
+            itemList = itemSet.getMaster();
         } else {
             itemList = itemSet.getMaster();
         }
