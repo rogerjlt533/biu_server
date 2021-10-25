@@ -11,14 +11,30 @@ import java.util.Date;
 public class BiuUserEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
+
     public static final int USER_AVAIL_STATUS = 1;
     public static final int USER_INVAIL_STATUS = 0;
+    public static final int USER_SEX_MAN = 1;
+    public static final int USER_SEX_WONMEN = 2;
 
     private long id;
     @EntityProperty(comment = "名称")
     private String username = "";
     @EntityProperty(comment = "昵称")
     private String nick = "";
+    @EntityProperty(comment = "笔名")
+    private String penName = "";
+    @EntityProperty(comment = "性别 1-男 2-女")
+    private int sex = 0;
+    @EntityProperty(comment = "年龄(周岁)")
+    private int age = 0;
+    @EntityProperty(comment = "匹配起始年龄(周岁)")
+    private int matchStartAge;
+    @EntityProperty(comment = "匹配终止年龄(周岁)")
+    private int matchEndAge;
+    @EntityProperty(comment = "出生日期")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date birthday;
     @EntityProperty(comment = "联系电话")
     private String phone = "";
     @EntityProperty(comment = "联系邮箱")
@@ -35,12 +51,20 @@ public class BiuUserEntity extends BaseEntity {
     private String address = "";
     @EntityProperty(comment = "邮编")
     private String zipcode = "";
+    @EntityProperty(comment = "用户简介")
+    private String introduce = "";
     @EntityProperty(comment = "最后登录IP")
     private String lastIp = "";
     @EntityProperty(comment = "备注")
     private String remark = "";
     @EntityProperty(comment = "使用状态 1-正常 0-禁用")
     private int use_status = 0;
+    @EntityProperty(comment = "树洞评论开关状态 1-开启 0-关闭")
+    private int commentStatus = 0;
+    @EntityProperty(comment = "寻友开关状态 1-开启 0-关闭")
+    private int searchStatus = 0;
+    @EntityProperty(comment = "匿名状态 1-开启 0-关闭")
+    private int anonymous = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
@@ -73,6 +97,54 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setNick(String nick) {
         this.nick = nick;
+    }
+
+    public String getPenName() {
+        return penName;
+    }
+
+    public void setPenName(String penName) {
+        this.penName = penName;
+    }
+
+    public int getSex() {
+        return sex;
+    }
+
+    public void setSex(int sex) {
+        this.sex = sex;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public int getMatchStartAge() {
+        return matchStartAge;
+    }
+
+    public void setMatchStartAge(int matchStartAge) {
+        this.matchStartAge = matchStartAge;
+    }
+
+    public int getMatchEndAge() {
+        return matchEndAge;
+    }
+
+    public void setMatchEndAge(int matchEndAge) {
+        this.matchEndAge = matchEndAge;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
     }
 
     public String getPhone() {
@@ -139,6 +211,14 @@ public class BiuUserEntity extends BaseEntity {
         this.zipcode = zipcode;
     }
 
+    public String getIntroduce() {
+        return introduce;
+    }
+
+    public void setIntroduce(String introduce) {
+        this.introduce = introduce;
+    }
+
     public String getLastIp() {
         return lastIp;
     }
@@ -161,6 +241,30 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setUse_status(int use_status) {
         this.use_status = use_status;
+    }
+
+    public int getCommentStatus() {
+        return commentStatus;
+    }
+
+    public void setCommentStatus(int commentStatus) {
+        this.commentStatus = commentStatus;
+    }
+
+    public int getSearchStatus() {
+        return searchStatus;
+    }
+
+    public void setSearchStatus(int searchStatus) {
+        this.searchStatus = searchStatus;
+    }
+
+    public int getAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(int anonymous) {
+        this.anonymous = anonymous;
     }
 
     public Date getLastLogin() {

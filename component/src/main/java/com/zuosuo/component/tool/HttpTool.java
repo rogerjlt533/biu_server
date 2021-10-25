@@ -22,11 +22,11 @@ public class HttpTool {
             result.setStatus(true);
             result.setResult(response.getEntity());
         } catch (URISyntaxException e) {
-            result.setMessage("请求错误");
+            result.setMessage("请求错误!");
         } catch (ClientProtocolException e) {
-            result.setMessage("请求错误");
+            result.setMessage("请求错误!!");
         } catch (IOException e) {
-            result.setMessage("请求错误");
+            result.setMessage("请求错误!!!");
         }
         return result;
     }
