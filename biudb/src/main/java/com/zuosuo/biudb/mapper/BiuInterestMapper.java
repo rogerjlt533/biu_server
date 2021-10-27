@@ -12,6 +12,7 @@ import java.util.List;
 public interface BiuInterestMapper extends BaseMapper<BiuInterestEntity> {
 
     @InsertProvider(type = BiuInterestProvider.class, method = "insert")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void insert(BiuInterestEntity entity);
     @UpdateProvider(type = BiuInterestProvider.class, method = "update")
     long update(BiuInterestEntity entity);

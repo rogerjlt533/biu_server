@@ -24,6 +24,10 @@ public class BiuUserEntity extends BaseEntity {
     private String nick = "";
     @EntityProperty(comment = "笔名")
     private String penName = "";
+    @EntityProperty(comment = "openid")
+    private String openid = "";
+    @EntityProperty(comment = "unionid")
+    private String unionid = "";
     @EntityProperty(comment = "性别 1-男 2-女")
     private int sex = 0;
     @EntityProperty(comment = "年龄(周岁)")
@@ -33,7 +37,7 @@ public class BiuUserEntity extends BaseEntity {
     @EntityProperty(comment = "匹配终止年龄(周岁)")
     private int matchEndAge;
     @EntityProperty(comment = "出生日期")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     @EntityProperty(comment = "联系电话")
     private String phone = "";
@@ -58,7 +62,7 @@ public class BiuUserEntity extends BaseEntity {
     @EntityProperty(comment = "备注")
     private String remark = "";
     @EntityProperty(comment = "使用状态 1-正常 0-禁用")
-    private int use_status = 0;
+    private int useStatus = 0;
     @EntityProperty(comment = "树洞评论开关状态 1-开启 0-关闭")
     private int commentStatus = 0;
     @EntityProperty(comment = "寻友开关状态 1-开启 0-关闭")
@@ -105,6 +109,22 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setPenName(String penName) {
         this.penName = penName;
+    }
+
+    public String getOpenid() {
+        return openid;
+    }
+
+    public void setOpenid(String openid) {
+        this.openid = openid;
+    }
+
+    public String getUnionid() {
+        return unionid;
+    }
+
+    public void setUnionid(String unionid) {
+        this.unionid = unionid;
     }
 
     public int getSex() {
@@ -235,12 +255,12 @@ public class BiuUserEntity extends BaseEntity {
         this.remark = remark;
     }
 
-    public int getUse_status() {
-        return use_status;
+    public int getUseStatus() {
+        return useStatus;
     }
 
-    public void setUse_status(int use_status) {
-        this.use_status = use_status;
+    public void setUseStatus(int useStatus) {
+        this.useStatus = useStatus;
     }
 
     public int getCommentStatus() {

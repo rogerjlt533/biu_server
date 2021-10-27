@@ -12,6 +12,7 @@ import java.util.List;
 public interface BiuMessageMapper extends BaseMapper<BiuMessageEntity> {
 
     @InsertProvider(type = BiuMessageProvider.class, method = "insert")
+    @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     void insert(BiuMessageEntity entity);
     @UpdateProvider(type = BiuMessageProvider.class, method = "update")
     long update(BiuMessageEntity entity);

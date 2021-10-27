@@ -1,0 +1,13 @@
+rootProject.name = 'treehole'
+include 'component'
+project(':component').projectDir = file('../component')
+include 'wechat'
+project(':wechat').projectDir = file('../wechat')
+include 'mybatis'
+project(':mybatis').projectDir = file('../mybatis')
+include 'cache'
+project(':cache').projectDir = file('../cache')
+include 'biudb'
+project(':biudb').projectDir = file('../biudb')
+include 'auth'
+project(':auth').projectDir = file('../auth')

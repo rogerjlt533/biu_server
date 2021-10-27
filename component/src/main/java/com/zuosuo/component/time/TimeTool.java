@@ -34,4 +34,8 @@ public class TimeTool {
         calendar.setTime(date);
         return calendar;
     }
+
+    public static final long getCurrentTimestamp() {
+        return System.currentTimeMillis();
+    }
 }
