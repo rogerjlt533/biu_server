@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80026
 File Encoding         : 65001
 
-Date: 2021-10-27 16:10:19
+Date: 2021-10-28 13:51:24
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -31,10 +31,6 @@ CREATE TABLE `biu_areas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
--- Records of biu_areas
--- ----------------------------
-
--- ----------------------------
 -- Table structure for biu_users
 -- ----------------------------
 DROP TABLE IF EXISTS `biu_users`;
@@ -42,6 +38,7 @@ CREATE TABLE `biu_users` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `username` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户名',
   `nick` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `image` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户头像',
   `pen_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '笔名',
   `openid` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
   `unionid` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
@@ -71,7 +68,3 @@ CREATE TABLE `biu_users` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- ----------------------------
--- Records of biu_users
--- ----------------------------

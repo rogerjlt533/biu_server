@@ -1,18 +1,10 @@
 package com.zuosuo.treehole;
 
-import com.zuosuo.component.response.FuncResult;
-import com.zuosuo.component.tool.HttpTool;
 import com.zuosuo.treehole.config.MiniWechatConfig;
-import com.zuosuo.treehole.processor.WechatUserLoginProcessor;
-import org.apache.http.HttpEntity;
+import com.zuosuo.treehole.processor.WechatProcessor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 class TreeholeApplicationTests {
@@ -20,7 +12,7 @@ class TreeholeApplicationTests {
     @Autowired
     private MiniWechatConfig miniWechatConfig;
     @Autowired
-    private WechatUserLoginProcessor loginProcessor;
+    private WechatProcessor loginProcessor;
 
     @Test
     void contextLoads() {

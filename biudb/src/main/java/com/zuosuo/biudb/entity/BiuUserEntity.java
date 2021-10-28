@@ -22,6 +22,8 @@ public class BiuUserEntity extends BaseEntity {
     private String username = "";
     @EntityProperty(comment = "昵称")
     private String nick = "";
+    @EntityProperty(comment = "用户头像")
+    private String image = "";
     @EntityProperty(comment = "笔名")
     private String penName = "";
     @EntityProperty(comment = "openid")
@@ -101,6 +103,14 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setNick(String nick) {
         this.nick = nick;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getPenName() {

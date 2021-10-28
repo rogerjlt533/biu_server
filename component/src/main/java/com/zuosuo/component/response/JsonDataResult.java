@@ -6,6 +6,14 @@ public class JsonDataResult<T> extends JsonResult {
         super();
     }
 
+    public JsonDataResult(int code) {
+        super(code);
+    }
+
+    public JsonDataResult(String message) {
+        super(message);
+    }
+
     public JsonDataResult(int code, String message) {
         super(code, message);
     }
@@ -23,5 +31,13 @@ public class JsonDataResult<T> extends JsonResult {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public static <T> JsonDataResult<T> success(T data) {
+        return new JsonDataResult<>(ResponseConfig.SUCCESS_CODE, "", data);
+    }
+
+    public static <T> JsonDataResult<T> success(String message, T data) {
+        return new JsonDataResult<>(ResponseConfig.SUCCESS_CODE, message, data);
     }
 }

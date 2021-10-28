@@ -14,6 +14,11 @@ public class JsonResult {
         message = "";
     }
 
+    public JsonResult(String message) {
+        this.code = ResponseConfig.ERROR_CODE;
+        this.message = message;
+    }
+
     public JsonResult(int code, String message) {
         this.code = code;
         this.message = message;

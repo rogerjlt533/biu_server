@@ -5,11 +5,12 @@ import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.HttpTool;
-import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.component.tool.StringTool;
-import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.treehole.config.MiniWechatConfig;
+import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.tool.JwtTool;
 import com.zuosuo.wechat.SessionInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,18 +19,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class WechatUserLoginProcessor {
+public class WechatProcessor {
 
-    public FuncResult run(HttpServletRequest request, SessionInfo session, BiuDbFactory dbFactory) {
+    @Autowired
+    private MiniWechatConfig miniWechatConfig;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private BiuDbFactory biuDbFactory;
+
+    public MiniWechatConfig getMiniWechatConfig() {
+        return miniWechatConfig;
+    }
+
+    public FuncResult loginCode(HttpServletRequest request, SessionInfo session) {
         if (session.getOpenid().isEmpty()) {
             return new FuncResult();
         }
         Map<String, Object> result = new HashMap<>();
         String openid = session.getOpenid();
         String unionid = session.getUnionid();
-        ProviderOption option = new ProviderOption();
-        option.addCondition("openid", openid);
-        BiuUserEntity user = dbFactory.getUserDbFactory().getBiuUserImpl().single(option);
+        BiuUserEntity user = userService.getUserByOpenid(openid);
         if (user == null) {
             user = new BiuUserEntity();
             user.setUsername(String.valueOf(TimeTool.getCurrentTimestamp() / 1000) + StringTool.random(5));
@@ -37,7 +47,7 @@ public class WechatUserLoginProcessor {
             user.setUnionid(unionid != null ? unionid : "");
             user.setLastIp(HttpTool.getIpAddr(request));
             user.setLastLogin(new Date());
-            user = dbFactory.getUserDbFactory().getBiuUserImpl().insert(user);
+            user = biuDbFactory.getUserDbFactory().getBiuUserImpl().insert(user);
             if (user.getId() > 0) {
                 result.put("need_info", "1");
             }
