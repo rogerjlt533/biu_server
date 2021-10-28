@@ -27,8 +27,8 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "无对应用户记录");
         }
-        user.setNick(bean.getNick());
-        user.setImage(bean.getImage());
+        user.setNick(bean.getNick().trim());
+        user.setImage(bean.getImage().trim());
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         return new FuncResult(true);
     }

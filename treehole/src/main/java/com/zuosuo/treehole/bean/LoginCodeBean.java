@@ -10,4 +10,14 @@ public class LoginCodeBean {
     public void setCode(String code) {
         this.code = code;
     }
+
+    public boolean verify() {
+        if (code == null) {
+            return false;
+        }
+        if (code.trim().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
 }

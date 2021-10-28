@@ -21,6 +21,9 @@ public class UserController {
     @PostMapping("/api/user/init")
     @Login
     public JsonResult initInfo(HttpServletRequest request, @RequestBody UserInitUpdateInfoBean bean) {
+        if (!bean.verify()) {
+            return new JsonResult("参数验证失败");
+        }
         return new UserInitUpdateInfoAction(request, bean, userProcessor).run();
     }
 }

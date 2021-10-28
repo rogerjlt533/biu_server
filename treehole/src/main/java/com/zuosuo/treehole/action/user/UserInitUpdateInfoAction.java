@@ -21,9 +21,6 @@ public class UserInitUpdateInfoAction extends BaseAction {
 
     @Override
     public JsonResult run() {
-        if (!bean.verify()) {
-            return new JsonResult("参数验证失败");
-        }
         FuncResult loginResult = userProcessor.initUserInfo(getLoginInfoBean().getUserId(), bean);
         if (!loginResult.isStatus()) {
             return new JsonResult(loginResult.getMessage());
