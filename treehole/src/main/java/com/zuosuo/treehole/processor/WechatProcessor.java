@@ -44,6 +44,7 @@ public class WechatProcessor {
             user = new BiuUserEntity();
             user.setUsername(String.valueOf(TimeTool.getCurrentTimestamp() / 1000) + StringTool.random(5));
             user.setOpenid(openid);
+            user.setUseStatus(BiuUserEntity.USER_AVAIL_STATUS);
             user.setUnionid(unionid != null ? unionid : "");
             user.setLastIp(HttpTool.getIpAddr(request));
             user.setLastLogin(new Date());
