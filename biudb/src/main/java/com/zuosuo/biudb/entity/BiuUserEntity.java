@@ -5,6 +5,7 @@ import com.zuosuo.mybatis.annotation.EntityProperty;
 import com.zuosuo.mybatis.entity.BaseEntity;
 import org.apache.ibatis.type.Alias;
 
+import java.util.Calendar;
 import java.util.Date;
 
 @Alias("BiuUserEntity")
@@ -14,8 +15,14 @@ public class BiuUserEntity extends BaseEntity {
 
     public static final int USER_AVAIL_STATUS = 1;
     public static final int USER_INVAIL_STATUS = 0;
+    public static final int COMMUNICATE_OPEN_STATUS = 1;
+    public static final int COMMUNICATE_CLOSE_STATUS = 0;
+    public static final int SEARCH_OPEN_STATUS = 1;
+    public static final int SEARCH_CLOSE_STATUS = 0;
+    public static final int ANONYMOUS_OPEN_STATUS = 1;
+    public static final int ANONYMOUS_CLOSE_STATUS = 0;
     public static final int USER_SEX_MAN = 1;
-    public static final int USER_SEX_WONMEN = 2;
+    public static final int USER_SEX_WOMEN = 2;
 
     private long id;
     @EntityProperty(comment = "名称")
@@ -32,15 +39,12 @@ public class BiuUserEntity extends BaseEntity {
     private String unionid = "";
     @EntityProperty(comment = "性别 1-男 2-女")
     private int sex = 0;
-    @EntityProperty(comment = "年龄(周岁)")
-    private int age = 0;
     @EntityProperty(comment = "匹配起始年龄(周岁)")
     private int matchStartAge;
     @EntityProperty(comment = "匹配终止年龄(周岁)")
-    private int matchEndAge;
-    @EntityProperty(comment = "出生日期")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date birthday;
+    private int matchEndAge = 0;
+    @EntityProperty(comment = "出生年份")
+    private int birthdayYear;
     @EntityProperty(comment = "联系电话")
     private String phone = "";
     @EntityProperty(comment = "联系邮箱")
@@ -145,14 +149,6 @@ public class BiuUserEntity extends BaseEntity {
         this.sex = sex;
     }
 
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
     public int getMatchStartAge() {
         return matchStartAge;
     }
@@ -169,12 +165,12 @@ public class BiuUserEntity extends BaseEntity {
         this.matchEndAge = matchEndAge;
     }
 
-    public Date getBirthday() {
-        return birthday;
+    public int getBirthdayYear() {
+        return birthdayYear;
     }
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
+    public void setBirthdayYear(int birthdayYear) {
+        this.birthdayYear = birthdayYear;
     }
 
     public String getPhone() {
@@ -327,5 +323,26 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    // 计算年龄
+    public int getAge() {
+        return birthdayYear > 0 ? Calendar.getInstance().get(Calendar.YEAR) - birthdayYear : 0;
+    }
+
+    // 性别标签
+    public String getSexTag() {
+        String tag;
+        switch (sex) {
+            case USER_SEX_MAN:
+                tag = "男";
+                break;
+            case USER_SEX_WOMEN:
+                tag = "女";
+                break;
+            default:
+                tag = "";
+        }
+        return tag;
     }
 }

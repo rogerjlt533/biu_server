@@ -1,5 +1,5 @@
 /**
- * 用户媒体资源
+ * 树洞信心情
  */
 package com.zuosuo.biudb.entity;
 
@@ -10,28 +10,20 @@ import org.apache.ibatis.type.Alias;
 
 import java.util.Date;
 
-@Alias("BiuUserImageEntity")
-public class BiuUserImageEntity extends BaseEntity {
+@Alias("BiuHoleNoteMoodEntity")
+public class BiuHoleNoteMoodEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
-
-    public static final int USE_TYPE_INTRODUCE = 1;
-    public static final int USE_TYPE_NOTE = 2;
-    public static final int USE_TYPE_NOTE_COMMENT = 3;
 
     private long id;
     @EntityProperty(comment = "用户ID")
     private long userId = 0;
-    @EntityProperty(comment = "使用类别 1-用户简介 2-树洞信 3-树洞信评论")
-    private int useType = 0;
-    @EntityProperty(comment = "文件地址")
-    private String file = "";
-    @EntityProperty(comment = "资源排序")
-    private int sortIndex = 0;
-    @EntityProperty(comment = "资源关联记录")
-    private int relateId = 0;
-    @EntityProperty(comment = "文件hash")
-    private String hashCode = "";
+    @EntityProperty(comment = "信ID")
+    private long noteId = 0;
+    @EntityProperty(comment = "心情ID")
+    private long moodId = 0;
+    @EntityProperty(comment = "是否推荐 0-否 1-是")
+    private int isRecommend = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -55,44 +47,28 @@ public class BiuUserImageEntity extends BaseEntity {
         this.userId = userId;
     }
 
-    public int getUseType() {
-        return useType;
+    public long getNoteId() {
+        return noteId;
     }
 
-    public void setUseType(int useType) {
-        this.useType = useType;
+    public void setNoteId(long noteId) {
+        this.noteId = noteId;
     }
 
-    public String getFile() {
-        return file;
+    public long getMoodId() {
+        return moodId;
     }
 
-    public void setFile(String file) {
-        this.file = file;
+    public void setMoodId(long moodId) {
+        this.moodId = moodId;
     }
 
-    public int getSortIndex() {
-        return sortIndex;
+    public int getIsRecommend() {
+        return isRecommend;
     }
 
-    public void setSortIndex(int sortIndex) {
-        this.sortIndex = sortIndex;
-    }
-
-    public int getRelateId() {
-        return relateId;
-    }
-
-    public void setRelateId(int relateId) {
-        this.relateId = relateId;
-    }
-
-    public String getHashCode() {
-        return hashCode;
-    }
-
-    public void setHashCode(String hashCode) {
-        this.hashCode = hashCode;
+    public void setIsRecommend(int isRecommend) {
+        this.isRecommend = isRecommend;
     }
 
     public Date getCreatedAt() {
