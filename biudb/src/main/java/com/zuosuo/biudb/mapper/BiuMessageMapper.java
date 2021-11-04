@@ -18,10 +18,14 @@ public interface BiuMessageMapper extends BaseMapper<BiuMessageEntity> {
     long update(BiuMessageEntity entity);
     @UpdateProvider(type = BiuMessageProvider.class, method = "modify")
     long modify(@Param("options") ProviderOption options);
-    @DeleteProvider(type = BiuMessageProvider.class, method = "delete")
+    @UpdateProvider(type = BiuMessageProvider.class, method = "delete")
     long delete(BiuMessageEntity entity);
-    @DeleteProvider(type = BiuMessageProvider.class, method = "destroy")
+    @UpdateProvider(type = BiuMessageProvider.class, method = "destroy")
     long destroy(@Param("options") ProviderOption options);
+    @UpdateProvider(type = BiuMessageProvider.class, method = "restore")
+    long restore(BiuMessageEntity entity);
+    @UpdateProvider(type = BiuMessageProvider.class, method = "restoreAll")
+    long restoreAll(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuMessageProvider.class, method = "single")
     BiuMessageEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuMessageProvider.class, method = "list")

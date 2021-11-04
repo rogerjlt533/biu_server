@@ -18,10 +18,14 @@ public interface BiuMoodMapper extends BaseMapper<BiuMoodEntity> {
     long update(BiuMoodEntity entity);
     @UpdateProvider(type = BiuMoodProvider.class, method = "modify")
     long modify(@Param("options") ProviderOption options);
-    @DeleteProvider(type = BiuMoodProvider.class, method = "delete")
+    @UpdateProvider(type = BiuMoodProvider.class, method = "delete")
     long delete(BiuMoodEntity entity);
-    @DeleteProvider(type = BiuMoodProvider.class, method = "destroy")
+    @UpdateProvider(type = BiuMoodProvider.class, method = "destroy")
     long destroy(@Param("options") ProviderOption options);
+    @UpdateProvider(type = BiuMoodProvider.class, method = "restore")
+    long restore(BiuMoodEntity entity);
+    @UpdateProvider(type = BiuMoodProvider.class, method = "restoreAll")
+    long restoreAll(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuMoodProvider.class, method = "single")
     BiuMoodEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuMoodProvider.class, method = "list")

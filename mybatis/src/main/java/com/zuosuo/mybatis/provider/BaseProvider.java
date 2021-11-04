@@ -84,6 +84,14 @@ public interface BaseProvider<T extends BaseEntity> {
         }}.toString();
     }
 
+    default String restore(T entity) {
+        return "";
+    }
+
+    default String restoreAll(Map<String, Object> params) {
+        return "";
+    }
+
     default String single(Map<String, Object> params) {
         ProviderOption options = (ProviderOption) params.get("options");
         String[] conditions = options.getConditions().toArray(new String[]{});

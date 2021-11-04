@@ -18,10 +18,14 @@ public interface BiuHoleNoteMapper extends BaseMapper<BiuHoleNoteEntity> {
     long update(BiuHoleNoteEntity entity);
     @UpdateProvider(type = BiuHoleNoteProvider.class, method = "modify")
     long modify(@Param("options") ProviderOption options);
-    @DeleteProvider(type = BiuHoleNoteProvider.class, method = "delete")
+    @UpdateProvider(type = BiuHoleNoteProvider.class, method = "delete")
     long delete(BiuHoleNoteEntity entity);
-    @DeleteProvider(type = BiuHoleNoteProvider.class, method = "destroy")
+    @UpdateProvider(type = BiuHoleNoteProvider.class, method = "destroy")
     long destroy(@Param("options") ProviderOption options);
+    @UpdateProvider(type = BiuHoleNoteProvider.class, method = "restore")
+    long restore(BiuHoleNoteEntity entity);
+    @UpdateProvider(type = BiuHoleNoteProvider.class, method = "restoreAll")
+    long restoreAll(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuHoleNoteProvider.class, method = "single")
     BiuHoleNoteEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuHoleNoteProvider.class, method = "list")

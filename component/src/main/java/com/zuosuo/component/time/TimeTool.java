@@ -1,5 +1,6 @@
 package com.zuosuo.component.time;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -37,5 +38,13 @@ public class TimeTool {
 
     public static final long getCurrentTimestamp() {
         return System.currentTimeMillis();
+    }
+
+    public static final String formatDate(Date date) {
+        return formatDate(date, TimeFormat.DEFAULT_DATETIME.getValue());
+    }
+
+    public static final String formatDate(Date date, String format) {
+        return new SimpleDateFormat(format).format(date);
     }
 }

@@ -18,10 +18,14 @@ public interface BiuHoleNoteLabelMapper extends BaseMapper<BiuHoleNoteLabelEntit
     long update(BiuHoleNoteLabelEntity entity);
     @UpdateProvider(type = BiuHoleNoteLabelProvider.class, method = "modify")
     long modify(@Param("options") ProviderOption options);
-    @DeleteProvider(type = BiuHoleNoteLabelProvider.class, method = "delete")
+    @UpdateProvider(type = BiuHoleNoteLabelProvider.class, method = "delete")
     long delete(BiuHoleNoteLabelEntity entity);
-    @DeleteProvider(type = BiuHoleNoteLabelProvider.class, method = "destroy")
+    @UpdateProvider(type = BiuHoleNoteLabelProvider.class, method = "destroy")
     long destroy(@Param("options") ProviderOption options);
+    @UpdateProvider(type = BiuHoleNoteLabelProvider.class, method = "restore")
+    long restore(BiuHoleNoteLabelEntity entity);
+    @UpdateProvider(type = BiuHoleNoteLabelProvider.class, method = "restoreAll")
+    long restoreAll(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuHoleNoteLabelProvider.class, method = "single")
     BiuHoleNoteLabelEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuHoleNoteLabelProvider.class, method = "list")

@@ -49,6 +49,15 @@ public abstract class AbstractRedisTool {
         return new ValueOperator(tool.getTemplate().opsForValue(), tool);
     }
 
+    public ListOperator getListOperator() {
+        return new ListOperator(init().getTemplate().opsForList(), this);
+    }
+
+    public ListOperator getListOperator(int db) {
+        AbstractRedisTool tool = this.select(db);
+        return new ListOperator(tool.getTemplate().opsForList(), tool);
+    }
+
     public HashOperator getHashOperator() {
         return new HashOperator(init().getTemplate().opsForHash(), this);
     }

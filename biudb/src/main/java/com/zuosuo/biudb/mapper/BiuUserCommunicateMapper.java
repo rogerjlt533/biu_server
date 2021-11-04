@@ -18,10 +18,14 @@ public interface BiuUserCommunicateMapper extends BaseMapper<BiuUserCommunicateE
     long update(BiuUserCommunicateEntity entity);
     @UpdateProvider(type = BiuUserCommunicateProvider.class, method = "modify")
     long modify(@Param("options") ProviderOption options);
-    @DeleteProvider(type = BiuUserCommunicateProvider.class, method = "delete")
+    @UpdateProvider(type = BiuUserCommunicateProvider.class, method = "delete")
     long delete(BiuUserCommunicateEntity entity);
-    @DeleteProvider(type = BiuUserCommunicateProvider.class, method = "destroy")
+    @UpdateProvider(type = BiuUserCommunicateProvider.class, method = "destroy")
     long destroy(@Param("options") ProviderOption options);
+    @UpdateProvider(type = BiuUserCommunicateProvider.class, method = "restore")
+    long restore(BiuUserCommunicateEntity entity);
+    @UpdateProvider(type = BiuUserCommunicateProvider.class, method = "restoreAll")
+    long restoreAll(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuUserCommunicateProvider.class, method = "single")
     BiuUserCommunicateEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuUserCommunicateProvider.class, method = "list")

@@ -18,10 +18,14 @@ public interface BiuLabelMapper extends BaseMapper<BiuLabelEntity> {
     long update(BiuLabelEntity entity);
     @UpdateProvider(type = BiuLabelProvider.class, method = "modify")
     long modify(@Param("options") ProviderOption options);
-    @DeleteProvider(type = BiuLabelProvider.class, method = "delete")
+    @UpdateProvider(type = BiuLabelProvider.class, method = "delete")
     long delete(BiuLabelEntity entity);
-    @DeleteProvider(type = BiuLabelProvider.class, method = "destroy")
+    @UpdateProvider(type = BiuLabelProvider.class, method = "destroy")
     long destroy(@Param("options") ProviderOption options);
+    @UpdateProvider(type = BiuLabelProvider.class, method = "restore")
+    long restore(BiuLabelEntity entity);
+    @UpdateProvider(type = BiuLabelProvider.class, method = "restoreAll")
+    long restoreAll(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuLabelProvider.class, method = "single")
     BiuLabelEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuLabelProvider.class, method = "list")

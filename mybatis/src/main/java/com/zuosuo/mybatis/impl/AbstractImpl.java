@@ -50,6 +50,14 @@ public abstract class AbstractImpl<T extends BaseEntity, M extends BaseMapper, P
         return getMapper().destroy(options);
     }
 
+    public long restore(T entity) {
+        return getMapper().restore(entity);
+    }
+
+    public long restoreAll(ProviderOption options) {
+        return getMapper().restoreAll(options);
+    }
+
     public T single(ProviderOption options) {
         return (T) getMapper().single(options);
     }

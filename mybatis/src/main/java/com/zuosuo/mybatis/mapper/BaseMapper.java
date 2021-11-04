@@ -12,6 +12,8 @@ public interface BaseMapper<T> {
     long modify(@Param("options") ProviderOption options);
     long delete(T entity);
     long destroy(@Param("options") ProviderOption options);
+    long restore(T entity);
+    long restoreAll(@Param("options") ProviderOption options);
     T single(@Param("options") ProviderOption options);
     List<T> list(@Param("options") ProviderOption options);
 }

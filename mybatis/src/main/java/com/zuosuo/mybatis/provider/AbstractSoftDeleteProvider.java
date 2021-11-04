@@ -35,6 +35,29 @@ public abstract class AbstractSoftDeleteProvider<T extends BaseEntity> extends A
         }}.toString();
     }
 
+    @Override
+    public String restore(T entity) {
+        return new SQL() {{
+            UPDATE(getTable());
+            SET(ProviderTool.restore());
+            WHERE(getPrimary()+"=#{"+getPrimary()+"}", ProviderTool.deleted());
+        }}.toString();
+    }
+
+    @Override
+    public String restoreAll(Map<String, Object> params) {
+        ProviderOption options = (ProviderOption) params.get("options");
+        options.getConditions().add(ProviderTool.deleted());
+        String[] conditions = options.getConditions().toArray(new String[]{});
+        return new SQL() {{
+            UPDATE(getTable());
+            SET(ProviderTool.restore());
+            if (conditions.length > 0) {
+                WHERE(conditions);
+            }
+        }}.toString();
+    }
+
     protected void softDeleteCondition(ProviderOption options) {
         if (options.getStatus() == CheckStatusEnum.NORMAL.getValue()) {
             options.getConditions().add(ProviderTool.normal());
