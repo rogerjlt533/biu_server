@@ -44,40 +44,37 @@ public class UserProcessor {
         BiuUserImpl impl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
         List<String> condition = new ArrayList<>();
         Map<String, Object> user = userService.getUserView(id);
-        int custom = bean.getCustom();
-        if (custom == 1) {
-            // 自定义
-            int sex = bean.getSex();
-            if (sex > 0) {
-                condition.add("sex=" + sex);
+        // 自定义
+        int sex = bean.getSex();
+        if (sex > 0) {
+            condition.add("sex=" + sex);
+        }
+        int com_method = bean.getCommunicate();
+        if (com_method > 0) {
+            condition.add("FIND_IN_SET('" + com_method + "', self_communicate)");
+        }
+        int[] ages = bean.getAge();
+        if (ages != null) {
+            condition.add("age>=" + ages[0] + " and age<=" + ages[1]);
+        }
+        if(user != null) {
+            condition.add("id!=" + user.get("id"));
+            int self_age = (int) user.get("age");
+            if (self_age > 0) {
+                condition.add("match_start_age<=" + self_age + " and match_end_age>=" + self_age);
             }
-            int com_method = bean.getCommunicate();
-            if (com_method > 0) {
-                condition.add("FIND_IN_SET('" + com_method + "', self_communicate)");
-            }
-            int[] ages = bean.getAge();
-            if (ages != null) {
-                condition.add("age>=" + ages[0] + " and age<=" + ages[1]);
-            }
-        } else if(user != null) {
-            // 推荐
-            String self_interest = user.get("self_interest") != null ? (String) user.get("self_interest") : "";
-            String[] methods = self_interest.split(",");
-            if (methods.length > 0) {
-                List<String> methodCondition = new ArrayList<>();
-                for (String method: methods) {
-                    methodCondition.add("FIND_IN_SET(" + method + ", search_communicate)");
-                }
-                condition.add("(" + String.join(" or ", methodCondition) + ")");
+            int self_sex = (int) user.get("sex");
+            if (self_sex > 0) {
+                condition.add("FIND_IN_SET('" + self_sex + "', search_sex)");
             }
             String self_communicate = user.get("self_communicate") != null ? (String) user.get("self_communicate") : "";
-            String[] interests = self_communicate.split(",");
-            if (interests.length > 0) {
-                List<String> interestCondition = new ArrayList<>();
-                for (String interest: interests) {
-                    interestCondition.add("FIND_IN_SET(" + interest + ", search_interest)");
+            String[] communicates = self_communicate.split(",");
+            if (communicates.length > 0) {
+                List<String> communicateCondition = new ArrayList<>();
+                for (String communicate: communicates) {
+                    communicateCondition.add("FIND_IN_SET(" + communicate + ", self_communicate)");
                 }
-                condition.add("(" + String.join(" or ", interestCondition) + ")");
+                condition.add("(" + String.join(" or ", communicateCondition) + ")");
             }
         }
         List<String> sql_options = new ArrayList<>();

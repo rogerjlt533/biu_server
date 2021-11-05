@@ -21,6 +21,8 @@ public class BiuUserDbFactory {
     private BiuUserImageImpl biuUserImageImpl;
     @Autowired
     private BiuUserCollectImpl biuUserCollectImpl;
+    @Autowired
+    private BiuUserSexImpl biuUserSexImpl;
 
     public BiuUserImpl getBiuUserImpl() {
         return biuUserImpl;
@@ -48,5 +50,9 @@ public class BiuUserDbFactory {
 
     public BiuUserCollectImpl getBiuUserCollectImpl() {
         return biuUserCollectImpl;
+    }
+
+    public BiuUserSexImpl getBiuUserSexImpl() {
+        return biuUserSexImpl;
     }
 }

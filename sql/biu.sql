@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80026
 File Encoding         : 65001
 
-Date: 2021-11-05 17:01:58
+Date: 2021-11-05 22:53:41
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -21,10 +21,10 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `biu_areas`;
 CREATE TABLE `biu_areas` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `area_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '地区名称',
-  `code` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '地区code',
+  `area_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '地区名称',
+  `code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '地区code',
   `area_type` tinyint NOT NULL DEFAULT '0' COMMENT '类型 1-省 2-市 3-区 4-街道',
-  `parent_code` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '父级地区编号',
+  `parent_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '父级地区编号',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -80,7 +80,7 @@ DROP TABLE IF EXISTS `biu_hole_notes`;
 CREATE TABLE `biu_hole_notes` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint NOT NULL DEFAULT '0' COMMENT '用户ID',
-  `content` text COLLATE utf8mb4_general_ci COMMENT '内容',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '内容',
   `is_private` tinyint NOT NULL DEFAULT '0' COMMENT '是否私有 0-否 1-是',
   `nick_show` tinyint NOT NULL DEFAULT '0' COMMENT '是否匿名显示 0-否 1-是',
   `created_at` timestamp NULL DEFAULT NULL,
@@ -119,7 +119,7 @@ DROP TABLE IF EXISTS `biu_labels`;
 CREATE TABLE `biu_labels` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint NOT NULL DEFAULT '0' COMMENT '用户ID',
-  `tag` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '标签',
+  `tag` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '标签',
   `is_recommend` tinyint NOT NULL DEFAULT '0' COMMENT '是否推荐 0-否 1-是',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -141,8 +141,8 @@ CREATE TABLE `biu_messages` (
   `source_id` bigint NOT NULL DEFAULT '0' COMMENT '来源用户ID',
   `message_type` int NOT NULL DEFAULT '0' COMMENT '消息类型 1-...',
   `relate_id` bigint NOT NULL DEFAULT '0' COMMENT '关联记录',
-  `title` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '标题',
-  `content` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '标题',
+  `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '内容',
   `read_status` tinyint NOT NULL DEFAULT '0' COMMENT '阅读状态 0-未读 1-已读',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -160,8 +160,8 @@ CREATE TABLE `biu_messages` (
 DROP TABLE IF EXISTS `biu_moods`;
 CREATE TABLE `biu_moods` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `tag` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '心情文字',
-  `emoj` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '表情',
+  `tag` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '心情文字',
+  `emoj` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '表情',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -254,33 +254,51 @@ INSERT INTO `biu_user_interests` VALUES ('1', '1', '1', '1', '2021-11-05 15:31:1
 INSERT INTO `biu_user_interests` VALUES ('2', '1', '1', '2', '2021-11-05 15:31:36', '2021-11-05 16:01:59', null);
 
 -- ----------------------------
+-- Table structure for biu_user_sexes
+-- ----------------------------
+DROP TABLE IF EXISTS `biu_user_sexes`;
+CREATE TABLE `biu_user_sexes` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `sex` int NOT NULL DEFAULT '0' COMMENT '性别 1-男 2-女',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户搜索性别';
+
+-- ----------------------------
+-- Records of biu_user_sexes
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for biu_users
 -- ----------------------------
 DROP TABLE IF EXISTS `biu_users`;
 CREATE TABLE `biu_users` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `username` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户名',
-  `nick` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
-  `image` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户头像',
-  `pen_name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '笔名',
-  `openid` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
-  `unionid` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户名',
+  `nick` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户头像',
+  `pen_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '笔名',
+  `openid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `unionid` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
   `sex` tinyint NOT NULL DEFAULT '0' COMMENT '性别 1-男 2-女',
   `match_start_age` tinyint NOT NULL DEFAULT '0' COMMENT '匹配起始年龄(周岁)',
   `match_end_age` tinyint NOT NULL DEFAULT '0' COMMENT '匹配终止年龄(周岁)',
   `birthday_year` int NOT NULL DEFAULT '0' COMMENT '出生年月',
   `birthday` date DEFAULT NULL COMMENT '出生日期',
-  `phone` varchar(30) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系电话',
-  `email` varchar(50) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系邮箱',
+  `phone` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系电话',
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系邮箱',
   `province` bigint NOT NULL DEFAULT '0' COMMENT '所在省份',
   `city` bigint NOT NULL DEFAULT '0' COMMENT '所在城市',
   `country` bigint NOT NULL DEFAULT '0' COMMENT '所在区县',
   `street` bigint NOT NULL DEFAULT '0' COMMENT '所在街道',
-  `address` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '具体地址',
-  `zipcode` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '邮编',
-  `introduce` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户简介',
-  `last_ip` varchar(30) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '最后登录IP',
-  `remark` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '备注',
+  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '具体地址',
+  `zipcode` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '邮编',
+  `introduce` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户简介',
+  `last_ip` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '最后登录IP',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '备注',
   `use_status` tinyint NOT NULL DEFAULT '0' COMMENT '使用状态 1-正常 0-禁用',
   `comment_status` tinyint NOT NULL DEFAULT '0' COMMENT '树洞评论开关状态 1-开启 0-关闭',
   `search_status` tinyint NOT NULL DEFAULT '0' COMMENT '寻友开关状态 1-开启 0-关闭',
@@ -302,4 +320,4 @@ INSERT INTO `biu_users` VALUES ('2', '163540553661169', '1234nick', 'image12345'
 -- View structure for biu_user_views
 -- ----------------------------
 DROP VIEW IF EXISTS `biu_user_views`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_user_views` AS select `u`.`id` AS `id`,`u`.`username` AS `username`,`u`.`nick` AS `nick`,`u`.`image` AS `image`,`u`.`pen_name` AS `pen_name`,`u`.`openid` AS `openid`,`u`.`unionid` AS `unionid`,`u`.`sex` AS `sex`,`u`.`match_start_age` AS `match_start_age`,`u`.`match_end_age` AS `match_end_age`,`u`.`birthday_year` AS `birthday_year`,if(`u`.`birthday_year`,(date_format(now(),'%Y') - `u`.`birthday_year`),0) AS `age`,`u`.`birthday` AS `birthday`,`u`.`phone` AS `phone`,`u`.`email` AS `email`,`u`.`province` AS `province`,`u`.`city` AS `city`,`u`.`country` AS `country`,`u`.`street` AS `street`,`u`.`address` AS `address`,`u`.`zipcode` AS `zipcode`,`u`.`introduce` AS `introduce`,`u`.`last_ip` AS `last_ip`,`u`.`remark` AS `remark`,`u`.`use_status` AS `use_status`,`u`.`comment_status` AS `comment_status`,`u`.`search_status` AS `search_status`,`u`.`anonymous` AS `anonymous`,`u`.`last_login` AS `last_login`,`u`.`created_at` AS `created_at`,`u`.`updated_at` AS `updated_at`,`u`.`deleted_at` AS `deleted_at`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 1) and (`ui`.`deleted_at` is null))) AS `self_interest`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 2) and (`ui`.`deleted_at` is null))) AS `search_interest`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 1) and (`uc`.`deleted_at` is null))) AS `self_communicate`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 2) and (`uc`.`deleted_at` is null))) AS `search_communicate` from `biu_users` `u` where (`u`.`deleted_at` is null) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_user_views` AS select `u`.`id` AS `id`,`u`.`username` AS `username`,`u`.`nick` AS `nick`,`u`.`image` AS `image`,`u`.`pen_name` AS `pen_name`,`u`.`openid` AS `openid`,`u`.`unionid` AS `unionid`,`u`.`sex` AS `sex`,`u`.`match_start_age` AS `match_start_age`,`u`.`match_end_age` AS `match_end_age`,`u`.`birthday_year` AS `birthday_year`,if(`u`.`birthday_year`,(date_format(now(),'%Y') - `u`.`birthday_year`),0) AS `age`,`u`.`birthday` AS `birthday`,`u`.`phone` AS `phone`,`u`.`email` AS `email`,`u`.`province` AS `province`,`u`.`city` AS `city`,`u`.`country` AS `country`,`u`.`street` AS `street`,`u`.`address` AS `address`,`u`.`zipcode` AS `zipcode`,`u`.`introduce` AS `introduce`,`u`.`last_ip` AS `last_ip`,`u`.`remark` AS `remark`,`u`.`use_status` AS `use_status`,`u`.`comment_status` AS `comment_status`,`u`.`search_status` AS `search_status`,`u`.`anonymous` AS `anonymous`,`u`.`last_login` AS `last_login`,`u`.`created_at` AS `created_at`,`u`.`updated_at` AS `updated_at`,`u`.`deleted_at` AS `deleted_at`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 1) and (`ui`.`deleted_at` is null))) AS `self_interest`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 2) and (`ui`.`deleted_at` is null))) AS `search_interest`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 1) and (`uc`.`deleted_at` is null))) AS `self_communicate`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 2) and (`uc`.`deleted_at` is null))) AS `search_communicate`,(select group_concat(distinct '\'',`us`.`sex`,'\'' separator ',') from `biu_user_sexes` `us` where ((`u`.`id` = `us`.`user_id`) and (`us`.`deleted_at` is null))) AS `search_sex` from `biu_users` `u` where (`u`.`deleted_at` is null) ;
