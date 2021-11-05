@@ -2,8 +2,8 @@ package com.zuosuo.treehole.bean;
 
 public class UserListBean extends BaseVerifyBean {
 
-    private int custom, communicate, sex;
-    private String age;
+    private int custom = 0, communicate = 0, sex = 0;
+    private String age = "";
 
     public int getCustom() {
         return custom = custom > 0 ? custom : 0;
@@ -49,11 +49,7 @@ public class UserListBean extends BaseVerifyBean {
     }
 
     public void setAge(String age) {
-        if (age != null && !age.trim().isEmpty()) {
-            this.age = age.trim();
-        } else{
-            this.age = "";
-        }
+        this.age = age.trim();
     }
 
     @Override
