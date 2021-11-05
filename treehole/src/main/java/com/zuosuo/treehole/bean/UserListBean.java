@@ -33,10 +33,9 @@ public class UserListBean extends BaseVerifyBean {
         if (age == null) {
             return null;
         }
-        if (age.trim().isEmpty()) {
+        if (age.isEmpty()) {
             return null;
         }
-        age = age.trim();
         String[] ages = age.split(",");
         if (ages.length != 2) {
             return null;
