@@ -4,6 +4,7 @@ import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.login.LoginCodeAction;
 import com.zuosuo.treehole.bean.LoginCodeBean;
+import com.zuosuo.treehole.bean.VerifyResult;
 import com.zuosuo.treehole.processor.WechatProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +22,9 @@ public class LoginController {
 
     @PostMapping("/api/login/wechat/code")
     public JsonDataResult<Map> code2Session(HttpServletRequest request, @RequestBody LoginCodeBean bean) {
-        if (!bean.verify()) {
-            return new JsonDataResult<Map>("用户code不能为空");
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<Map>(verify.getMessage());
         }
         return new LoginCodeAction(request, bean, wechatProcessor).run();
     }

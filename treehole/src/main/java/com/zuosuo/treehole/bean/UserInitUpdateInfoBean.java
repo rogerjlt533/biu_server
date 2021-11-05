@@ -1,6 +1,6 @@
 package com.zuosuo.treehole.bean;
 
-public class UserInitUpdateInfoBean {
+public class UserInitUpdateInfoBean extends BaseVerifyBean {
     private String nick;
     private String image;
 
@@ -20,19 +20,20 @@ public class UserInitUpdateInfoBean {
         this.image = image;
     }
 
-    public boolean verify() {
+    @Override
+    public VerifyResult verify() {
         if (nick == null) {
-            return false;
+            return new VerifyResult("用户昵称不能为空");
         }
         if (nick.trim().isEmpty()) {
-            return false;
+            return new VerifyResult("用户昵称不能为空");
         }
         if (image == null) {
-            return false;
+            return new VerifyResult("用户头像不能为空");
         }
         if (image.trim().isEmpty()) {
-            return false;
+            return new VerifyResult("用户头像不能为空");
         }
-        return true;
+        return new VerifyResult();
     }
 }

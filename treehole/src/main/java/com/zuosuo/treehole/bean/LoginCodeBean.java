@@ -1,6 +1,6 @@
 package com.zuosuo.treehole.bean;
 
-public class LoginCodeBean {
+public class LoginCodeBean extends BaseVerifyBean {
     private String code;
 
     public String getCode() {
@@ -11,13 +11,14 @@ public class LoginCodeBean {
         this.code = code;
     }
 
-    public boolean verify() {
+    @Override
+    public VerifyResult verify() {
         if (code == null) {
-            return false;
+            return new VerifyResult("用户code不能为空");
         }
         if (code.trim().isEmpty()) {
-            return false;
+            return new VerifyResult("用户code不能为空");
         }
-        return true;
+        return new VerifyResult();
     }
 }
