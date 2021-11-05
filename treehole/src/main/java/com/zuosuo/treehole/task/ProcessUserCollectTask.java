@@ -40,7 +40,8 @@ public class ProcessUserCollectTask {
     private void process(UserCollectInput input) {
         BiuUserCollectImpl impl = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl();
         ProviderOption option = new ProviderOption();
-        option.addCondition("relate_id", input.getUserId());
+        option.addCondition("user_id", input.getUserId());
+        option.addCondition("relate_id", input.getRelateId());
         option.setStatus(CheckStatusEnum.ALL.getValue());
         BiuUserCollectEntity collect = impl.single(option);
         if (collect == null) {
@@ -50,7 +51,7 @@ public class ProcessUserCollectTask {
             impl.insert(collect);
             option = new ProviderOption();
             option.setAttribute("created_at", TimeTool.formatDate(input.getTime()));
-            option.addCondition("id", 0);
+            option.addCondition("id", collect.getId());
             impl.modify(option);
         } else if(collect.getDeletedAt() != null) {
             impl.restore(collect);

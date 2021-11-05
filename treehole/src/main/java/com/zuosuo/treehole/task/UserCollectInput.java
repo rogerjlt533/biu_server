@@ -7,8 +7,9 @@ public class UserCollectInput {
     private long relateId;
     private Date time;
 
-    public UserCollectInput(long userId, Date time) {
+    public UserCollectInput(long userId, long relateId, Date time) {
         this.userId = userId;
+        this.relateId = relateId;
         this.time = time;
     }
 

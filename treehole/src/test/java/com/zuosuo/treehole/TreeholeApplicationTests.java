@@ -7,6 +7,7 @@ import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.treehole.config.MiniWechatConfig;
 import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.processor.WechatProcessor;
+import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.task.UserCollectInput;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,13 @@ class TreeholeApplicationTests {
     private BiuDbFactory biuDbFactory;
     @Autowired
     private BiuRedisFactory biuRedisFactory;
+    @Autowired
+    private UserService userService;
 
     @Test
     void contextLoads() {
-        String key = TaskOption.USER_COLLECT.getValue();
-        ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
-        System.out.println(operator.size(key));
-        operator.rightPush(key, JsonTool.toJson(new UserCollectInput(1, new Date())));
+        boolean result = userService.getUserCollectService().pushUserCollect(1, 2, new Date());
+        System.out.println(result);
 //        biuRedisFactory.getBiuRedisTool().
 //        String url = "https://www.baidu.com";
 //        FuncResult result = HttpTool.get(url);

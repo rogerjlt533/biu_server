@@ -6,11 +6,17 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("UserService")
 public class UserService {
 
     @Autowired
     private BiuDbFactory biuDbFactory;
+    @Autowired
+    private UserCollectService userCollectService;
+
+    public UserCollectService getUserCollectService() {
+        return userCollectService;
+    }
 
     public BiuUserEntity getUserByOpenid(String openid) {
         ProviderOption option = new ProviderOption();
