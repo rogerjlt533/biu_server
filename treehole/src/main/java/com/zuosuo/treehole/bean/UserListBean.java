@@ -6,30 +6,37 @@ public class UserListBean extends BaseVerifyBean {
     private String age;
 
     public int getCustom() {
-        return custom;
+        return custom = custom > 0 ? custom : 0;
     }
 
     public void setCustom(int custom) {
-        this.custom = custom > 0 ? custom : 0;
+        this.custom = custom;
     }
 
     public int getCommunicate() {
-        return communicate;
+        return communicate = communicate > 0 ? communicate : 0;
     }
 
     public void setCommunicate(int communicate) {
-        this.communicate = communicate > 0 ? communicate : 0;
+        this.communicate = communicate;
     }
 
     public int getSex() {
-        return sex;
+        return sex > 0 ? sex : 0;
     }
 
     public void setSex(int sex) {
-        this.sex = sex > 0 ? sex : 0;
+        this.sex = sex;
     }
 
     public int[] getAge() {
+        if (age == null) {
+            return null;
+        }
+        if (age.trim().isEmpty()) {
+            return null;
+        }
+        age = age.trim();
         String[] ages = age.split(",");
         if (ages.length != 2) {
             return null;
