@@ -20,6 +20,12 @@ public class LoginController {
     @Autowired
     private WechatProcessor wechatProcessor;
 
+    /**
+     * 用户小程序code登录
+     * @param request
+     * @param bean
+     * @return
+     */
     @PostMapping("/api/login/wechat/code")
     public JsonDataResult<Map> code2Session(HttpServletRequest request, @RequestBody LoginCodeBean bean) {
         VerifyResult verify = bean.verify();

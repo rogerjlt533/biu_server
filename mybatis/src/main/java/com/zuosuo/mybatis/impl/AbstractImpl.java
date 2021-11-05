@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Component("AbstractImpl")
 public abstract class AbstractImpl<T extends BaseEntity, M extends BaseMapper, P extends AbstractProvider> {
@@ -75,6 +76,14 @@ public abstract class AbstractImpl<T extends BaseEntity, M extends BaseMapper, P
 
     public List<T> list(ProviderOption options) {
         return getMapper().list(options);
+    }
+
+    public Map<String, Object> executeRow(String sql) {
+        return getMapper().executeRow(sql);
+    }
+
+    public List<Map<String, Object>> executeList(String sql) {
+        return getMapper().executeList(sql);
     }
 
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Date;
+import java.util.Map;
 
 @SpringBootTest
 class TreeholeApplicationTests {
@@ -31,8 +32,16 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
-        boolean result = userService.getUserCollectService().pushUserCollect(1, 2, new Date());
-        System.out.println(result);
+//        boolean result = userService.getUserCollectService().pushUserCollect(1, 2, new Date());
+//        System.out.println(result);
+        String sql = "select u.*, \n" +
+                "(select GROUP_CONCAT(distinct ui.interest_id separator ',') from biu_user_interests ui where u.id=ui.user_id and ui.use_type=1 and ISNULL(ui.deleted_at)) as interest_id,\n" +
+                "(select GROUP_CONCAT(distinct uc.com_method separator ',') from biu_user_communicates uc where u.id=uc.user_id and uc.use_type=1 and ISNULL(uc.deleted_at)) as com_method\n" +
+                "from biu_users u\n" +
+                "where u.id=1 and ISNULL(u.deleted_at);".replace("#id", String.valueOf(1));
+        System.out.println(sql);
+        Map<String, Object> row = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().executeRow(sql);
+        System.out.println(JsonTool.toJson(row));
 //        biuRedisFactory.getBiuRedisTool().
 //        String url = "https://www.baidu.com";
 //        FuncResult result = HttpTool.get(url);

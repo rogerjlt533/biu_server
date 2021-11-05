@@ -6,6 +6,8 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component("UserService")
 public class UserService {
 
@@ -26,5 +28,10 @@ public class UserService {
 
     public BiuUserEntity find(long id) {
         return biuDbFactory.getUserDbFactory().getBiuUserImpl().find(id);
+    }
+
+    public Map<String, Object> getUserView(long id) {
+        String sql = "select * from biu_user_views where id=#id;".replace("#id", String.valueOf(id));
+        return biuDbFactory.getUserDbFactory().getBiuUserImpl().executeRow(sql);
     }
 }
