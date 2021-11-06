@@ -40,7 +40,7 @@ public class UserListBean extends BaseVerifyBean {
     }
 
     public void setAge(String age) {
-        this.age = age.trim();
+        this.age = age != null ? age.trim() : "";
     }
 
     @Override
