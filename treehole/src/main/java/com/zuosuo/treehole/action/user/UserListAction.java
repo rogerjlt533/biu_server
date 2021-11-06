@@ -1,5 +1,6 @@
 package com.zuosuo.treehole.action.user;
 
+import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.treehole.action.BaseAction;
 import com.zuosuo.treehole.bean.UserListBean;
@@ -21,6 +22,10 @@ public class UserListAction extends BaseAction {
 
     @Override
     public JsonDataResult<Map> run() {
-        return new JsonDataResult<>();
+        FuncResult getResult = userProcessor.getList(getLoginInfoBean().getUserId(), bean);
+        if (!getResult.isStatus()) {
+            return new JsonDataResult<>(getResult.getMessage());
+        }
+        return JsonDataResult.success((Map) getResult.getResult());
     }
 }

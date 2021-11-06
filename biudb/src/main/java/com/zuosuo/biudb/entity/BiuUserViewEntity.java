@@ -8,8 +8,8 @@ import org.apache.ibatis.type.Alias;
 import java.util.Calendar;
 import java.util.Date;
 
-@Alias("BiuUserEntity")
-public class BiuUserEntity extends BaseEntity {
+@Alias("BiuUserViewEntity")
+public class BiuUserViewEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -45,6 +45,8 @@ public class BiuUserEntity extends BaseEntity {
     private int matchEndAge = 0;
     @EntityProperty(comment = "出生年份")
     private int birthdayYear = 0;
+    @EntityProperty(comment = "年龄")
+    private int age = 0;
     @EntityProperty(comment = "联系电话")
     private String phone = "";
     @EntityProperty(comment = "联系邮箱")
@@ -81,6 +83,16 @@ public class BiuUserEntity extends BaseEntity {
     @EntityProperty(comment = "排序时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date sortTime;
+    @EntityProperty(comment = "自有兴趣")
+    private String selfInterest = "";
+    @EntityProperty(comment = "搜索兴趣")
+    private String searchInterest = "";
+    @EntityProperty(comment = "自有联系方式")
+    private String selfCommunicate = "";
+    @EntityProperty(comment = "搜索联系方式")
+    private String searchCommunicate = "";
+    @EntityProperty(comment = "搜索性别")
+    private String searchSex = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -174,6 +186,10 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setBirthdayYear(int birthdayYear) {
         this.birthdayYear = birthdayYear;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
     }
 
     public String getPhone() {
@@ -310,6 +326,46 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setSortTime(Date sortTime) {
         this.sortTime = sortTime;
+    }
+
+    public String getSelfInterest() {
+        return selfInterest;
+    }
+
+    public void setSelfInterest(String selfInterest) {
+        this.selfInterest = selfInterest;
+    }
+
+    public String getSearchInterest() {
+        return searchInterest;
+    }
+
+    public void setSearchInterest(String searchInterest) {
+        this.searchInterest = searchInterest;
+    }
+
+    public String getSelfCommunicate() {
+        return selfCommunicate;
+    }
+
+    public void setSelfCommunicate(String selfCommunicate) {
+        this.selfCommunicate = selfCommunicate;
+    }
+
+    public String getSearchCommunicate() {
+        return searchCommunicate;
+    }
+
+    public void setSearchCommunicate(String searchCommunicate) {
+        this.searchCommunicate = searchCommunicate;
+    }
+
+    public String getSearchSex() {
+        return searchSex;
+    }
+
+    public void setSearchSex(String searchSex) {
+        this.searchSex = searchSex;
     }
 
     public Date getCreatedAt() {

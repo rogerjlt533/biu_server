@@ -53,6 +53,8 @@ public class WechatProcessor {
                 result.put("need_info", "1");
             }
         }
+        // 更新排序时间
+        userService.setUserSortTime(user.getId());
         if (user.getId() > 0) {
             Map<String, String> data = new HashMap<>();
             data.put("user_id", String.valueOf(user.getId()));

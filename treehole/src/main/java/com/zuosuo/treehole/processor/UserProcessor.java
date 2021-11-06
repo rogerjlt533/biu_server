@@ -1,19 +1,21 @@
 package com.zuosuo.treehole.processor;
 
 import com.zuosuo.biudb.entity.BiuUserEntity;
+import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
-import com.zuosuo.biudb.impl.BiuUserImpl;
 import com.zuosuo.component.response.FuncResult;
-import com.zuosuo.component.tool.JsonTool;
+import com.zuosuo.component.time.DiscTime;
+import com.zuosuo.component.time.TimeTool;
+import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
+import com.zuosuo.treehole.result.UserResult;
 import com.zuosuo.treehole.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserProcessor {
@@ -41,47 +43,63 @@ public class UserProcessor {
     }
 
     public FuncResult getList(long id, UserListBean bean) {
-        BiuUserImpl impl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
-        List<String> condition = new ArrayList<>();
-        Map<String, Object> user = userService.getUserView(id);
+        BiuUserViewEntity user = userService.getUserView(id);
+        ProviderOption option = new ProviderOption();
+        option.setUsePager(true);
+        option.addCondition("use_status", BiuUserViewEntity.USER_AVAIL_STATUS);
+        option.addCondition("search_status", BiuUserViewEntity.SEARCH_OPEN_STATUS);
         // 自定义
         int sex = bean.getSex();
         if (sex > 0) {
-            condition.add("sex=" + sex);
+            option.addCondition("sex", sex);
         }
         int com_method = bean.getCommunicate();
         if (com_method > 0) {
-            condition.add("FIND_IN_SET('" + com_method + "', self_communicate)");
+            option.addCondition("FIND_IN_SET('" + com_method + "', self_communicate)");
         }
         int[] ages = bean.getAge();
         if (ages != null) {
-            condition.add("age>=" + ages[0] + " and age<=" + ages[1]);
+            option.addCondition("age>=" + ages[0] + " and age<=" + ages[1]);
         }
         if(user != null) {
-            condition.add("id!=" + user.get("id"));
-            int self_age = (int) user.get("age");
+            option.addCondition("id!=" + user.getId());
+            int self_age = user.getAge();
             if (self_age > 0) {
-                condition.add("match_start_age<=" + self_age + " and match_end_age>=" + self_age);
+                option.addCondition("match_start_age<=" + self_age + " and match_end_age>=" + self_age);
             }
-            int self_sex = (int) user.get("sex");
+            int self_sex = (int) user.getSex();
             if (self_sex > 0) {
-                condition.add("FIND_IN_SET('" + self_sex + "', search_sex)");
+                option.addCondition("FIND_IN_SET('" + self_sex + "', search_sex)");
             }
-            String self_communicate = user.get("self_communicate") != null ? (String) user.get("self_communicate") : "";
+            String self_communicate = user.getSelfCommunicate() != null ? user.getSelfCommunicate() : "";
             String[] communicates = self_communicate.split(",");
             if (communicates.length > 0) {
                 List<String> communicateCondition = new ArrayList<>();
                 for (String communicate: communicates) {
                     communicateCondition.add("FIND_IN_SET(" + communicate + ", self_communicate)");
                 }
-                condition.add("(" + String.join(" or ", communicateCondition) + ")");
+                option.addCondition("(" + String.join(" or ", communicateCondition) + ")");
             }
         }
-        List<String> sql_options = new ArrayList<>();
-        if (condition.size() > 0) {
-            sql_options.add("where " + String.join(" and ", condition));
+        // 两个月内登录的
+        option.addCondition("sort_time>=" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setMonth(-2))));
+        option.addOrderby("sort_time desc");
+        option.setOffset(PageTool.getOffset(bean.getPage(), PageTool.DEFAULT_SIZE));
+        option.setLimit(PageTool.DEFAULT_SIZE);
+        List<BiuUserViewEntity> list = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().list(option);
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+        if (list.isEmpty()) {
+            return new FuncResult(false, "无对应记录", result);
         }
-        String sql = "select * from biu_user_views " + String.join(" ", sql_options);
-        return null;
+        List<UserResult> userList = processList(list, user);
+        result.put("list", userList);
+        return new FuncResult(true, "", result);
+    }
+
+    private List<UserResult> processList(List<BiuUserViewEntity> list, BiuUserViewEntity user) {
+        List<UserResult> result = new ArrayList<>();
+        return result;
     }
 }

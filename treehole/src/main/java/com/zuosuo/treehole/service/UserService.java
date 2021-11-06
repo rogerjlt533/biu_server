@@ -1,12 +1,14 @@
 package com.zuosuo.treehole.service;
 
 import com.zuosuo.biudb.entity.BiuUserEntity;
+import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
+import java.util.Date;
 
 @Component("UserService")
 public class UserService {
@@ -30,8 +32,17 @@ public class UserService {
         return biuDbFactory.getUserDbFactory().getBiuUserImpl().find(id);
     }
 
-    public Map<String, Object> getUserView(long id) {
-        String sql = "select * from biu_user_views where id=#id;".replace("#id", String.valueOf(id));
-        return biuDbFactory.getUserDbFactory().getBiuUserImpl().executeRow(sql);
+    // 获取用户视图
+    public BiuUserViewEntity getUserView(long id) {
+        return biuDbFactory.getUserDbFactory().getBiuUserViewImpl().find(id);
+    }
+
+    // 设置用户更新时间
+    public void setUserSortTime(long id) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("id", id);
+        option.addCondition("DATE_FORMAT(NOW(),'%Y-%m-%d')!=DATE_FORMAT(sort_time,'%Y-%m-%d')");
+        option.setAttribute("'sort_time'", TimeTool.formatDate(new Date()));
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().modify(option);
     }
 }
