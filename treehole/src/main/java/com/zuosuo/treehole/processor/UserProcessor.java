@@ -67,7 +67,7 @@ public class UserProcessor {
             if (self_age > 0) {
                 option.addCondition("match_start_age<=" + self_age + " and match_end_age>=" + self_age);
             }
-            int self_sex = (int) user.getSex();
+            int self_sex = user.getSex();
             if (self_sex > 0) {
                 option.addCondition("FIND_IN_SET('" + self_sex + "', search_sex)");
             }
@@ -100,6 +100,7 @@ public class UserProcessor {
 
     private List<UserResult> processList(List<BiuUserViewEntity> list, BiuUserViewEntity user) {
         List<UserResult> result = new ArrayList<>();
+        // TODO: 处理用户信息
         return result;
     }
 }

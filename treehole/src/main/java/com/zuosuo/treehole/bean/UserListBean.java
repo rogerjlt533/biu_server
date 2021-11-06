@@ -2,16 +2,8 @@ package com.zuosuo.treehole.bean;
 
 public class UserListBean extends BaseVerifyBean {
 
-    private int custom = 0, communicate = 0, sex = 0;
+    private int communicate = 0, sex = 0;
     private String age = "";
-
-    public int getCustom() {
-        return custom = custom > 0 ? custom : 0;
-    }
-
-    public void setCustom(int custom) {
-        this.custom = custom;
-    }
 
     public int getCommunicate() {
         return communicate = communicate > 0 ? communicate : 0;
@@ -53,9 +45,6 @@ public class UserListBean extends BaseVerifyBean {
 
     @Override
     public VerifyResult verify() {
-        if (custom > 1 || custom < 0) {
-            return new VerifyResult("推荐模式参数错误");
-        }
         if (sex > 2 || sex < 0) {
             return new VerifyResult("性别参数错误");
         }
