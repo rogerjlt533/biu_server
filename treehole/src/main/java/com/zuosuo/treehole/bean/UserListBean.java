@@ -51,9 +51,6 @@ public class UserListBean extends BaseVerifyBean {
         if (communicate > 2 || communicate < 0) {
             return new VerifyResult("通讯方式参数错误");
         }
-        if (getAge() == null) {
-            return new VerifyResult("年龄参数错误");
-        }
         return new VerifyResult();
     }
 }
