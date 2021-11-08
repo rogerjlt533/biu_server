@@ -47,4 +47,18 @@ public class TimeTool {
     public static final String formatDate(Date date, String format) {
         return new SimpleDateFormat(format).format(date);
     }
+
+    public static final String friendlyTime(Date date) {
+        Date now = new Date();
+        long discTime = (now.getTime() - date.getTime()) / 1000;
+        long discMinutes = Long.parseLong(String.valueOf(discTime / 60));
+        long discHours = Long.parseLong(String.valueOf(discTime / 3600));
+        long discDays = Long.parseLong(String.valueOf(discTime / 86400));
+        if (discTime <= 30) {
+            return "刚刚";
+        } else if(discMinutes < 10) {
+            return discMinutes + "分钟前";
+        }
+        return "";
+    }
 }
