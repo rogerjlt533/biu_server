@@ -183,6 +183,10 @@ public class BiuUserViewEntity extends BaseEntity {
         this.birthdayYear = birthdayYear;
     }
 
+    public int getAge() {
+        return age;
+    }
+
     public void setAge(int age) {
         this.age = age;
     }
@@ -393,11 +397,6 @@ public class BiuUserViewEntity extends BaseEntity {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    // 计算年龄
-    public int getAge() {
-        return birthdayYear > 0 ? Calendar.getInstance().get(Calendar.YEAR) - birthdayYear : 0;
     }
 
     // 性别标签
