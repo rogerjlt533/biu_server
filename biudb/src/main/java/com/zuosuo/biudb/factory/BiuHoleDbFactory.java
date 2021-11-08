@@ -17,6 +17,12 @@ public class BiuHoleDbFactory {
     private BiuLabelImpl labelImpl;
     @Autowired
     private BiuHoleNoteLabelImpl biuHoleNoteLabelImpl;
+    @Autowired
+    private BiuHoleNoteCommentImpl biuHoleNoteCommentImpl;
+    @Autowired
+    private BiuUserFavorImpl biuUserFavorImpl;
+    @Autowired
+    private BiuHoleNoteViewImpl holeNoteViewImpl;
 
     public BiuHoleNoteImpl getBiuHoleNoteImpl() {
         return biuHoleNoteImpl;
@@ -36,5 +42,17 @@ public class BiuHoleDbFactory {
 
     public BiuHoleNoteLabelImpl getBiuHoleNoteLabelImpl() {
         return biuHoleNoteLabelImpl;
+    }
+
+    public BiuHoleNoteCommentImpl getBiuHoleNoteCommentImpl() {
+        return biuHoleNoteCommentImpl;
+    }
+
+    public BiuUserFavorImpl getBiuUserFavorImpl() {
+        return biuUserFavorImpl;
+    }
+
+    public BiuHoleNoteViewImpl getHoleNoteViewImpl() {
+        return holeNoteViewImpl;
     }
 }

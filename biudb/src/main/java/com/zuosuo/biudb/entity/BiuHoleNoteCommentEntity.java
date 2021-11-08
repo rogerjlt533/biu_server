@@ -1,3 +1,6 @@
+/**
+ * 树洞信心情
+ */
 package com.zuosuo.biudb.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -7,16 +10,22 @@ import org.apache.ibatis.type.Alias;
 
 import java.util.Date;
 
-@Alias("BiuUserCollectEntity")
-public class BiuUserCollectEntity extends BaseEntity {
+@Alias("BiuHoleNoteCommentEntity")
+public class BiuHoleNoteCommentEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     private long id;
     @EntityProperty(comment = "用户ID")
     private long userId = 0;
-    @EntityProperty(comment = "被收藏用户ID")
-    private long relateId = 0;
+    @EntityProperty(comment = "信ID")
+    private long noteId = 0;
+    @EntityProperty(comment = "被评论的用户ID")
+    private long commentUserid = 0;
+    @EntityProperty(comment = "被评论的评论ID")
+    private long commentId = 0;
+    @EntityProperty(comment = "用户评论")
+    private String content = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,12 +49,36 @@ public class BiuUserCollectEntity extends BaseEntity {
         this.userId = userId;
     }
 
-    public long getRelateId() {
-        return relateId;
+    public long getNoteId() {
+        return noteId;
     }
 
-    public void setRelateId(long relateId) {
-        this.relateId = relateId;
+    public void setNoteId(long noteId) {
+        this.noteId = noteId;
+    }
+
+    public long getCommentUserid() {
+        return commentUserid;
+    }
+
+    public void setCommentUserid(long commentUserid) {
+        this.commentUserid = commentUserid;
+    }
+
+    public long getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(long commentId) {
+        this.commentId = commentId;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Date getCreatedAt() {

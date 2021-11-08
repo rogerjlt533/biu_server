@@ -7,15 +7,15 @@ import org.apache.ibatis.type.Alias;
 
 import java.util.Date;
 
-@Alias("BiuUserCollectEntity")
-public class BiuUserCollectEntity extends BaseEntity {
+@Alias("BiuUserReportEntity")
+public class BiuUserReportEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     private long id;
     @EntityProperty(comment = "用户ID")
     private long userId = 0;
-    @EntityProperty(comment = "被收藏用户ID")
+    @EntityProperty(comment = "被举报用户ID")
     private long relateId = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;

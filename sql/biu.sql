@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80026
 File Encoding         : 65001
 
-Date: 2021-11-06 11:33:50
+Date: 2021-11-08 11:18:51
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -35,6 +35,29 @@ CREATE TABLE `biu_areas` (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for biu_hole_note_comments
+-- ----------------------------
+DROP TABLE IF EXISTS `biu_hole_note_comments`;
+CREATE TABLE `biu_hole_note_comments` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `note_id` bigint NOT NULL DEFAULT '0' COMMENT '信ID',
+  `comment_userid` bigint NOT NULL DEFAULT '0' COMMENT '被评论的用户ID',
+  `comment_id` bigint NOT NULL DEFAULT '0' COMMENT '被评论的评论ID',
+  `content` varchar(255) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户评论',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞评论';
+
+-- ----------------------------
+-- Records of biu_hole_note_comments
+-- ----------------------------
+INSERT INTO `biu_hole_note_comments` VALUES ('1', '2', '1', '1', '0', '2222', '2021-11-08 10:51:20', '2021-11-08 10:51:22', null);
+INSERT INTO `biu_hole_note_comments` VALUES ('2', '1', '1', '2', '1', '333', '2021-11-08 10:51:43', '2021-11-08 10:51:46', null);
+
+-- ----------------------------
 -- Table structure for biu_hole_note_labels
 -- ----------------------------
 DROP TABLE IF EXISTS `biu_hole_note_labels`;
@@ -48,11 +71,13 @@ CREATE TABLE `biu_hole_note_labels` (
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞用户标签';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞用户标签';
 
 -- ----------------------------
 -- Records of biu_hole_note_labels
 -- ----------------------------
+INSERT INTO `biu_hole_note_labels` VALUES ('1', '1', '1', '1', '0', '2021-11-08 11:03:01', '2021-11-08 11:03:03', null);
+INSERT INTO `biu_hole_note_labels` VALUES ('2', '1', '1', '2', '0', '2021-11-08 11:03:11', '2021-11-08 11:04:31', null);
 
 -- ----------------------------
 -- Table structure for biu_hole_note_moods
@@ -67,11 +92,13 @@ CREATE TABLE `biu_hole_note_moods` (
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞信心情';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞信心情';
 
 -- ----------------------------
 -- Records of biu_hole_note_moods
 -- ----------------------------
+INSERT INTO `biu_hole_note_moods` VALUES ('1', '1', '1', '1', '2021-11-08 11:05:13', '2021-11-08 11:05:15', null);
+INSERT INTO `biu_hole_note_moods` VALUES ('2', '1', '1', '2', '2021-11-08 11:05:23', '2021-11-08 11:05:26', null);
 
 -- ----------------------------
 -- Table structure for biu_hole_notes
@@ -87,11 +114,12 @@ CREATE TABLE `biu_hole_notes` (
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞信';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞信';
 
 -- ----------------------------
 -- Records of biu_hole_notes
 -- ----------------------------
+INSERT INTO `biu_hole_notes` VALUES ('1', '1', '111', '0', '0', '2021-11-08 10:49:55', '2021-11-08 10:49:57', null);
 
 -- ----------------------------
 -- Table structure for biu_interests
@@ -125,11 +153,13 @@ CREATE TABLE `biu_labels` (
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='标签';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='标签';
 
 -- ----------------------------
 -- Records of biu_labels
 -- ----------------------------
+INSERT INTO `biu_labels` VALUES ('1', '1', '111', '0', '2021-11-08 11:02:30', '2021-11-08 11:02:33', null);
+INSERT INTO `biu_labels` VALUES ('2', '1', '222', '0', '2021-11-08 11:02:43', '2021-11-08 11:02:45', null);
 
 -- ----------------------------
 -- Table structure for biu_messages
@@ -166,11 +196,13 @@ CREATE TABLE `biu_moods` (
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞心情';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='树洞心情';
 
 -- ----------------------------
 -- Records of biu_moods
 -- ----------------------------
+INSERT INTO `biu_moods` VALUES ('1', '111', '111', '2021-11-08 11:04:48', '2021-11-08 11:04:51', null);
+INSERT INTO `biu_moods` VALUES ('2', '222', '222', '2021-11-08 11:04:57', '2021-11-08 11:05:00', null);
 
 -- ----------------------------
 -- Table structure for biu_user_collects
@@ -179,12 +211,12 @@ DROP TABLE IF EXISTS `biu_user_collects`;
 CREATE TABLE `biu_user_collects` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint NOT NULL DEFAULT '0' COMMENT '用户ID',
-  `relate_id` bigint NOT NULL DEFAULT '0' COMMENT '关注用户ID',
+  `relate_id` bigint NOT NULL DEFAULT '0' COMMENT '被收藏用户ID',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户关注';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户收藏';
 
 -- ----------------------------
 -- Records of biu_user_collects
@@ -209,6 +241,28 @@ CREATE TABLE `biu_user_communicates` (
 -- ----------------------------
 -- Records of biu_user_communicates
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for biu_user_favors
+-- ----------------------------
+DROP TABLE IF EXISTS `biu_user_favors`;
+CREATE TABLE `biu_user_favors` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `relate_id` bigint NOT NULL DEFAULT '0' COMMENT '被点赞的用户ID',
+  `note_id` bigint NOT NULL DEFAULT '0' COMMENT '信ID',
+  `comment_id` bigint NOT NULL DEFAULT '0' COMMENT '评论ID',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户点赞';
+
+-- ----------------------------
+-- Records of biu_user_favors
+-- ----------------------------
+INSERT INTO `biu_user_favors` VALUES ('1', '1', '1', '1', '0', '2021-11-08 10:50:47', '2021-11-08 10:50:49', null);
+INSERT INTO `biu_user_favors` VALUES ('2', '2', '1', '1', '0', '2021-11-08 10:52:52', '2021-11-08 10:53:56', null);
 
 -- ----------------------------
 -- Table structure for biu_user_images
@@ -252,6 +306,24 @@ CREATE TABLE `biu_user_interests` (
 -- ----------------------------
 INSERT INTO `biu_user_interests` VALUES ('1', '1', '1', '1', '2021-11-05 15:31:15', '2021-11-05 16:01:56', null);
 INSERT INTO `biu_user_interests` VALUES ('2', '1', '1', '2', '2021-11-05 15:31:36', '2021-11-05 16:01:59', null);
+
+-- ----------------------------
+-- Table structure for biu_user_reports
+-- ----------------------------
+DROP TABLE IF EXISTS `biu_user_reports`;
+CREATE TABLE `biu_user_reports` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL DEFAULT '0' COMMENT '用户ID',
+  `relate_id` bigint NOT NULL DEFAULT '0' COMMENT '被举报用户ID',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户举报';
+
+-- ----------------------------
+-- Records of biu_user_reports
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for biu_user_sexes
@@ -318,7 +390,13 @@ INSERT INTO `biu_users` VALUES ('1', '163540553661168', '123nick', 'image1234', 
 INSERT INTO `biu_users` VALUES ('2', '163540553661169', '1234nick', 'image12345', '', '1234', '1234uuu', '0', '0', '0', '0', null, '', '', '0', '0', '0', '0', '', '', '', '192.168.0.139', '', '0', '0', '0', '0', '2021-10-28 15:18:56', null, '2021-10-28 15:18:57', '2021-10-28 15:30:22', null);
 
 -- ----------------------------
+-- View structure for biu_hole_note_views
+-- ----------------------------
+DROP VIEW IF EXISTS `biu_hole_note_views`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_hole_note_views` AS select `hn`.`id` AS `id`,`hn`.`user_id` AS `user_id`,`hn`.`content` AS `content`,`hn`.`is_private` AS `is_private`,`hn`.`nick_show` AS `nick_show`,`hn`.`created_at` AS `created_at`,`hn`.`updated_at` AS `updated_at`,`hn`.`deleted_at` AS `deleted_at`,(select group_concat(distinct '\'',`hnl`.`label_id`,'\'' separator ',') from `biu_hole_note_labels` `hnl` where ((`hnl`.`note_id` = `hn`.`id`) and (`hnl`.`deleted_at` is null))) AS `labels`,(select group_concat(distinct '\'',`hnm`.`mood_id`,'\'' separator ',') from `biu_hole_note_moods` `hnm` where ((`hnm`.`note_id` = `hn`.`id`) and (`hnm`.`deleted_at` is null))) AS `moods`,(select count(0) from `biu_hole_note_comments` `hnc` where ((`hnc`.`note_id` = `hn`.`id`) and (`hnc`.`deleted_at` is null))) AS `comment_num`,(select count(0) from `biu_user_favors` `uf` where ((`uf`.`note_id` = `hn`.`id`) and (`uf`.`deleted_at` is null))) AS `favor_num` from `biu_hole_notes` `hn` where (`hn`.`deleted_at` is null) ;
+
+-- ----------------------------
 -- View structure for biu_user_views
 -- ----------------------------
 DROP VIEW IF EXISTS `biu_user_views`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_user_views` AS select `u`.`id` AS `id`,`u`.`username` AS `username`,`u`.`nick` AS `nick`,`u`.`image` AS `image`,`u`.`pen_name` AS `pen_name`,`u`.`openid` AS `openid`,`u`.`unionid` AS `unionid`,`u`.`sex` AS `sex`,`u`.`match_start_age` AS `match_start_age`,`u`.`match_end_age` AS `match_end_age`,`u`.`birthday_year` AS `birthday_year`,if(`u`.`birthday_year`,(date_format(now(),'%Y') - `u`.`birthday_year`),0) AS `age`,`u`.`birthday` AS `birthday`,`u`.`phone` AS `phone`,`u`.`email` AS `email`,`u`.`province` AS `province`,`u`.`city` AS `city`,`u`.`country` AS `country`,`u`.`street` AS `street`,`u`.`address` AS `address`,`u`.`zipcode` AS `zipcode`,`u`.`introduce` AS `introduce`,`u`.`last_ip` AS `last_ip`,`u`.`remark` AS `remark`,`u`.`use_status` AS `use_status`,`u`.`comment_status` AS `comment_status`,`u`.`search_status` AS `search_status`,`u`.`anonymous` AS `anonymous`,`u`.`last_login` AS `last_login`,`u`.`sort_time` AS `sort_time`,`u`.`created_at` AS `created_at`,`u`.`updated_at` AS `updated_at`,`u`.`deleted_at` AS `deleted_at`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 1) and (`ui`.`deleted_at` is null))) AS `self_interest`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 2) and (`ui`.`deleted_at` is null))) AS `search_interest`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 1) and (`uc`.`deleted_at` is null))) AS `self_communicate`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 2) and (`uc`.`deleted_at` is null))) AS `search_communicate`,(select group_concat(distinct '\'',`us`.`sex`,'\'' separator ',') from `biu_user_sexes` `us` where ((`u`.`id` = `us`.`user_id`) and (`us`.`deleted_at` is null))) AS `search_sex` from `biu_users` `u` where (`u`.`deleted_at` is null) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_user_views` AS select `u`.`id` AS `id`,`u`.`username` AS `username`,`u`.`nick` AS `nick`,`u`.`image` AS `image`,`u`.`pen_name` AS `pen_name`,`u`.`openid` AS `openid`,`u`.`unionid` AS `unionid`,`u`.`sex` AS `sex`,`u`.`match_start_age` AS `match_start_age`,`u`.`match_end_age` AS `match_end_age`,`u`.`birthday_year` AS `birthday_year`,if(`u`.`birthday_year`,(date_format(now(),'%Y') - `u`.`birthday_year`),0) AS `age`,`u`.`birthday` AS `birthday`,`u`.`phone` AS `phone`,`u`.`email` AS `email`,`u`.`province` AS `province`,`u`.`city` AS `city`,`u`.`country` AS `country`,`u`.`street` AS `street`,`u`.`address` AS `address`,`u`.`zipcode` AS `zipcode`,`u`.`introduce` AS `introduce`,`u`.`last_ip` AS `last_ip`,`u`.`remark` AS `remark`,`u`.`use_status` AS `use_status`,`u`.`comment_status` AS `comment_status`,`u`.`search_status` AS `search_status`,`u`.`anonymous` AS `anonymous`,(select count(distinct `ucl`.`user_id`) from `biu_user_collects` `ucl` where ((`u`.`id` = `ucl`.`relate_id`) and (`ucl`.`deleted_at` is null))) AS `collect_num`,`u`.`last_login` AS `last_login`,`u`.`sort_time` AS `sort_time`,`u`.`created_at` AS `created_at`,`u`.`updated_at` AS `updated_at`,`u`.`deleted_at` AS `deleted_at`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 1) and (`ui`.`deleted_at` is null))) AS `self_interest`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 2) and (`ui`.`deleted_at` is null))) AS `search_interest`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 1) and (`uc`.`deleted_at` is null))) AS `self_communicate`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 2) and (`uc`.`deleted_at` is null))) AS `search_communicate`,(select group_concat(distinct '\'',`us`.`sex`,'\'' separator ',') from `biu_user_sexes` `us` where ((`u`.`id` = `us`.`user_id`) and (`us`.`deleted_at` is null))) AS `search_sex` from `biu_users` `u` where (`u`.`deleted_at` is null) ;

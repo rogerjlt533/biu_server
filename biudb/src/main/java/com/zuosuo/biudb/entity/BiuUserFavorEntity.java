@@ -7,16 +7,20 @@ import org.apache.ibatis.type.Alias;
 
 import java.util.Date;
 
-@Alias("BiuUserCollectEntity")
-public class BiuUserCollectEntity extends BaseEntity {
+@Alias("BiuUserFavorEntity")
+public class BiuUserFavorEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     private long id;
     @EntityProperty(comment = "用户ID")
     private long userId = 0;
-    @EntityProperty(comment = "被收藏用户ID")
+    @EntityProperty(comment = "被点赞的用户ID")
     private long relateId = 0;
+    @EntityProperty(comment = "信ID")
+    private long noteId = 0;
+    @EntityProperty(comment = "评论ID")
+    private long commentId = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -46,6 +50,22 @@ public class BiuUserCollectEntity extends BaseEntity {
 
     public void setRelateId(long relateId) {
         this.relateId = relateId;
+    }
+
+    public long getNoteId() {
+        return noteId;
+    }
+
+    public void setNoteId(long noteId) {
+        this.noteId = noteId;
+    }
+
+    public long getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(long commentId) {
+        this.commentId = commentId;
     }
 
     public Date getCreatedAt() {

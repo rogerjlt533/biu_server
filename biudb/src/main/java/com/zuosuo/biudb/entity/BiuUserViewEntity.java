@@ -45,7 +45,6 @@ public class BiuUserViewEntity extends BaseEntity {
     private int matchEndAge = 0;
     @EntityProperty(comment = "出生年份")
     private int birthdayYear = 0;
-    @EntityProperty(comment = "年龄")
     private int age = 0;
     @EntityProperty(comment = "联系电话")
     private String phone = "";
@@ -77,21 +76,17 @@ public class BiuUserViewEntity extends BaseEntity {
     private int searchStatus = 0;
     @EntityProperty(comment = "匿名状态 1-开启 0-关闭")
     private int anonymous = 0;
+    private int collectNum = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
     @EntityProperty(comment = "排序时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date sortTime;
-    @EntityProperty(comment = "自有兴趣")
     private String selfInterest = "";
-    @EntityProperty(comment = "搜索兴趣")
     private String searchInterest = "";
-    @EntityProperty(comment = "自有联系方式")
     private String selfCommunicate = "";
-    @EntityProperty(comment = "搜索联系方式")
     private String searchCommunicate = "";
-    @EntityProperty(comment = "搜索性别")
     private String searchSex = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
@@ -310,6 +305,14 @@ public class BiuUserViewEntity extends BaseEntity {
 
     public void setAnonymous(int anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public int getCollectNum() {
+        return collectNum;
+    }
+
+    public void setCollectNum(int collectNum) {
+        this.collectNum = collectNum;
     }
 
     public Date getLastLogin() {
