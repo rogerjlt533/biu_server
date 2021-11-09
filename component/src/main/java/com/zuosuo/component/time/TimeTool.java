@@ -49,6 +49,9 @@ public class TimeTool {
     }
 
     public static final String friendlyTime(Date date) {
+        if (date == null) {
+            return "";
+        }
         Date now = new Date();
         long discTime = (now.getTime() - date.getTime()) / 1000;
         if (discTime < 0) {
@@ -61,8 +64,6 @@ public class TimeTool {
             return "刚刚";
         } else if(discMinutes < 60) {
             return discMinutes + "分钟前";
-        } else if(discHours < 6) {
-            return discHours + "小时前";
         } else if(discDays == 0) {
             return discHours + "小时前";
         } else if(discDays < 7) {

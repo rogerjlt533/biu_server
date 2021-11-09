@@ -11,11 +11,14 @@ import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
 import com.zuosuo.treehole.result.UserResult;
+import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.UserService;
+import com.zuosuo.treehole.tool.HashTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class UserProcessor {
@@ -24,6 +27,10 @@ public class UserProcessor {
     private UserService userService;
     @Autowired
     private BiuDbFactory biuDbFactory;
+    @Autowired
+    private HashTool hashTool;
+    @Autowired
+    private AreaService areaService;
 
     /**
      * 更新用户信息
@@ -100,7 +107,24 @@ public class UserProcessor {
 
     private List<UserResult> processList(List<BiuUserViewEntity> list, BiuUserViewEntity user) {
         List<UserResult> result = new ArrayList<>();
-        // TODO: 处理用户信息
+        list.forEach(item -> {
+            UserResult unit = new UserResult();
+            unit.setId(hashTool.getHashids(4).encode(item.getId()));
+            unit.setName(item.getNick());
+            unit.setAge(item.getAge());
+            unit.setIntroduce(item.getIntroduce());
+            unit.setProvince(areaService.getArea(item.getProvince()));
+            unit.setSex(item.getSexTag());
+            unit.setSortTime(TimeTool.friendlyTime(item.getSortTime()));
+            unit.setImages(userService.getUserImageList(item.getId()));
+            unit.setInterests(userService.getUserInterestList(item.getId()));
+            if (item.getSelfCommunicate() != null) {
+                unit.setCommunicates(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().map(e -> Integer.parseInt(e)).collect(Collectors.toList()));
+            } else {
+                unit.setCommunicates(new ArrayList<>());
+            }
+            result.add(unit);
+        });
         return result;
     }
 }

@@ -51,13 +51,13 @@ public class BiuUserViewEntity extends BaseEntity {
     @EntityProperty(comment = "联系邮箱")
     private String email = "";
     @EntityProperty(comment = "所在省份")
-    private long province = 0;
+    private String province = "";
     @EntityProperty(comment = "所在城市")
-    private long city = 0;
+    private String city = "";
     @EntityProperty(comment = "所在区县")
-    private long country = 0;
+    private String country = "";
     @EntityProperty(comment = "所在街道")
-    private long street = 0;
+    private String street = "";
     @EntityProperty(comment = "具体地址")
     private String address = "";
     @EntityProperty(comment = "邮编")
@@ -207,35 +207,35 @@ public class BiuUserViewEntity extends BaseEntity {
         this.email = email;
     }
 
-    public long getProvince() {
+    public String getProvince() {
         return province;
     }
 
-    public void setProvince(long province) {
+    public void setProvince(String province) {
         this.province = province;
     }
 
-    public long getCity() {
+    public String getCity() {
         return city;
     }
 
-    public void setCity(long city) {
+    public void setCity(String city) {
         this.city = city;
     }
 
-    public long getCountry() {
+    public String getCountry() {
         return country;
     }
 
-    public void setCountry(long country) {
+    public void setCountry(String country) {
         this.country = country;
     }
 
-    public long getStreet() {
+    public String getStreet() {
         return street;
     }
 
-    public void setStreet(long street) {
+    public void setStreet(String street) {
         this.street = street;
     }
 

@@ -25,6 +25,14 @@ public class ProviderOption {
         offset = limit = 0;
     }
 
+    public ProviderOption(List<String> conditions) {
+        this.conditions = conditions;
+        options = new HashMap<>();
+        attributes = new ArrayList<>();
+        orderbys = new ArrayList<>();
+        offset = limit = 0;
+    }
+
     public ProviderOption setOption(String name, Object value) {
         options.put(name, value);
         return this;

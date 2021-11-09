@@ -24,7 +24,7 @@ public class BiuUserInterestEntity extends BaseEntity {
     @EntityProperty(comment = "使用类别 1-自己 2-匹配笔友")
     private int useType = 0;
     @EntityProperty(comment = "兴趣爱好ID")
-    private int interestId = 0;
+    private long interestId = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -56,11 +56,11 @@ public class BiuUserInterestEntity extends BaseEntity {
         this.useType = useType;
     }
 
-    public int getInterestId() {
+    public long getInterestId() {
         return interestId;
     }
 
-    public void setInterestId(int interestId) {
+    public void setInterestId(long interestId) {
         this.interestId = interestId;
     }
 
