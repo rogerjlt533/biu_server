@@ -17,12 +17,6 @@ public class UserService {
 
     @Autowired
     private BiuDbFactory biuDbFactory;
-    @Autowired
-    private UserCollectService userCollectService;
-
-    public UserCollectService getUserCollectService() {
-        return userCollectService;
-    }
 
     public BiuUserEntity getUserByOpenid(String openid) {
         ProviderOption option = new ProviderOption();
@@ -76,13 +70,5 @@ public class UserService {
             return new ArrayList<>();
         }
         return interests.stream().map(BiuInterestEntity::getTag).collect(Collectors.toList());
-    }
-
-    public boolean isCollected(long userId, long relateId) {
-        ProviderOption option = new ProviderOption();
-        option.addCondition("user_id", userId);
-        option.addCondition("relate_id", relateId);
-        BiuUserCollectEntity entity = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(option);
-        return entity != null ? true : false;
     }
 }

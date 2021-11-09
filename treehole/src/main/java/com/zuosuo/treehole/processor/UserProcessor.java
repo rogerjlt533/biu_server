@@ -12,6 +12,7 @@ import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
 import com.zuosuo.treehole.result.UserResult;
 import com.zuosuo.treehole.service.AreaService;
+import com.zuosuo.treehole.service.UserCollectService;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.tool.HashTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class UserProcessor {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserCollectService userCollectService;
     @Autowired
     private BiuDbFactory biuDbFactory;
     @Autowired
@@ -124,7 +127,7 @@ public class UserProcessor {
                 unit.setCommunicates(new ArrayList<>());
             }
             if (user != null) {
-                unit.setIsCollect(userService.isCollected(user.getId(), item.getId()) ? 1 : 0);
+                unit.setIsCollect(userCollectService.isCollected(user.getId(), item.getId()) ? 1 : 0);
             }
             result.add(unit);
         });

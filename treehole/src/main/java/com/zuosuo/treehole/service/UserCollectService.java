@@ -1,10 +1,12 @@
 package com.zuosuo.treehole.service;
 
+import com.zuosuo.biudb.entity.BiuUserCollectEntity;
 import com.zuosuo.biudb.entity.BiuUserEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.cache.redis.ListOperator;
 import com.zuosuo.component.tool.JsonTool;
+import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.task.UserCollectInput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +42,13 @@ public class UserCollectService {
             return false;
         }
         return pushUserCollect(user, relate, time);
+    }
+
+    public boolean isCollected(long userId, long relateId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("relate_id", relateId);
+        BiuUserCollectEntity entity = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(option);
+        return entity != null ? true : false;
     }
 }
