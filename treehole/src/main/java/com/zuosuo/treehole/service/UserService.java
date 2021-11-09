@@ -4,15 +4,12 @@ import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
-import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Component("UserService")
@@ -82,10 +79,10 @@ public class UserService {
     }
 
     public boolean isCollected(long userId, long relateId) {
-        BiuUserCollectEntity entity = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(new ProviderOption(new ArrayList<String>() {{
-            add("user_id=" + userId);
-            add("relate_id=" + relateId);
-        }}));
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("relate_id", relateId);
+        BiuUserCollectEntity entity = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(option);
         return entity != null ? true : false;
     }
 }
