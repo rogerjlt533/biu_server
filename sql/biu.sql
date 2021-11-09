@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80026
 File Encoding         : 65001
 
-Date: 2021-11-08 11:18:51
+Date: 2021-11-09 15:05:25
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -362,10 +362,10 @@ CREATE TABLE `biu_users` (
   `birthday` date DEFAULT NULL COMMENT '出生日期',
   `phone` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系电话',
   `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系邮箱',
-  `province` bigint NOT NULL DEFAULT '0' COMMENT '所在省份',
-  `city` bigint NOT NULL DEFAULT '0' COMMENT '所在城市',
-  `country` bigint NOT NULL DEFAULT '0' COMMENT '所在区县',
-  `street` bigint NOT NULL DEFAULT '0' COMMENT '所在街道',
+  `province` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '所在省份',
+  `city` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '所在城市',
+  `country` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '所在区县',
+  `street` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '所在街道',
   `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '具体地址',
   `zipcode` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '邮编',
   `introduce` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户简介',
@@ -386,8 +386,8 @@ CREATE TABLE `biu_users` (
 -- ----------------------------
 -- Records of biu_users
 -- ----------------------------
-INSERT INTO `biu_users` VALUES ('1', '163540553661168', '123nick', 'image1234', '', '123', '123uuu', '0', '0', '0', '1995', null, '', '', '0', '0', '0', '0', '', '', '', '192.168.0.139', '', '0', '0', '0', '0', '2021-10-28 15:18:56', null, '2021-10-28 15:18:57', '2021-11-05 17:01:21', null);
-INSERT INTO `biu_users` VALUES ('2', '163540553661169', '1234nick', 'image12345', '', '1234', '1234uuu', '0', '0', '0', '0', null, '', '', '0', '0', '0', '0', '', '', '', '192.168.0.139', '', '0', '0', '0', '0', '2021-10-28 15:18:56', null, '2021-10-28 15:18:57', '2021-10-28 15:30:22', null);
+INSERT INTO `biu_users` VALUES ('1', '163540553661168', '123nick', 'image1234', '', '123', '123uuu', '0', '0', '0', '1995', null, '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '0', '0', '0', '0', '2021-10-28 15:18:56', '2021-11-09 13:34:56', '2021-10-28 15:18:57', '2021-11-09 13:34:56', null);
+INSERT INTO `biu_users` VALUES ('2', '163540553661169', '1234nick', 'image12345', '', '1234', '1234uuu', '0', '0', '0', '0', null, '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '0', '0', '0', '0', '2021-10-28 15:18:56', '2021-11-09 13:34:56', '2021-10-28 15:18:57', '2021-11-09 13:34:56', null);
 
 -- ----------------------------
 -- View structure for biu_hole_note_views
