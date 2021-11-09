@@ -4,6 +4,7 @@ import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -78,5 +79,13 @@ public class UserService {
             return new ArrayList<>();
         }
         return interests.stream().map(BiuInterestEntity::getTag).collect(Collectors.toList());
-}
+    }
+
+    public boolean isCollected(long userId, long relateId) {
+        BiuUserCollectEntity entity = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(new ProviderOption(new ArrayList<String>() {{
+            add("user_id=" + userId);
+            add("relate_id=" + relateId);
+        }}));
+        return entity != null ? true : false;
+    }
 }

@@ -123,6 +123,7 @@ public class UserProcessor {
             } else {
                 unit.setCommunicates(new ArrayList<>());
             }
+            unit.setIsCollect(userService.isCollected(user.getId(), item.getId()) ? 1 : 0);
             result.add(unit);
         });
         return result;

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class UserResult {
     private String id = "", name = "", introduce = "", province = "", sex = "", sortTime = "";
-    private int age = 0, useEmail = 0, useLetter = 0;
+    private int age = 0, isCollect = 0;
     private List<String> images, interests;
     private List<Integer> communicates;
 
@@ -70,20 +70,12 @@ public class UserResult {
         this.age = age;
     }
 
-    public int getUseEmail() {
-        return useEmail;
+    public int getIsCollect() {
+        return isCollect;
     }
 
-    public void setUseEmail(int useEmail) {
-        this.useEmail = useEmail;
-    }
-
-    public int getUseLetter() {
-        return useLetter;
-    }
-
-    public void setUseLetter(int useLetter) {
-        this.useLetter = useLetter;
+    public void setIsCollect(int isCollect) {
+        this.isCollect = isCollect;
     }
 
     public List<String> getImages() {
