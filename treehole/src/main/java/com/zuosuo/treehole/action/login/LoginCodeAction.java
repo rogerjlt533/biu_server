@@ -34,6 +34,9 @@ public class LoginCodeAction extends BaseAction {
         if (session == null) {
             return new JsonDataResult<>("授权失败");
         }
+        if (session.getOpenid() == null) {
+            return new JsonDataResult<>("授权失败!");
+        }
         FuncResult loginResult = wechatProcessor.loginCode(request, session);
         if (!loginResult.isStatus()) {
             return new JsonDataResult<>("登录失败");
