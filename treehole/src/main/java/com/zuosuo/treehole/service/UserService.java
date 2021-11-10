@@ -37,8 +37,8 @@ public class UserService {
     public void setUserSortTime(long id) {
         ProviderOption option = new ProviderOption();
         option.addCondition("id", id);
-        option.addCondition("DATE_FORMAT(NOW(),'%Y-%m-%d')!=DATE_FORMAT(sort_time,'%Y-%m-%d')");
-        option.setAttribute("'sort_time'", TimeTool.formatDate(new Date()));
+        option.addCondition("DATE_FORMAT(NOW(),'%Y-%m-%d')!=(IF(sort_time,DATE_FORMAT(sort_time,'%Y-%m-%d'),''))");
+        option.setAttribute("sort_time", TimeTool.formatDate(new Date()));
         biuDbFactory.getUserDbFactory().getBiuUserImpl().modify(option);
     }
 

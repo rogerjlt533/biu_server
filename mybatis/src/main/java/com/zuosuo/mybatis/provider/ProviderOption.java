@@ -79,7 +79,7 @@ public class ProviderOption {
         if (!direct) {
             content = "'" + value + "'";
         }
-        attributes.add(name + "=" + content);
+        conditions.add(name + "=" + content);
         return this;
     }
 

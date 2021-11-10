@@ -15,7 +15,6 @@ public class WechatMiniTool {
     public static final String SESSION_CODE_URL = "https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code";
 
     public static SessionInfo code2Session(String code, WechatConfig config) {
-//        return new SessionInfo(0, "", "123", "123kk", "123uuu");
         String url = SESSION_CODE_URL.replace("APPID", config.appid()).replace("SECRET", config.appsecret()).replace("JSCODE", code);
         FuncResult result = HttpTool.get(url);
         if (!result.isStatus()) {
@@ -28,7 +27,12 @@ public class WechatMiniTool {
         } catch (IOException e) {
             return null;
         }
+//        content = "{\"session_key\":\"1122\",\"openid\":\"1122\"}";
         JSONObject obj = JSONObject.parseObject(content);
-        return new SessionInfo(obj.getInteger("errcode"), obj.getString("errmsg"), obj.getString("openid"), obj.getString("session_key"), obj.getString("unionid"));
+        int errcode = obj.getInteger("errcode") != null ? obj.getInteger("errcode") : 0;
+        String errmsg = obj.getString("errmsg") != null ? obj.getString("errmsg") : "";
+        String openid = obj.getString("openid") != null ? obj.getString("openid") : "";
+        String session_key = obj.getString("session_key") != null ? obj.getString("session_key") : "";
+        return new SessionInfo(errcode, errmsg, openid, session_key, "");
     }
 }
