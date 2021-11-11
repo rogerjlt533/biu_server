@@ -126,7 +126,7 @@ public interface BaseProvider<T extends BaseEntity> {
                 LIMIT(options.getLimit());
             }
         }}.toString();
-        System.out.println(sql);
+//        System.out.println(sql);
         return sql;
     }
 
