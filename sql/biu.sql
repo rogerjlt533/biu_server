@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80026
 File Encoding         : 65001
 
-Date: 2021-11-09 15:05:25
+Date: 2021-11-11 13:58:25
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -358,8 +358,6 @@ CREATE TABLE `biu_users` (
   `sex` tinyint NOT NULL DEFAULT '0' COMMENT '性别 1-男 2-女',
   `match_start_age` tinyint NOT NULL DEFAULT '0' COMMENT '匹配起始年龄(周岁)',
   `match_end_age` tinyint NOT NULL DEFAULT '0' COMMENT '匹配终止年龄(周岁)',
-  `birthday_year` int NOT NULL DEFAULT '0' COMMENT '出生年月',
-  `birthday` date DEFAULT NULL COMMENT '出生日期',
   `phone` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系电话',
   `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '联系邮箱',
   `province` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '所在省份',
@@ -380,14 +378,17 @@ CREATE TABLE `biu_users` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
+  `birthday_year` int NOT NULL DEFAULT '0' COMMENT '出生年份',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- ----------------------------
 -- Records of biu_users
 -- ----------------------------
-INSERT INTO `biu_users` VALUES ('1', '163540553661168', '123nick', 'image1234', '', '123', '123uuu', '0', '0', '0', '1995', null, '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '0', '0', '0', '0', '2021-10-28 15:18:56', '2021-11-09 13:34:56', '2021-10-28 15:18:57', '2021-11-09 13:34:56', null);
-INSERT INTO `biu_users` VALUES ('2', '163540553661169', '1234nick', 'image12345', '', '1234', '1234uuu', '0', '0', '0', '0', null, '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '0', '0', '0', '0', '2021-10-28 15:18:56', '2021-11-09 13:34:56', '2021-10-28 15:18:57', '2021-11-09 13:34:56', null);
+INSERT INTO `biu_users` VALUES ('1', '163540553661168', '123nick', 'image1234', '', '123', '123uuu', '0', '16', '50', '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '1', '0', '1', '0', '2021-10-28 15:18:56', '2021-11-11 13:49:59', '2021-10-28 15:18:57', '2021-11-11 13:49:59', null, '1995');
+INSERT INTO `biu_users` VALUES ('2', '163540553661169', '1234nick', 'image12345', '', '1234', '1234uuu', '0', '13', '20', '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '1', '0', '1', '0', '2021-10-28 15:18:56', '2021-11-11 13:35:59', '2021-10-28 15:18:57', '2021-11-11 13:35:59', null, '0');
+INSERT INTO `biu_users` VALUES ('3', '163652756061167', '12345nick', '', '', '1121', '', '0', '30', '40', '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '1', '0', '1', '0', '2021-11-10 14:59:20', '2021-11-11 13:54:41', '2021-11-10 14:59:20', '2021-11-11 13:54:41', null, '1995');
+INSERT INTO `biu_users` VALUES ('4', '163652820461166', '12346nick', '', '', '1122', '', '0', '0', '0', '', '', '', '', '', '', '', '', '', '192.168.0.139', '', '1', '0', '1', '0', '2021-11-10 15:10:05', '2021-11-11 13:52:54', '2021-11-10 15:10:04', '2021-11-11 13:52:54', null, '1985');
 
 -- ----------------------------
 -- View structure for biu_hole_note_views
@@ -399,4 +400,4 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_hol
 -- View structure for biu_user_views
 -- ----------------------------
 DROP VIEW IF EXISTS `biu_user_views`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_user_views` AS select `u`.`id` AS `id`,`u`.`username` AS `username`,`u`.`nick` AS `nick`,`u`.`image` AS `image`,`u`.`pen_name` AS `pen_name`,`u`.`openid` AS `openid`,`u`.`unionid` AS `unionid`,`u`.`sex` AS `sex`,`u`.`match_start_age` AS `match_start_age`,`u`.`match_end_age` AS `match_end_age`,`u`.`birthday_year` AS `birthday_year`,if(`u`.`birthday_year`,(date_format(now(),'%Y') - `u`.`birthday_year`),0) AS `age`,`u`.`birthday` AS `birthday`,`u`.`phone` AS `phone`,`u`.`email` AS `email`,`u`.`province` AS `province`,`u`.`city` AS `city`,`u`.`country` AS `country`,`u`.`street` AS `street`,`u`.`address` AS `address`,`u`.`zipcode` AS `zipcode`,`u`.`introduce` AS `introduce`,`u`.`last_ip` AS `last_ip`,`u`.`remark` AS `remark`,`u`.`use_status` AS `use_status`,`u`.`comment_status` AS `comment_status`,`u`.`search_status` AS `search_status`,`u`.`anonymous` AS `anonymous`,(select count(distinct `ucl`.`user_id`) from `biu_user_collects` `ucl` where ((`u`.`id` = `ucl`.`relate_id`) and (`ucl`.`deleted_at` is null))) AS `collect_num`,`u`.`last_login` AS `last_login`,`u`.`sort_time` AS `sort_time`,`u`.`created_at` AS `created_at`,`u`.`updated_at` AS `updated_at`,`u`.`deleted_at` AS `deleted_at`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 1) and (`ui`.`deleted_at` is null))) AS `self_interest`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 2) and (`ui`.`deleted_at` is null))) AS `search_interest`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 1) and (`uc`.`deleted_at` is null))) AS `self_communicate`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 2) and (`uc`.`deleted_at` is null))) AS `search_communicate`,(select group_concat(distinct '\'',`us`.`sex`,'\'' separator ',') from `biu_user_sexes` `us` where ((`u`.`id` = `us`.`user_id`) and (`us`.`deleted_at` is null))) AS `search_sex` from `biu_users` `u` where (`u`.`deleted_at` is null) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`%` SQL SECURITY DEFINER VIEW `biu_user_views` AS select `u`.`id` AS `id`,`u`.`username` AS `username`,`u`.`nick` AS `nick`,`u`.`image` AS `image`,`u`.`pen_name` AS `pen_name`,`u`.`openid` AS `openid`,`u`.`unionid` AS `unionid`,`u`.`sex` AS `sex`,`u`.`match_start_age` AS `match_start_age`,`u`.`match_end_age` AS `match_end_age`,`u`.`phone` AS `phone`,`u`.`email` AS `email`,`u`.`province` AS `province`,`u`.`city` AS `city`,`u`.`country` AS `country`,`u`.`street` AS `street`,`u`.`address` AS `address`,`u`.`zipcode` AS `zipcode`,`u`.`introduce` AS `introduce`,`u`.`last_ip` AS `last_ip`,`u`.`remark` AS `remark`,`u`.`use_status` AS `use_status`,`u`.`comment_status` AS `comment_status`,`u`.`search_status` AS `search_status`,`u`.`anonymous` AS `anonymous`,`u`.`last_login` AS `last_login`,`u`.`sort_time` AS `sort_time`,`u`.`created_at` AS `created_at`,`u`.`updated_at` AS `updated_at`,`u`.`deleted_at` AS `deleted_at`,`u`.`birthday_year` AS `birthday_year`,if(`u`.`birthday_year`,(date_format(now(),'%Y') - `u`.`birthday_year`),0) AS `age`,(select count(distinct `ucl`.`user_id`) from `biu_user_collects` `ucl` where ((`u`.`id` = `ucl`.`relate_id`) and (`ucl`.`deleted_at` is null))) AS `collect_num`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 1) and (`ui`.`deleted_at` is null))) AS `self_interest`,(select group_concat(distinct '\'',`ui`.`interest_id`,'\'' separator ',') from `biu_user_interests` `ui` where ((`u`.`id` = `ui`.`user_id`) and (`ui`.`use_type` = 2) and (`ui`.`deleted_at` is null))) AS `search_interest`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 1) and (`uc`.`deleted_at` is null))) AS `self_communicate`,(select group_concat(distinct '\'',`uc`.`com_method`,'\'' separator ',') from `biu_user_communicates` `uc` where ((`u`.`id` = `uc`.`user_id`) and (`uc`.`use_type` = 2) and (`uc`.`deleted_at` is null))) AS `search_communicate`,(select group_concat(distinct '\'',`us`.`sex`,'\'' separator ',') from `biu_user_sexes` `us` where ((`u`.`id` = `us`.`user_id`) and (`us`.`deleted_at` is null))) AS `search_sex` from `biu_users` `u` where (`u`.`deleted_at` is null) ;

@@ -78,6 +78,11 @@ public abstract class AbstractImpl<T extends BaseEntity, M extends BaseMapper, P
         return getMapper().list(options);
     }
 
+    public long count(ProviderOption options) {
+        Map<String, Object> result = getMapper().count(options);
+        return (long) result.getOrDefault("ts_count", 0L);
+    }
+
     public Map<String, Object> executeRow(String sql) {
         return getMapper().executeRow(sql);
     }

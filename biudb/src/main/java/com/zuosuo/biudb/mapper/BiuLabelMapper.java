@@ -7,6 +7,7 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BiuLabelMapper extends BaseMapper<BiuLabelEntity> {
@@ -30,4 +31,6 @@ public interface BiuLabelMapper extends BaseMapper<BiuLabelEntity> {
     BiuLabelEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuLabelProvider.class, method = "list")
     List<BiuLabelEntity> list(@Param("options") ProviderOption options);
+    @SelectProvider(type = BiuLabelProvider.class, method = "count")
+    Map<String, Object> count(@Param("options") ProviderOption options);
 }

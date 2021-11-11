@@ -60,9 +60,13 @@ public abstract class AbstractSoftDeleteProvider<T extends BaseEntity> extends A
 
     protected void softDeleteCondition(ProviderOption options) {
         if (options.getStatus() == CheckStatusEnum.NORMAL.getValue()) {
-            options.getConditions().add(ProviderTool.normal());
+            if (!options.getConditions().contains(ProviderTool.normal())) {
+                options.getConditions().add(ProviderTool.normal());
+            }
         } else if(options.getStatus() == CheckStatusEnum.DELETED.getValue()) {
-            options.getConditions().add(ProviderTool.deleted());
+            if (!options.getConditions().contains(ProviderTool.deleted())) {
+                options.getConditions().add(ProviderTool.deleted());
+            }
         }
     }
 
@@ -78,5 +82,12 @@ public abstract class AbstractSoftDeleteProvider<T extends BaseEntity> extends A
         ProviderOption options = (ProviderOption) params.get("options");
         softDeleteCondition(options);
         return super.list(params);
+    }
+
+    @Override
+    public String count(Map<String, Object> params) {
+        ProviderOption options = (ProviderOption) params.get("options");
+        softDeleteCondition(options);
+        return super.count(params);
     }
 }

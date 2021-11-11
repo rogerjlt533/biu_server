@@ -19,6 +19,7 @@ public interface BaseMapper<T> {
     long restoreAll(@Param("options") ProviderOption options);
     T single(@Param("options") ProviderOption options);
     List<T> list(@Param("options") ProviderOption options);
+    Map<String, Object> count(@Param("options") ProviderOption options);
     @Select({"${sql}"})
     @ResultType(Map.class)
     Map<String, Object> executeRow(@Param("sql") String sql);

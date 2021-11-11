@@ -57,7 +57,7 @@ public class UserService {
     public List<String> getUserInterestList(long userId) {
         List<BiuUserInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().list(new ProviderOption(new ArrayList<String>(){{
             add("user_id=" + userId);
-            add("user_type=" + BiuUserInterestEntity.USE_TYPE_SELF );
+            add("use_type=" + BiuUserInterestEntity.USE_TYPE_SELF );
         }}));
         if (list.isEmpty()) {
             return new ArrayList<>();

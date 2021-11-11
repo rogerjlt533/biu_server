@@ -112,7 +112,7 @@ public interface BaseProvider<T extends BaseEntity> {
         ProviderOption options = (ProviderOption) params.get("options");
         String[] conditions = options.getConditions().toArray(new String[]{});
         String[] orderbyList = options.getOrderbys().toArray(new String[]{});
-        return new SQL() {{
+        String sql = new SQL() {{
             SELECT(options.getColumns());
             FROM(getTable());
             if (conditions.length > 0) {
@@ -126,5 +126,21 @@ public interface BaseProvider<T extends BaseEntity> {
                 LIMIT(options.getLimit());
             }
         }}.toString();
+        System.out.println(sql);
+        return sql;
+    }
+
+    default String count(Map<String, Object> params) {
+        ProviderOption options = (ProviderOption) params.get("options");
+        String[] conditions = options.getConditions().toArray(new String[]{});
+        String sql = new SQL() {{
+            SELECT("count(*) as ts_count");
+            FROM(getTable());
+            if (conditions.length > 0) {
+                WHERE(conditions);
+            }
+        }}.toString();
+//        System.out.println(sql);
+        return sql;
     }
 }

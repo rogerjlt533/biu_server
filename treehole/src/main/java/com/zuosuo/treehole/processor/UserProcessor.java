@@ -3,9 +3,11 @@ package com.zuosuo.treehole.processor;
 import com.zuosuo.biudb.entity.BiuUserEntity;
 import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.biudb.impl.BiuUserViewImpl;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeTool;
+import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
@@ -86,20 +88,28 @@ public class UserProcessor {
             if (communicates.length > 0) {
                 List<String> communicateCondition = new ArrayList<>();
                 for (String communicate: communicates) {
-                    communicateCondition.add("FIND_IN_SET(" + communicate + ", self_communicate)");
+                    if (!communicate.isEmpty()) {
+                        communicateCondition.add("FIND_IN_SET(" + communicate + ", self_communicate)");
+                    }
                 }
-                option.addCondition("(" + String.join(" or ", communicateCondition) + ")");
+                if (!communicateCondition.isEmpty()) {
+                    option.addCondition("(" + String.join(" or ", communicateCondition) + ")");
+                }
             }
+        } else {
+            option.addCondition("(age=0 or ISNULL(search_sex))");
         }
         // 两个月内登录的
-        option.addCondition("sort_time>=" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setMonth(-2))));
+        option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setMonth(-2))) + "'");
         option.addOrderby("sort_time desc");
         option.setOffset(PageTool.getOffset(bean.getPage(), PageTool.DEFAULT_SIZE));
         option.setLimit(PageTool.DEFAULT_SIZE);
-        List<BiuUserViewEntity> list = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().list(option);
+        BiuUserViewImpl impl = biuDbFactory.getUserDbFactory().getBiuUserViewImpl();
+        List<BiuUserViewEntity> list = impl.list(option);
         Map<String, Object> result = new HashMap<>();
         result.put("page", PageTool.parsePage(bean.getPage()));
         result.put("size", bean.getSize());
+        result.put("count", impl.count(option));
         if (list.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
@@ -121,7 +131,7 @@ public class UserProcessor {
             unit.setSortTime(TimeTool.friendlyTime(item.getSortTime()));
             unit.setImages(userService.getUserImageList(item.getId()));
             unit.setInterests(userService.getUserInterestList(item.getId()));
-            if (item.getSelfCommunicate() != null) {
+            if (item.getSelfCommunicate() != null && !item.getSelfCommunicate().isEmpty()) {
                 unit.setCommunicates(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().map(e -> Integer.parseInt(e)).collect(Collectors.toList()));
             } else {
                 unit.setCommunicates(new ArrayList<>());

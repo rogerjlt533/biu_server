@@ -7,6 +7,7 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BiuHoleNoteViewMapper extends BaseMapper<BiuHoleNoteViewEntity> {
@@ -30,4 +31,6 @@ public interface BiuHoleNoteViewMapper extends BaseMapper<BiuHoleNoteViewEntity>
     BiuHoleNoteViewEntity single(@Param("options") ProviderOption options);
     @SelectProvider(type = BiuHoleNoteViewProvider.class, method = "list")
     List<BiuHoleNoteViewEntity> list(@Param("options") ProviderOption options);
+    @SelectProvider(type = BiuHoleNoteViewProvider.class, method = "count")
+    Map<String, Object> count(@Param("options") ProviderOption options);
 }

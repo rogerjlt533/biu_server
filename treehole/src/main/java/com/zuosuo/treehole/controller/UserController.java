@@ -46,7 +46,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/api/user/list")
-    @Login
+    @Login(open = true)
     public JsonDataResult<Map> list(HttpServletRequest request, @RequestBody UserListBean bean) {
         VerifyResult verify = bean.verify();
         if (!verify.isStatus()) {
