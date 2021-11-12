@@ -33,6 +33,24 @@ public class ProviderOption {
         offset = limit = 0;
     }
 
+    public ProviderOption(String columns, List<String> conditions) {
+        this.conditions = conditions;
+        this.columns = columns;
+        options = new HashMap<>();
+        attributes = new ArrayList<>();
+        orderbys = new ArrayList<>();
+        offset = limit = 0;
+    }
+
+    public ProviderOption(String columns) {
+        this.columns = columns;
+        conditions = new ArrayList<>();
+        options = new HashMap<>();
+        attributes = new ArrayList<>();
+        orderbys = new ArrayList<>();
+        offset = limit = 0;
+    }
+
     public ProviderOption setOption(String name, Object value) {
         options.put(name, value);
         return this;

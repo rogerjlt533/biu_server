@@ -1,6 +1,8 @@
 package com.zuosuo.treehole.processor;
 
+import com.zuosuo.biudb.entity.BiuInterestEntity;
 import com.zuosuo.biudb.entity.BiuUserEntity;
+import com.zuosuo.biudb.entity.BiuUserInterestEntity;
 import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.BiuUserViewImpl;
@@ -12,6 +14,7 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
+import com.zuosuo.treehole.result.UserInterestResult;
 import com.zuosuo.treehole.result.UserResult;
 import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.UserCollectService;
@@ -54,6 +57,12 @@ public class UserProcessor {
         return new FuncResult(true);
     }
 
+    /**
+     * 获取用户信息列表
+     * @param id
+     * @param bean
+     * @return
+     */
     public FuncResult getList(long id, UserListBean bean) {
         BiuUserViewEntity user = userService.getUserView(id);
         ProviderOption option = new ProviderOption();
@@ -118,6 +127,12 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
+    /**
+     * 处理用户列表信息
+     * @param list
+     * @param user
+     * @return
+     */
     private List<UserResult> processList(List<BiuUserViewEntity> list, BiuUserViewEntity user) {
         List<UserResult> result = new ArrayList<>();
         list.forEach(item -> {
@@ -142,5 +157,30 @@ public class UserProcessor {
             result.add(unit);
         });
         return result;
+    }
+
+    /**
+     * 获取用户爱好列表
+     * @param userId
+     * @return
+     */
+    public FuncResult getUserInterestList(long userId) {
+        List<UserInterestResult> outList = new ArrayList<>();
+        List<BiuUserInterestEntity> userInterests = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().list(new ProviderOption("interest_id", new ArrayList<String>(){{
+            add("use_type=" + BiuUserInterestEntity.USE_TYPE_SELF);
+            add("user_id=" + userId);
+        }}));
+        List<Long> myInterests = userInterests.stream().map(BiuUserInterestEntity::getInterestId).collect(Collectors.toList());
+        List<BiuInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption());
+        Map<String, Object> result = new HashMap<>();
+        if (list.isEmpty()) {
+            return new FuncResult(false, "无对应记录");
+        }
+        list.forEach(item -> {
+            int checked = myInterests.contains(item.getId()) ? 1 : 0;
+            outList.add(new UserInterestResult(item.getId(), item.getTag(), checked));
+        });
+        result.put("list", outList);
+        return new FuncResult(true, "", result);
     }
 }
