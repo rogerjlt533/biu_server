@@ -88,6 +88,7 @@ public class BiuUserViewEntity extends BaseEntity {
     private String selfCommunicate = "";
     private String searchCommunicate = "";
     private String searchSex = "";
+    private String protectedUser = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -373,6 +374,14 @@ public class BiuUserViewEntity extends BaseEntity {
 
     public void setSearchSex(String searchSex) {
         this.searchSex = searchSex;
+    }
+
+    public String getProtectedUser() {
+        return protectedUser;
+    }
+
+    public void setProtectedUser(String protectedUser) {
+        this.protectedUser = protectedUser;
     }
 
     public Date getCreatedAt() {

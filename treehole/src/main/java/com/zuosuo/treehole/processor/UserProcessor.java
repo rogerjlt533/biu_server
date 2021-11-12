@@ -98,13 +98,14 @@ public class UserProcessor {
                 List<String> communicateCondition = new ArrayList<>();
                 for (String communicate: communicates) {
                     if (!communicate.isEmpty()) {
-                        communicateCondition.add("FIND_IN_SET(" + communicate + ", self_communicate)");
+                        communicateCondition.add("FIND_IN_SET(" + communicate + ", search_communicate)");
                     }
                 }
                 if (!communicateCondition.isEmpty()) {
                     option.addCondition("(" + String.join(" or ", communicateCondition) + ")");
                 }
             }
+            option.addCondition("!FIND_IN_SET('" + user.getId() + "', protected_user)");
         } else {
             option.addCondition("(age=0 or ISNULL(search_sex))");
         }
