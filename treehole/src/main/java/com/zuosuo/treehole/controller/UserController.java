@@ -2,6 +2,7 @@ package com.zuosuo.treehole.controller;
 
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
+import com.zuosuo.treehole.action.user.MyInfoAction;
 import com.zuosuo.treehole.action.user.UserInitUpdateInfoAction;
 import com.zuosuo.treehole.action.user.UserInterestListAction;
 import com.zuosuo.treehole.action.user.UserListAction;
@@ -10,6 +11,7 @@ import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
 import com.zuosuo.treehole.bean.VerifyResult;
 import com.zuosuo.treehole.processor.UserProcessor;
+import com.zuosuo.treehole.result.MyInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,5 +67,16 @@ public class UserController {
     @Login
     public JsonDataResult<Map> interests(HttpServletRequest request) {
         return new UserInterestListAction(request, userProcessor).run();
+    }
+
+    /**
+     * 我的信息
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/my/info")
+    @Login
+    public JsonDataResult<MyInfoResult> myInfo(HttpServletRequest request) {
+        return new MyInfoAction(request, userProcessor).run();
     }
 }

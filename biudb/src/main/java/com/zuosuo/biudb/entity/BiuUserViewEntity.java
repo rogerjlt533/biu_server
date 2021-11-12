@@ -413,10 +413,10 @@ public class BiuUserViewEntity extends BaseEntity {
         String tag;
         switch (sex) {
             case USER_SEX_MAN:
-                tag = "男";
+                tag = BiuUserEntity.LABEL_USER_SEX_MAN;
                 break;
             case USER_SEX_WOMEN:
-                tag = "女";
+                tag = BiuUserEntity.LABEL_USER_SEX_WOMEN;
                 break;
             default:
                 tag = "";

@@ -23,6 +23,8 @@ public class BiuUserEntity extends BaseEntity {
     public static final int ANONYMOUS_CLOSE_STATUS = 0;
     public static final int USER_SEX_MAN = 1;
     public static final int USER_SEX_WOMEN = 2;
+    public static final String LABEL_USER_SEX_MAN = "男";
+    public static final String LABEL_USER_SEX_WOMEN = "女";
 
     private long id;
     @EntityProperty(comment = "名称")
@@ -346,10 +348,10 @@ public class BiuUserEntity extends BaseEntity {
         String tag;
         switch (sex) {
             case USER_SEX_MAN:
-                tag = "男";
+                tag = BiuUserEntity.LABEL_USER_SEX_MAN;
                 break;
             case USER_SEX_WOMEN:
-                tag = "女";
+                tag = BiuUserEntity.LABEL_USER_SEX_WOMEN;
                 break;
             default:
                 tag = "";

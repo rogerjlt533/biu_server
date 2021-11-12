@@ -19,6 +19,8 @@ public class BiuUserCommunicateEntity extends BaseEntity {
     public static final int USE_TYPE_SEARCH = 2;
     public static final int COM_METHOD_LETTER = 1;
     public static final int COM_METHOD_EMAIL = 2;
+    public static final String LABEL_COM_METHOD_LETTER = "邮寄信件";
+    public static final String LABEL_COM_METHOD_EMAIL = "E-mail";
 
     private long id;
     @EntityProperty(comment = "用户ID")
