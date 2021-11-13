@@ -1,20 +1,18 @@
 package com.zuosuo.treehole.processor;
 
-import com.zuosuo.biudb.entity.BiuInterestEntity;
 import com.zuosuo.biudb.entity.BiuUserEntity;
-import com.zuosuo.biudb.entity.BiuUserInterestEntity;
 import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.BiuUserViewImpl;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeTool;
-import com.zuosuo.component.tool.JsonTool;
+import com.zuosuo.component.tool.CommonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
-import com.zuosuo.treehole.result.UserInterestResult;
+import com.zuosuo.treehole.result.MyInfoResult;
 import com.zuosuo.treehole.result.UserResult;
 import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.UserCollectService;
@@ -51,6 +49,7 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "无对应用户记录");
         }
+        user.setPenName(bean.getNick().trim());
         user.setNick(bean.getNick().trim());
         user.setImage(bean.getImage().trim());
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
@@ -139,14 +138,14 @@ public class UserProcessor {
         list.forEach(item -> {
             UserResult unit = new UserResult();
             unit.setId(hashTool.getHashids(4).encode(item.getId()));
-            unit.setName(item.getNick());
+            unit.setName(item.getPenName());
             unit.setAge(item.getAge());
             unit.setIntroduce(item.getIntroduce());
             unit.setProvince(areaService.getArea(item.getProvince()));
             unit.setSex(item.getSexTag());
             unit.setSortTime(TimeTool.friendlyTime(item.getSortTime()));
             unit.setImages(userService.getUserImageList(item.getId()));
-            unit.setInterests(userService.getUserInterestList(item.getId()));
+            unit.setInterests(userService.getUserInterestSimpleList(item.getId()));
             if (item.getSelfCommunicate() != null && !item.getSelfCommunicate().isEmpty()) {
                 unit.setCommunicates(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().map(e -> Integer.parseInt(e)).collect(Collectors.toList()));
             } else {
@@ -160,28 +159,29 @@ public class UserProcessor {
         return result;
     }
 
-    /**
-     * 获取用户爱好列表
-     * @param userId
-     * @return
-     */
-    public FuncResult getUserInterestList(long userId) {
-        List<UserInterestResult> outList = new ArrayList<>();
-        List<BiuUserInterestEntity> userInterests = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().list(new ProviderOption("interest_id", new ArrayList<String>(){{
-            add("use_type=" + BiuUserInterestEntity.USE_TYPE_SELF);
-            add("user_id=" + userId);
-        }}));
-        List<Long> myInterests = userInterests.stream().map(BiuUserInterestEntity::getInterestId).collect(Collectors.toList());
-        List<BiuInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption());
-        Map<String, Object> result = new HashMap<>();
-        if (list.isEmpty()) {
-            return new FuncResult(false, "无对应记录");
+    public FuncResult getUserInfo(long userId) {
+        BiuUserViewEntity user = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().find(userId);
+        if (user == null) {
+            return new FuncResult(false, "");
         }
-        list.forEach(item -> {
-            int checked = myInterests.contains(item.getId()) ? 1 : 0;
-            outList.add(new UserInterestResult(item.getId(), item.getTag(), checked));
-        });
-        result.put("list", outList);
+        MyInfoResult result = new MyInfoResult();
+        result.setPenName(user.getPenName());
+        result.setSex(user.getSex());
+        result.setBirthdayYear(user.getBirthdayYear());
+        result.setProvince(user.getProvince());
+        result.setCity(user.getCity());
+        result.setStreet(user.getStreet());
+        result.setCountry(user.getCountry());
+        List<Long> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
+        result.setCommunicates(communicates);
+        result.setInterests(userService.getUserInterestList(user.getId()));
+        result.setIntroduce(user.getIntroduce());
+        List<Long> searchSexes = CommonTool.parseList(user.getSearchSex() != null && !user.getSearchSex().isEmpty() ? user.getSearchSex().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
+        result.setSearchSexes(searchSexes);
+        List<Long> searchCommunicate = CommonTool.parseList(user.getSearchCommunicate() != null && !user.getSearchCommunicate().isEmpty() ? user.getSearchCommunicate().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
+        result.setSearchCommunicates(searchCommunicate);
+        result.setStartAge(user.getMatchStartAge());
+        result.setEndAge(user.getMatchEndAge());
         return new FuncResult(true, "", result);
     }
 }

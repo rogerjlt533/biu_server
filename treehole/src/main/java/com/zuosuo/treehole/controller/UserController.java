@@ -4,7 +4,6 @@ import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.user.MyInfoAction;
 import com.zuosuo.treehole.action.user.UserInitUpdateInfoAction;
-import com.zuosuo.treehole.action.user.UserInterestListAction;
 import com.zuosuo.treehole.action.user.UserListAction;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
@@ -56,17 +55,6 @@ public class UserController {
             return new JsonDataResult<>(verify.getMessage());
         }
         return new UserListAction(request, bean, userProcessor).run();
-    }
-
-    /**
-     * 用户爱好列表
-     * @param request
-     * @return
-     */
-    @PostMapping("/api/user/interests")
-    @Login
-    public JsonDataResult<Map> interests(HttpServletRequest request) {
-        return new UserInterestListAction(request, userProcessor).run();
     }
 
     /**

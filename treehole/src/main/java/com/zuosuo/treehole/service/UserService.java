@@ -2,14 +2,14 @@ package com.zuosuo.treehole.service;
 
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.treehole.result.UserInterestResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component("UserService")
@@ -54,7 +54,7 @@ public class UserService {
         return list.stream().map(BiuUserImageEntity::getFile).collect(Collectors.toList());
     }
 
-    public List<String> getUserInterestList(long userId) {
+    public List<BiuUserInterestEntity> getUserInterests(long userId) {
         List<BiuUserInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().list(new ProviderOption(new ArrayList<String>(){{
             add("user_id=" + userId);
             add("use_type=" + BiuUserInterestEntity.USE_TYPE_SELF );
@@ -62,6 +62,11 @@ public class UserService {
         if (list.isEmpty()) {
             return new ArrayList<>();
         }
+        return list;
+    }
+
+    public List<String> getUserInterestSimpleList(long userId) {
+        List<BiuUserInterestEntity> list = getUserInterests(userId);
         List<String> relates = list.stream().map(item -> String.valueOf(item.getInterestId())).collect(Collectors.toList());
         List<BiuInterestEntity> interests = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption(new ArrayList<String>(){{
             add("id in ("  + String.join(",", relates) +")");
@@ -70,5 +75,20 @@ public class UserService {
             return new ArrayList<>();
         }
         return interests.stream().map(BiuInterestEntity::getTag).collect(Collectors.toList());
+    }
+
+    public List<UserInterestResult> getUserInterestList(long userId) {
+        List<UserInterestResult> result = new ArrayList<>();
+        List<BiuUserInterestEntity> userInterests = getUserInterests(userId);
+        List<Long> myInterests = userInterests.stream().map(BiuUserInterestEntity::getInterestId).collect(Collectors.toList());
+        List<BiuInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption());
+        if (list.isEmpty()) {
+            return result;
+        }
+        list.forEach(item -> {
+            int checked = myInterests.contains(item.getId()) ? 1 : 0;
+            result.add(new UserInterestResult(item.getId(), item.getTag(), checked));
+        });
+        return result;
     }
 }
