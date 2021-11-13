@@ -182,6 +182,9 @@ public class UserProcessor {
         result.setSearchCommunicates(searchCommunicate);
         result.setStartAge(user.getMatchStartAge());
         result.setEndAge(user.getMatchEndAge());
+        result.setUseStatus(user.getUseStatus());
+        result.setSearchStatus(user.getSearchStatus());
+        result.setCommentStatus(user.getCommentStatus());
         return new FuncResult(true, "", result);
     }
 }

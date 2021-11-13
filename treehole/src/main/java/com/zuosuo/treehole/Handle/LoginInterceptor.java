@@ -9,7 +9,6 @@ import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.LoginInfoBean;
 import com.zuosuo.treehole.tool.JwtTool;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -20,11 +19,13 @@ import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.util.Date;
 
-@Component("LoginInterceptor")
 public class LoginInterceptor implements HandlerInterceptor {
 
-    @Autowired
     private BiuDbFactory biuDbFactory;
+
+    public LoginInterceptor(BiuDbFactory biuDbFactory) {
+        this.biuDbFactory = biuDbFactory;
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -43,15 +44,14 @@ public class LoginInterceptor implements HandlerInterceptor {
         if (!loginAnnotation.open() && loginInfo.getUserId() == 0) {
             return error(response, "未登录");
         }
-//        if (loginInfo.getUserId() > 0) {
-//            BiuUserEntity user = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(loginInfo.getUserId());
-//            if (user == null) {
-//                return error(response, "账号异常");
-//            }
-//            if (user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
-//                return error(response, "账号异常!");
-//            }
-//        }
+        if (loginInfo.getUserId() > 0) {
+            BiuUserEntity user = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(loginInfo.getUserId());
+            if (user == null) {
+                return error(response, "用户信息不存在");
+            } else if(user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
+                return error(response, "用户状态异常");
+            }
+        }
         request.setAttribute("user_info", loginInfo);
         return true;
     }

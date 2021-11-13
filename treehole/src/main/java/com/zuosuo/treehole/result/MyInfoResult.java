@@ -5,7 +5,7 @@ import java.util.List;
 
 public class MyInfoResult {
     private String penName = "", introduce = "", address = "", province = "", city = "", country = "", street = "";
-    private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0;
+    private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0;
     private List<String> images;
     private List<Long> communicates, searchCommunicates, searchSexes;
     private List<UserInterestResult> interests;
@@ -72,6 +72,30 @@ public class MyInfoResult {
 
     public void setEndAge(int endAge) {
         this.endAge = endAge;
+    }
+
+    public int getUseStatus() {
+        return useStatus;
+    }
+
+    public void setUseStatus(int useStatus) {
+        this.useStatus = useStatus;
+    }
+
+    public int getCommentStatus() {
+        return commentStatus;
+    }
+
+    public void setCommentStatus(int commentStatus) {
+        this.commentStatus = commentStatus;
+    }
+
+    public int getSearchStatus() {
+        return searchStatus;
+    }
+
+    public void setSearchStatus(int searchStatus) {
+        this.searchStatus = searchStatus;
     }
 
     public String getProvince() {
