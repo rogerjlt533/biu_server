@@ -29,6 +29,8 @@ public class BiuUserDbFactory {
     private BiuUserReportImpl biuUserReportImpl;
     @Autowired
     private BiuUserBlacklistImpl biuUserBlacklistImpl;
+    @Autowired
+    private BiuUserFriendImpl biuUserFriendImpl;
 
     public BiuUserImpl getBiuUserImpl() {
         return biuUserImpl;
@@ -72,5 +74,9 @@ public class BiuUserDbFactory {
 
     public BiuUserBlacklistImpl getBiuUserBlacklistImpl() {
         return biuUserBlacklistImpl;
+    }
+
+    public BiuUserFriendImpl getBiuUserFriendImpl() {
+        return biuUserFriendImpl;
     }
 }
