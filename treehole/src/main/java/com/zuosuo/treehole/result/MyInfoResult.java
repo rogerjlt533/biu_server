@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyInfoResult {
-    private String penName = "", introduce = "", address = "", province = "", city = "", country = "", street = "";
+    private String penName = "", title = "", introduce = "", address = "", province = "", city = "", country = "", street = "";
     private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0;
     private List<String> images;
     private List<Long> communicates, searchCommunicates, searchSexes;
@@ -24,6 +24,14 @@ public class MyInfoResult {
 
     public void setPenName(String penName) {
         this.penName = penName;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getIntroduce() {

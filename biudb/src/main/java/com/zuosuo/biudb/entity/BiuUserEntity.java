@@ -63,6 +63,8 @@ public class BiuUserEntity extends BaseEntity {
     private String address = "";
     @EntityProperty(comment = "邮编")
     private String zipcode = "";
+    @EntityProperty(comment = "用户简介标题")
+    private String title = "";
     @EntityProperty(comment = "用户简介")
     private String introduce = "";
     @EntityProperty(comment = "最后登录IP")
@@ -240,6 +242,14 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setZipcode(String zipcode) {
         this.zipcode = zipcode;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getIntroduce() {

@@ -140,6 +140,7 @@ public class UserProcessor {
             unit.setId(hashTool.getHashids(4).encode(item.getId()));
             unit.setName(item.getPenName());
             unit.setAge(item.getAge());
+            unit.setTitle(item.getTitle());
             unit.setIntroduce(item.getIntroduce());
             unit.setProvince(areaService.getArea(item.getProvince()));
             unit.setSex(item.getSexTag());
@@ -178,6 +179,7 @@ public class UserProcessor {
         List<Long> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
         result.setCommunicates(communicates);
         result.setInterests(userService.getUserInterestList(user.getId()));
+        result.setTitle(user.getTitle());
         result.setIntroduce(user.getIntroduce());
         List<Long> searchSexes = CommonTool.parseList(user.getSearchSex() != null && !user.getSearchSex().isEmpty() ? user.getSearchSex().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
         result.setSearchSexes(searchSexes);

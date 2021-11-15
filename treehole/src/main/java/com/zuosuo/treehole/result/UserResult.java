@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserResult {
-    private String id = "", name = "", introduce = "", province = "", sex = "", sortTime = "";
+    private String id = "", name = "", title = "", introduce = "", province = "", sex = "", sortTime = "";
     private int age = 0, isCollect = 0;
     private List<String> images, interests;
     private List<Integer> communicates;
@@ -28,6 +28,14 @@ public class UserResult {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getIntroduce() {
