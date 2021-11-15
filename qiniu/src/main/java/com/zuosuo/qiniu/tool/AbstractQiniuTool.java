@@ -1,5 +1,8 @@
 package com.zuosuo.qiniu.tool;
 
+import com.alibaba.fastjson.JSONObject;
+import com.qiniu.common.QiniuException;
+import com.qiniu.http.Response;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
@@ -25,5 +28,23 @@ public abstract class AbstractQiniuTool {
 
     public String getUploadToken() {
         return getAuth().uploadToken(getConfig().getBucket());
+    }
+
+    public QiniuResult upload(String source, String module, String dest) {
+        QiniuResult result = new QiniuResult();
+        try {
+            Response response = getUploadManager().put(source, String.join("/", module, dest), getUploadToken());
+            JSONObject object = JSONObject.parseObject(response.bodyString());
+            if (object == null) {
+                result.setMessage("七牛上传失败！");
+            } else if(object.getString("key") != null) {
+                result.setStatus(true);
+                result.setUrl(object.getString("key"));
+                result.setHash(object.getString("hash"));
+            }
+        } catch (QiniuException e) {
+            result.setMessage("七牛上传失败");
+        }
+        return result;
     }
 }
