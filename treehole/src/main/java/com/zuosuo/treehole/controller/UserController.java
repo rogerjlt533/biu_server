@@ -5,9 +5,11 @@ import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.user.MyInfoAction;
 import com.zuosuo.treehole.action.user.UserInitUpdateInfoAction;
 import com.zuosuo.treehole.action.user.UserListAction;
+import com.zuosuo.treehole.action.user.UserStatusAction;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
+import com.zuosuo.treehole.bean.UserStatusBean;
 import com.zuosuo.treehole.bean.VerifyResult;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.result.MyInfoResult;
@@ -66,5 +68,21 @@ public class UserController {
     @Login
     public JsonDataResult<MyInfoResult> myInfo(HttpServletRequest request) {
         return new MyInfoAction(request, userProcessor).run();
+    }
+
+    /**
+     * 用户状态修改
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/my/update/status")
+    @Login
+    public JsonDataResult<Map> updateStatus(HttpServletRequest request, @RequestBody UserStatusBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<>(verify.getMessage());
+        }
+        return new UserStatusAction(request, bean, userProcessor).run();
     }
 }

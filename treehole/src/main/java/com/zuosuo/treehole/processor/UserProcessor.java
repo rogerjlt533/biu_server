@@ -159,8 +159,11 @@ public class UserProcessor {
         return result;
     }
 
+    /**
+     * 获取用户信息
+     */
     public FuncResult getUserInfo(long userId) {
-        BiuUserViewEntity user = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().find(userId);
+        BiuUserViewEntity user = userService.getUserView(userId);
         if (user == null) {
             return new FuncResult(false, "");
         }
@@ -185,6 +188,48 @@ public class UserProcessor {
         result.setUseStatus(user.getUseStatus());
         result.setSearchStatus(user.getSearchStatus());
         result.setCommentStatus(user.getCommentStatus());
+        return new FuncResult(true, "", result);
+    }
+
+    /**
+     * 处理用户状态
+     * @param userId
+     * @param type
+     * @param status
+     * @return
+     */
+    public FuncResult processUserStatus(long userId, String type, int status) {
+        BiuUserEntity user = userService.find(userId);
+        if (user == null) {
+            return new FuncResult(false, "用户信息不存在");
+        }
+        int statusValue;
+        switch (type) {
+            case "comment":
+                statusValue = user.getCommentStatus();
+                break;
+            case "search":
+                statusValue = user.getSearchStatus();
+                break;
+            default:
+                statusValue = 0;
+        }
+        if (status == statusValue) {
+            return new FuncResult(false, statusValue == 0 ? "已关闭" : "已开启");
+        }
+        switch (type) {
+            case "comment":
+                user.setCommentStatus(status);
+                break;
+            case "search":
+                user.setSearchStatus(status);
+                break;
+            default:
+                ;
+        }
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", status);
         return new FuncResult(true, "", result);
     }
 }
