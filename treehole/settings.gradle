@@ -11,3 +11,5 @@ include 'biudb'
 project(':biudb').projectDir = file('../biudb')
 include 'auth'
 project(':auth').projectDir = file('../auth')
+include 'qiniu'
+project(':qiniu').projectDir = file('../qiniu')

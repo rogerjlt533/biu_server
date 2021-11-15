@@ -5,4 +5,5 @@ include 'cache'
 include 'biudb'
 include 'auth'
 include 'wechat'
+include 'qiniu'
 

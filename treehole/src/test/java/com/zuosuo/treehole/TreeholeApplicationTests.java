@@ -11,6 +11,7 @@ import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.processor.WechatProcessor;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.task.UserCollectInput;
+import com.zuosuo.treehole.tool.QiniuTool;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,14 +33,20 @@ class TreeholeApplicationTests {
     private BiuRedisFactory biuRedisFactory;
     @Autowired
     private UserService userService;
+    @Autowired
+    private QiniuTool qiniuTool;
 
     @Test
     void contextLoads() {
-        BiuUserViewEntity entity = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().find(1);
-        System.out.println(JsonTool.toJson(entity));
-        ProviderOption option = new ProviderOption();
-        List<BiuUserViewEntity> list = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().list(option);
-        System.out.println(JsonTool.toJson(list));
+//        System.out.println(qiniuTool.getConfig().getBucket());
+//        System.out.println(qiniuTool.getUploadToken());
+
+//        BiuUserViewEntity entity = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().find(1);
+//        System.out.println(JsonTool.toJson(entity));
+//        ProviderOption option = new ProviderOption();
+//        List<BiuUserViewEntity> list = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().list(option);
+//        System.out.println(JsonTool.toJson(list));
+
 //        boolean result = userService.getUserCollectService().pushUserCollect(1, 2, new Date());
 //        System.out.println(result);
 //        biuRedisFactory.getBiuRedisTool().

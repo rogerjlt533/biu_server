@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @EnableScheduling
-@ComponentScan(basePackages = {"com.zuosuo.component", "com.zuosuo.wechat", "com.zuosuo.mybatis", "com.zuosuo.cache", "com.zuosuo.biudb", "com.zuosuo.auth", "com.zuosuo.treehole"})
+@ComponentScan(basePackages = {"com.zuosuo.component", "com.zuosuo.wechat", "com.zuosuo.mybatis", "com.zuosuo.cache", "com.zuosuo.biudb", "com.zuosuo.auth", "com.zuosuo.qiniu", "com.zuosuo.treehole"})
 @MapperScan(basePackages = {"com.zuosuo.biudb.mapper"})
 @EntityScan(basePackages = {"com.zuosuo.biudb.entity"})
 public class TreeholeApplication {
