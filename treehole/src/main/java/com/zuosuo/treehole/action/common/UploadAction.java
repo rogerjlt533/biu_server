@@ -47,7 +47,7 @@ public class UploadAction extends BaseAction {
         }
         String fileHash = FileTool.fileMD5(dest);
         Map<String, String> result = new HashMap<>();
-        BiuUserImageEntity image = userProcessor.getHashImage(getLoginInfoBean().getUserId(), fileHash);
+        BiuUserImageEntity image = userProcessor.getUserService().getHashImage(getLoginInfoBean().getUserId(), fileHash);
         if (image != null) {
             result.put("key", image.getFile());
             result.put("hash", fileHash);
@@ -61,7 +61,7 @@ public class UploadAction extends BaseAction {
             result.put("key", key);
             result.put("hash", fileHash);
             result.put("url", qiniuTool.getLink(key));
-            userProcessor.initEmptyHashImage(getLoginInfoBean().getUserId(), key, fileHash);
+            userProcessor.getUserService().initEmptyHashImage(getLoginInfoBean().getUserId(), key, fileHash);
             destFile.delete();
             return JsonDataResult.success(result);
         } else {

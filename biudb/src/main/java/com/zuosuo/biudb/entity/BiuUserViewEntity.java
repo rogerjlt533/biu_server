@@ -13,6 +13,8 @@ public class BiuUserViewEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    public static final int USER_NOT_PEN = 0;
+    public static final int USER_IS_PEN = 1;
     public static final int USER_AVAIL_STATUS = 1;
     public static final int USER_INVAIL_STATUS = 0;
     public static final int COMMUNICATE_OPEN_STATUS = 1;
@@ -78,6 +80,8 @@ public class BiuUserViewEntity extends BaseEntity {
     private int searchStatus = 0;
     @EntityProperty(comment = "匿名状态 1-开启 0-关闭")
     private int anonymous = 0;
+    @EntityProperty(comment = "是否笔友 0-否 1-是")
+    private int isPenuser = 0;
     private int collectNum = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -416,6 +420,14 @@ public class BiuUserViewEntity extends BaseEntity {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public int getIsPenuser() {
+        return isPenuser;
+    }
+
+    public void setIsPenuser(int isPenuser) {
+        this.isPenuser = isPenuser;
     }
 
     // 性别标签

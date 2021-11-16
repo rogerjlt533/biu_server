@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyInfoResult {
-    private String penName = "", title = "", introduce = "", address = "", province = "", city = "", country = "", street = "";
-    private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0;
+    private String penName = "", image = "", title = "", introduce = "", address = "";
+    private MyInfoAreaResult province, city, country, street;
+    private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0;
     private List<String> images;
-    private List<Long> communicates, searchCommunicates, searchSexes;
-    private List<UserInterestResult> interests;
+    private MyInfoComboxResult<Integer> communicates, searchCommunicates, searchSexes;
+    private MyInfoComboxResult<UserInterestResult> interests;
 
     public MyInfoResult() {
+        province = new MyInfoAreaResult();
+        city = new MyInfoAreaResult();
+        country = new MyInfoAreaResult();
+        street = new MyInfoAreaResult();
         images = new ArrayList<>();
-        communicates = new ArrayList<>();
-        searchCommunicates = new ArrayList<>();
-        searchSexes = new ArrayList<>();
-        interests = new ArrayList<>();
+        communicates = new MyInfoComboxResult<>();
+        searchCommunicates = new MyInfoComboxResult<>();
+        searchSexes = new MyInfoComboxResult<>();
+        interests = new MyInfoComboxResult<>();
     }
 
     public String getPenName() {
@@ -24,6 +29,14 @@ public class MyInfoResult {
 
     public void setPenName(String penName) {
         this.penName = penName;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getTitle() {
@@ -48,6 +61,38 @@ public class MyInfoResult {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public MyInfoAreaResult getProvince() {
+        return province;
+    }
+
+    public void setProvince(MyInfoAreaResult province) {
+        this.province = province;
+    }
+
+    public MyInfoAreaResult getCity() {
+        return city;
+    }
+
+    public void setCity(MyInfoAreaResult city) {
+        this.city = city;
+    }
+
+    public MyInfoAreaResult getCountry() {
+        return country;
+    }
+
+    public void setCountry(MyInfoAreaResult country) {
+        this.country = country;
+    }
+
+    public MyInfoAreaResult getStreet() {
+        return street;
+    }
+
+    public void setStreet(MyInfoAreaResult street) {
+        this.street = street;
     }
 
     public int getSex() {
@@ -106,38 +151,6 @@ public class MyInfoResult {
         this.searchStatus = searchStatus;
     }
 
-    public String getProvince() {
-        return province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getStreet() {
-        return street;
-    }
-
-    public void setStreet(String street) {
-        this.street = street;
-    }
-
     public List<String> getImages() {
         return images;
     }
@@ -146,35 +159,43 @@ public class MyInfoResult {
         this.images = images;
     }
 
-    public List<Long> getCommunicates() {
+    public MyInfoComboxResult<Integer> getCommunicates() {
         return communicates;
     }
 
-    public void setCommunicates(List<Long> communicates) {
+    public void setCommunicates(MyInfoComboxResult<Integer> communicates) {
         this.communicates = communicates;
     }
 
-    public List<Long> getSearchCommunicates() {
+    public MyInfoComboxResult<Integer> getSearchCommunicates() {
         return searchCommunicates;
     }
 
-    public void setSearchCommunicates(List<Long> searchCommunicates) {
+    public void setSearchCommunicates(MyInfoComboxResult<Integer> searchCommunicates) {
         this.searchCommunicates = searchCommunicates;
     }
 
-    public List<Long> getSearchSexes() {
+    public MyInfoComboxResult<Integer> getSearchSexes() {
         return searchSexes;
     }
 
-    public void setSearchSexes(List<Long> searchSexes) {
+    public void setSearchSexes(MyInfoComboxResult<Integer> searchSexes) {
         this.searchSexes = searchSexes;
     }
 
-    public List<UserInterestResult> getInterests() {
+    public MyInfoComboxResult<UserInterestResult> getInterests() {
         return interests;
     }
 
-    public void setInterests(List<UserInterestResult> interests) {
+    public void setInterests(MyInfoComboxResult<UserInterestResult> interests) {
         this.interests = interests;
+    }
+
+    public int getIsPenuser() {
+        return isPenuser;
+    }
+
+    public void setIsPenuser(int isPenuser) {
+        this.isPenuser = isPenuser;
     }
 }

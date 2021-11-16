@@ -14,6 +14,7 @@ import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
 import com.zuosuo.treehole.result.MyInfoResult;
+import com.zuosuo.treehole.result.UserInterestResult;
 import com.zuosuo.treehole.result.UserResult;
 import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.UserCollectService;
@@ -39,6 +40,10 @@ public class UserProcessor {
     @Autowired
     private AreaService areaService;
 
+    public UserService getUserService() {
+        return userService;
+    }
+
     /**
      * 更新用户信息
      * @param id
@@ -50,9 +55,10 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "无对应用户记录");
         }
-        user.setPenName(bean.getNick().trim());
         user.setNick(bean.getNick().trim());
         user.setImage(bean.getImage().trim());
+        BiuUserImageEntity image = userService.setUserImage(id, BiuUserImageEntity.USE_TYPE_AVATOR, bean.getImage(), 0);
+        user.setImage(image.getFile());
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         return new FuncResult(true);
     }
@@ -146,7 +152,7 @@ public class UserProcessor {
             unit.setProvince(areaService.getArea(item.getProvince()));
             unit.setSex(item.getSexTag());
             unit.setSortTime(TimeTool.friendlyTime(item.getSortTime()));
-            unit.setImages(userService.getUserImageList(item.getId()));
+            unit.setImages(userService.getUserImageList(item.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
             unit.setInterests(userService.getUserInterestSimpleList(item.getId()));
             if (item.getSelfCommunicate() != null && !item.getSelfCommunicate().isEmpty()) {
                 unit.setCommunicates(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().map(e -> Integer.parseInt(e)).collect(Collectors.toList()));
@@ -172,25 +178,36 @@ public class UserProcessor {
         MyInfoResult result = new MyInfoResult();
         result.setPenName(user.getPenName());
         result.setSex(user.getSex());
+        result.setImage(userService.parseImage(user.getImage()));
         result.setBirthdayYear(user.getBirthdayYear());
-        result.setProvince(user.getProvince());
-        result.setCity(user.getCity());
-        result.setStreet(user.getStreet());
-        result.setCountry(user.getCountry());
-        List<Long> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
-        result.setCommunicates(communicates);
-        result.setInterests(userService.getUserInterestList(user.getId()));
+        result.getProvince().setCode(user.getProvince());
+        result.getProvince().setCode(areaService.getArea(user.getProvince()));
+        result.getCity().setCode(user.getCity());
+        result.getCity().setCode(areaService.getArea(user.getCity()));
+        result.getCountry().setCode(user.getCountry());
+        result.getCountry().setCode(areaService.getArea(user.getCountry()));
+        result.getStreet().setCode(user.getStreet());
+        result.getStreet().setCode(areaService.getArea(user.getStreet()));
+        List<Integer> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
+        result.getCommunicates().setList(communicates);
+        result.getCommunicates().setTag(userService.parseCommunicates(communicates));
+        List<UserInterestResult> interests = userService.getUserInterestList(user.getId());
+        result.getInterests().setList(interests);
+        result.getInterests().setTag(userService.parseInterests(interests));
         result.setTitle(user.getTitle());
         result.setIntroduce(user.getIntroduce());
-        List<Long> searchSexes = CommonTool.parseList(user.getSearchSex() != null && !user.getSearchSex().isEmpty() ? user.getSearchSex().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
-        result.setSearchSexes(searchSexes);
-        List<Long> searchCommunicate = CommonTool.parseList(user.getSearchCommunicate() != null && !user.getSearchCommunicate().isEmpty() ? user.getSearchCommunicate().replace("'", "").split(",") : new String[]{}, item -> Long.valueOf(item));
-        result.setSearchCommunicates(searchCommunicate);
+        List<Integer> searchSexes = CommonTool.parseList(user.getSearchSex() != null && !user.getSearchSex().isEmpty() ? user.getSearchSex().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
+        result.getSearchSexes().setList(searchSexes);
+        result.getSearchSexes().setTag(userService.parseSexes(searchSexes));
+        List<Integer> searchCommunicate = CommonTool.parseList(user.getSearchCommunicate() != null && !user.getSearchCommunicate().isEmpty() ? user.getSearchCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
+        result.getSearchCommunicates().setList(searchCommunicate);
+        result.getSearchCommunicates().setTag(userService.parseCommunicates(searchCommunicate));
         result.setStartAge(user.getMatchStartAge());
         result.setEndAge(user.getMatchEndAge());
         result.setUseStatus(user.getUseStatus());
         result.setSearchStatus(user.getSearchStatus());
         result.setCommentStatus(user.getCommentStatus());
+        result.setIsPenuser(user.getIsPenuser());
         return new FuncResult(true, "", result);
     }
 
@@ -234,28 +251,5 @@ public class UserProcessor {
         Map<String, Object> result = new HashMap<>();
         result.put("status", status);
         return new FuncResult(true, "", result);
-    }
-
-    public BiuUserImageEntity getHashImage(long userId, String hash) {
-        ProviderOption option = new ProviderOption();
-        option.addCondition("user_id", userId);
-        option.addCondition("hash_code", hash);
-        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
-    }
-
-    public BiuUserImageEntity getEmptyHashImage(long userId, String hash) {
-        ProviderOption option = new ProviderOption();
-        option.addCondition("user_id", userId);
-        option.addCondition("hash_code", hash);
-        option.addCondition("use_type", 0);
-        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
-    }
-
-    public BiuUserImageEntity initEmptyHashImage(long userId, String file, String hash) {
-        BiuUserImageEntity image = new BiuUserImageEntity();
-        image.setUserId(userId);
-        image.setFile(file);
-        image.setHashCode(hash);
-        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
     }
 }
