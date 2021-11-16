@@ -1,5 +1,6 @@
 package com.zuosuo.treehole.processor;
 
+import com.zuosuo.biudb.entity.BiuUserCommunicateEntity;
 import com.zuosuo.biudb.entity.BiuUserEntity;
 import com.zuosuo.biudb.entity.BiuUserImageEntity;
 import com.zuosuo.biudb.entity.BiuUserViewEntity;
@@ -11,6 +12,7 @@ import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.CommonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
+import com.zuosuo.treehole.bean.UserInfoBean;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
 import com.zuosuo.treehole.result.MyInfoResult;
@@ -196,6 +198,9 @@ public class UserProcessor {
         result.getInterests().setTag(userService.parseInterests(interests));
         result.setTitle(user.getTitle());
         result.setIntroduce(user.getIntroduce());
+        result.setPhone(user.getPhone());
+        result.setEmail(user.getEmail());
+        result.setZipcode(user.getZipcode());
         List<Integer> searchSexes = CommonTool.parseList(user.getSearchSex() != null && !user.getSearchSex().isEmpty() ? user.getSearchSex().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
         result.getSearchSexes().setList(searchSexes);
         result.getSearchSexes().setTag(userService.parseSexes(searchSexes));
@@ -252,5 +257,39 @@ public class UserProcessor {
         Map<String, Object> result = new HashMap<>();
         result.put("status", status);
         return new FuncResult(true, "", result);
+    }
+
+    /**
+     * 修改用户信息
+     * @param userId
+     * @param bean
+     * @return
+     */
+    public FuncResult updateInfo(long userId, UserInfoBean bean) {
+        BiuUserEntity user = userService.find(userId);
+        if (user == null) {
+            return new FuncResult(false, "用户信息不存在");
+        }
+        user.setPenName(bean.getPenName().trim());
+        user.setImage(userService.parseImage(bean.getImage()));
+        user.setSex(bean.getSex());
+        user.setMatchStartAge(bean.getStartAge());
+        user.setMatchEndAge(bean.getEndAge());
+        user.setPhone(bean.getPhone());
+        user.setEmail(bean.getEmail());
+        user.setProvince(bean.getProvince());
+        user.setCity(bean.getCity());
+        user.setCountry(bean.getCountry());
+        user.setStreet(bean.getStreet());
+        user.setAddress(bean.getAddress());
+        user.setTitle(bean.getTitle());
+        user.setIntroduce(bean.getIntroduce());
+        user.setZipcode(bean.getZipcode());
+        user.setBirthdayYear(bean.getBirthdayYear());
+        userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, bean.getImages());
+        userService.setUserSexes(userId, bean.getSearch_sexes());
+        userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SELF, bean.getCommunicates());
+        userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
+        return new FuncResult(true);
     }
 }

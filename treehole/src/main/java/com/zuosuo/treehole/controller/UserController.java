@@ -2,15 +2,9 @@ package com.zuosuo.treehole.controller;
 
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
-import com.zuosuo.treehole.action.user.MyInfoAction;
-import com.zuosuo.treehole.action.user.UserInitUpdateInfoAction;
-import com.zuosuo.treehole.action.user.UserListAction;
-import com.zuosuo.treehole.action.user.UserStatusAction;
+import com.zuosuo.treehole.action.user.*;
 import com.zuosuo.treehole.annotation.Login;
-import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
-import com.zuosuo.treehole.bean.UserListBean;
-import com.zuosuo.treehole.bean.UserStatusBean;
-import com.zuosuo.treehole.bean.VerifyResult;
+import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.result.MyInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,5 +78,21 @@ public class UserController {
             return new JsonDataResult<>(verify.getMessage());
         }
         return new UserStatusAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 用户信息修改
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/my/update/status")
+    @Login
+    public JsonResult updateInfo(HttpServletRequest request, @RequestBody UserInfoBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new UpdateInfoAction(request, bean, userProcessor).run();
     }
 }

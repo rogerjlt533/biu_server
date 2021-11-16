@@ -3,6 +3,7 @@ package com.zuosuo.treehole.service;
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.component.time.TimeTool;
+import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.result.UserInterestResult;
 import com.zuosuo.treehole.tool.QiniuTool;
@@ -60,6 +61,10 @@ public class UserService {
         if (file == null) {
             return "";
         }
+        if (file.trim().isEmpty()) {
+            return "";
+        }
+        file = file.trim();
         if (!file.contains("/upload")) {
             return file;
         }
@@ -123,7 +128,7 @@ public class UserService {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("use_type", type);
-        option.setAttribute("user_type", 0);
+        option.setAttribute("use_type", 0);
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().modify(option);
     }
 
@@ -139,6 +144,15 @@ public class UserService {
         option.addCondition("user_id", userId);
         option.addCondition("use_type", type);
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
+    }
+
+    public void setUserImage(long userId, int type, List<String> files) {
+        clearUserImage(userId, type);
+        if (!files.isEmpty()) {
+            for (int i = 0; i < files.size(); i++) {
+                setUserImage(userId, type, files.get(i), i + 1);
+            }
+        }
     }
 
     public BiuUserImageEntity setUserImage(long userId, int type, String file, int sort) {
@@ -168,6 +182,105 @@ public class UserService {
             image.setSortIndex(sort);
             biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
             return image;
+        }
+    }
+
+    public long clearUserCommunicate(long userId, int type) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("use_type", type);
+        return biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().destroy(option);
+    }
+
+    public void setUserCommunicate(long userId, int type, List<Integer> communicates) {
+        clearUserCommunicate(userId, type);
+        if (!communicates.isEmpty()) {
+            for (int i = 0; i < communicates.size(); i++) {
+                setUserCommunicate(userId, type, communicates.get(i));
+            }
+        }
+    }
+
+    public void setUserCommunicate(long userId, int type, int communicate) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("use_type", type);
+        option.addCondition("com_method", communicate);
+        option.setStatus(CheckStatusEnum.ALL.getValue());
+        BiuUserCommunicateEntity entity = biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().single(option);
+        if (entity == null) {
+            entity = new BiuUserCommunicateEntity();
+            entity.setUserId(userId);
+            entity.setUseType(type);
+            entity.setComMethod(communicate);
+            biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().insert(entity);
+        } else if(entity.getDeletedAt() != null) {
+            biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().restore(entity);
+        }
+    }
+
+    public long clearUserSex(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        return biuDbFactory.getUserDbFactory().getBiuUserSexImpl().destroy(option);
+    }
+
+    public void setUserSexes(long userId, List<Integer> sexes) {
+        clearUserSex(userId);
+        if (!sexes.isEmpty()) {
+            for (int i = 0; i < sexes.size(); i++) {
+                setUserSex(userId, sexes.get(i));
+            }
+        }
+    }
+
+    public void setUserSex(long userId, int sex) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("sex", sex);
+        option.setStatus(CheckStatusEnum.ALL.getValue());
+        BiuUserSexEntity entity = biuDbFactory.getUserDbFactory().getBiuUserSexImpl().single(option);
+        if (entity == null) {
+            entity = new BiuUserSexEntity();
+            entity.setUserId(userId);
+            entity.setSex(sex);
+            biuDbFactory.getUserDbFactory().getBiuUserSexImpl().insert(entity);
+        } else if(entity.getDeletedAt() != null) {
+            biuDbFactory.getUserDbFactory().getBiuUserSexImpl().restore(entity);
+        }
+    }
+
+    public long clearUserInterest(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("use_type", BiuUserInterestEntity.USE_TYPE_SELF);
+        return biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().destroy(option);
+    }
+
+    public void setUserInterest(long userId, List<Long> interests) {
+        clearUserInterest(userId);
+        if (!interests.isEmpty()) {
+            for (int i = 0; i < interests.size(); i++) {
+                setUserInterest(userId, interests.get(i));
+            }
+        }
+    }
+
+    public void setUserInterest(long userId, long interest) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("use_type", BiuUserInterestEntity.USE_TYPE_SELF);
+        option.addCondition("interest_id", interest);
+        option.setStatus(CheckStatusEnum.ALL.getValue());
+        BiuUserInterestEntity entity = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().single(option);
+        if (entity == null) {
+            entity = new BiuUserInterestEntity();
+            entity.setUserId(userId);
+            entity.setUseType(BiuUserInterestEntity.USE_TYPE_SELF);
+            entity.setInterestId(interest);
+            biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().insert(entity);
+        } else if(entity.getDeletedAt() != null) {
+            biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().restore(entity);
         }
     }
 
