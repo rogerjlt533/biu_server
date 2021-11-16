@@ -35,6 +35,7 @@ public class CommonController {
     }
 
     @PostMapping("/api/upload")
+    @Login
     public JsonDataResult<Map> upload(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return new JsonDataResult<>("文件不能为空");

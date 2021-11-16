@@ -27,7 +27,7 @@ public class WechatMiniTool {
         } catch (IOException e) {
             return null;
         }
-//        content = "{\"session_key\":\"1122\",\"openid\":\"1122\"}";
+        content = "{\"session_key\":\"1122\",\"openid\":\"1122\"}";
         JSONObject obj = JSONObject.parseObject(content);
         int errcode = obj.getInteger("errcode") != null ? obj.getInteger("errcode") : 0;
         String errmsg = obj.getString("errmsg") != null ? obj.getString("errmsg") : "";

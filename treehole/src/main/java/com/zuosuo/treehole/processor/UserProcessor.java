@@ -250,4 +250,12 @@ public class UserProcessor {
         option.addCondition("use_type", 0);
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
     }
+
+    public BiuUserImageEntity initEmptyHashImage(long userId, String file, String hash) {
+        BiuUserImageEntity image = new BiuUserImageEntity();
+        image.setUserId(userId);
+        image.setFile(file);
+        image.setHashCode(hash);
+        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
+    }
 }

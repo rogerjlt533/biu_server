@@ -61,6 +61,7 @@ public class UploadAction extends BaseAction {
             result.put("key", key);
             result.put("hash", fileHash);
             result.put("url", qiniuTool.getLink(key));
+            userProcessor.initEmptyHashImage(getLoginInfoBean().getUserId(), key, fileHash);
             destFile.delete();
             return JsonDataResult.success(result);
         } else {
