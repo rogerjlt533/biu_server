@@ -54,12 +54,7 @@ public class UserService {
         if (list.isEmpty()) {
             return new ArrayList<>();
         }
-        return list.stream().map(item -> {
-            if (!item.getFile().contains("/upload")) {
-                return item.getFile();
-            }
-            return qiniuTool.getLink(item.getFile());
-        }).collect(Collectors.toList());
+        return list.stream().map(item -> parseImage(item.getFile())).collect(Collectors.toList());
     }
 
     public String parseImage(String file) {

@@ -208,6 +208,7 @@ public class UserProcessor {
         result.setSearchStatus(user.getSearchStatus());
         result.setCommentStatus(user.getCommentStatus());
         result.setIsPenuser(user.getIsPenuser());
+        result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
         return new FuncResult(true, "", result);
     }
 
