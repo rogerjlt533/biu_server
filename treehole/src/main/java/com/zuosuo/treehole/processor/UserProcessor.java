@@ -1,6 +1,7 @@
 package com.zuosuo.treehole.processor;
 
 import com.zuosuo.biudb.entity.BiuUserEntity;
+import com.zuosuo.biudb.entity.BiuUserImageEntity;
 import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.BiuUserViewImpl;
@@ -233,5 +234,20 @@ public class UserProcessor {
         Map<String, Object> result = new HashMap<>();
         result.put("status", status);
         return new FuncResult(true, "", result);
+    }
+
+    public BiuUserImageEntity getHashImage(long userId, String hash) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("hash_code", hash);
+        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
+    }
+
+    public BiuUserImageEntity getEmptyHashImage(long userId, String hash) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("hash_code", hash);
+        option.addCondition("use_type", 0);
+        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
     }
 }

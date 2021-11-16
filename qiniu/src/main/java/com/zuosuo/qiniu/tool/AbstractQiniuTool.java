@@ -30,10 +30,10 @@ public abstract class AbstractQiniuTool {
         return getAuth().uploadToken(getConfig().getBucket());
     }
 
-    public QiniuResult upload(String source, String module, String dest) {
+    public QiniuResult upload(String source, String dest) {
         QiniuResult result = new QiniuResult();
         try {
-            Response response = getUploadManager().put(source, String.join("/", module, dest), getUploadToken());
+            Response response = getUploadManager().put(source, dest, getUploadToken());
             JSONObject object = JSONObject.parseObject(response.bodyString());
             if (object == null) {
                 result.setMessage("七牛上传失败！");
@@ -46,5 +46,9 @@ public abstract class AbstractQiniuTool {
             result.setMessage("七牛上传失败");
         }
         return result;
+    }
+
+    public String getLink(String key) {
+        return String.join("/", getConfig().getPath(), key);
     }
 }
