@@ -138,6 +138,15 @@ public class UserService {
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
     }
 
+    public BiuUserImageEntity getUserImage(long userId, int type, String file, CheckStatusEnum status) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("use_type", type);
+        option.addCondition("file", file);
+        option.setStatus(status.getValue());
+        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
+    }
+
     public void setUserImage(long userId, int type, List<String> files) {
         clearUserImage(userId, type);
         if (!files.isEmpty()) {
@@ -153,10 +162,15 @@ public class UserService {
             file = file.substring(file.indexOf("/upload") + 1);
             isQiniu = true;
         }
-        BiuUserImageEntity image = new BiuUserImageEntity();
-        image.setUserId(userId);
-        image.setUseType(type);
-        biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
+        BiuUserImageEntity image = getUserImage(userId, type, file, CheckStatusEnum.DELETED);
+        if (image == null) {
+            image = new BiuUserImageEntity();
+            image.setUserId(userId);
+            image.setUseType(type);
+            biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
+        } else {
+            biuDbFactory.getUserDbFactory().getBiuUserImageImpl().restore(image);
+        }
         if(isQiniu) {
             BiuUserImageEntity relate = getUserImage(userId, file);
             image.setFile(relate.getFile());

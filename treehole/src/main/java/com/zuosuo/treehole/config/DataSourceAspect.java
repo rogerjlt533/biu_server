@@ -11,7 +11,7 @@ public class DataSourceAspect {
     @Before("within(com.zuosuo.biudb.impl.*)")
     public void listenBiuSource() {
         if (DataSourceOption.getDataBaseType() != DataSourceOption.DataBaseType.DATA_BIU) {
-            System.err.println("切换" + DataSourceOption.getDataBaseType() + "=>" + DataSourceOption.DataBaseType.DATA_BIU + "业务");
+//            System.err.println("切换" + DataSourceOption.getDataBaseType() + "=>" + DataSourceOption.DataBaseType.DATA_BIU + "业务");
             DataSourceOption.setDataBaseType(DataSourceOption.DataBaseType.DATA_BIU);
         }
     }
@@ -28,7 +28,7 @@ public class DataSourceAspect {
     @Before("@annotation(org.apache.ibatis.annotations.SelectProvider) || @annotation(org.apache.ibatis.annotations.Select)")
     public void changeRead() {
         if (DataSourceOption.getOperateType() != DataSourceOption.OperateType.READ) {
-            System.err.println("切换" + DataSourceOption.getOperateType() + "=>" + DataSourceOption.OperateType.READ + "方式");
+//            System.err.println("切换" + DataSourceOption.getOperateType() + "=>" + DataSourceOption.OperateType.READ + "方式");
             DataSourceOption.setOperateType(DataSourceOption.OperateType.READ);
         }
     }
@@ -37,7 +37,7 @@ public class DataSourceAspect {
     @Before("@annotation(org.apache.ibatis.annotations.InsertProvider) || @annotation(org.apache.ibatis.annotations.Insert) || @annotation(org.apache.ibatis.annotations.UpdateProvider) || @annotation(org.apache.ibatis.annotations.Update) || @annotation(org.apache.ibatis.annotations.DeleteProvider) || @annotation(org.apache.ibatis.annotations.Delete)")
     public void changeWrite() {
         if (DataSourceOption.getOperateType() != DataSourceOption.OperateType.WRITE) {
-            System.err.println("切换" + DataSourceOption.getOperateType() + "=>" + DataSourceOption.OperateType.WRITE + "方式");
+//            System.err.println("切换" + DataSourceOption.getOperateType() + "=>" + DataSourceOption.OperateType.WRITE + "方式");
             DataSourceOption.setOperateType(DataSourceOption.OperateType.WRITE);
         }
     }

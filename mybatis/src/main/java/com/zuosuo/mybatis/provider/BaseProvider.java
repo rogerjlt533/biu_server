@@ -105,6 +105,7 @@ public interface BaseProvider<T extends BaseEntity> {
             if (orderbyList != null && orderbyList.length > 0) {
                 ORDER_BY(orderbyList);
             }
+            LIMIT(1);
         }}.toString();
 //        System.out.println(sql);
         return sql;

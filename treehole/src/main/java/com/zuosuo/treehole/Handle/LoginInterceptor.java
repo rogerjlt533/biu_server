@@ -40,7 +40,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         Login loginAnnotation = method.getAnnotation(Login.class);
         String token = request.getHeader("token");
         LoginInfoBean loginInfo = getLoginInfo(token);
-        System.out.println(loginInfo.getUserId());
+        System.out.println("user_id:" + loginInfo.getUserId());
         if (!loginAnnotation.open() && loginInfo.getUserId() == 0) {
             return error(response, "未登录");
         }
