@@ -128,21 +128,13 @@ public class UserService {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("use_type", type);
-        option.setAttribute("use_type", 0);
-        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().modify(option);
+        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().destroy(option);
     }
 
     public BiuUserImageEntity getUserImage(long userId, String file) {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("file", file);
-        return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
-    }
-
-    public BiuUserImageEntity getUserImage(long userId, int type) {
-        ProviderOption option = new ProviderOption();
-        option.addCondition("user_id", userId);
-        option.addCondition("use_type", type);
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
     }
 
@@ -161,23 +153,21 @@ public class UserService {
             file = file.substring(file.indexOf("/upload") + 1);
             isQiniu = true;
         }
-        BiuUserImageEntity image = getUserImage(userId, type);
-        if (image == null) {
-            image = new BiuUserImageEntity();
-            image.setUserId(userId);
-            biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
-        }
-        if (image.getFile().equals(file)) {
-            return image;
-        } else if(isQiniu) {
+        BiuUserImageEntity image = new BiuUserImageEntity();
+        image.setUserId(userId);
+        image.setUseType(type);
+        biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
+        if(isQiniu) {
             BiuUserImageEntity relate = getUserImage(userId, file);
             image.setFile(relate.getFile());
+            image.setUseType(type);
             image.setHashCode(relate.getHashCode());
             image.setSortIndex(sort);
             biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
             return image;
         } else {
             image.setFile(file);
+            image.setUseType(type);
             image.setHashCode("");
             image.setSortIndex(sort);
             biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);

@@ -96,7 +96,7 @@ public interface BaseProvider<T extends BaseEntity> {
         ProviderOption options = (ProviderOption) params.get("options");
         String[] conditions = options.getConditions().toArray(new String[]{});
         String[] orderbyList = options.getOrderbys().toArray(new String[]{});
-        return new SQL() {{
+        String sql = new SQL() {{
             SELECT(options.getColumns());
             FROM(getTable());
             if (conditions.length > 0) {
@@ -106,6 +106,8 @@ public interface BaseProvider<T extends BaseEntity> {
                 ORDER_BY(orderbyList);
             }
         }}.toString();
+//        System.out.println(sql);
+        return sql;
     }
 
     default String list(Map<String, Object> params) {
