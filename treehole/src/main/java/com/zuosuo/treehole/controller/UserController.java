@@ -86,7 +86,7 @@ public class UserController {
      * @param bean
      * @return
      */
-    @PostMapping("/api/my/update/status")
+    @PostMapping("/api/my/update/info")
     @Login
     public JsonResult updateInfo(HttpServletRequest request, @RequestBody UserInfoBean bean) {
         VerifyResult verify = bean.verify();

@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class UserInfoBean extends BaseVerifyBean {
 
-    private String penName, image, phone, email = "", zipcode = "", title, introduce, address, province, city, country, street, images, search_sexes, communicates, search_communicates, interests;
+    private String penName, phone, email = "", zipcode = "", title, introduce, address, province, city, country, street, images, search_sexes, communicates, search_communicates, interests;
     private int sex, birthdayYear, startAge, endAge;
 
     public String getPenName() {
@@ -16,14 +16,6 @@ public class UserInfoBean extends BaseVerifyBean {
 
     public void setPenName(String penName) {
         this.penName = penName;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
     }
 
     public String getPhone() {
@@ -113,7 +105,7 @@ public class UserInfoBean extends BaseVerifyBean {
         if (images.trim().isEmpty()) {
             return new ArrayList<>();
         }
-        return Arrays.asList(image.trim().split(","));
+        return Arrays.asList(images.trim().split(","));
     }
 
     public void setImages(String images) {

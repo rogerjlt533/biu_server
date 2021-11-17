@@ -271,7 +271,6 @@ public class UserProcessor {
             return new FuncResult(false, "用户信息不存在");
         }
         user.setPenName(bean.getPenName().trim());
-        user.setImage(userService.parseImage(bean.getImage()));
         user.setSex(bean.getSex());
         user.setMatchStartAge(bean.getStartAge());
         user.setMatchEndAge(bean.getEndAge());
@@ -286,10 +285,13 @@ public class UserProcessor {
         user.setIntroduce(bean.getIntroduce());
         user.setZipcode(bean.getZipcode());
         user.setBirthdayYear(bean.getBirthdayYear());
+        user.setIsPenuser(BiuUserEntity.USER_IS_PEN);
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, bean.getImages());
         userService.setUserSexes(userId, bean.getSearch_sexes());
         userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SELF, bean.getCommunicates());
         userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
+        userService.setUserInterest(userId, bean.getInterests());
         return new FuncResult(true);
     }
 }
