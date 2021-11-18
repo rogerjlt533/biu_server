@@ -3,8 +3,12 @@ package com.zuosuo.treehole.service;
 import com.zuosuo.biudb.entity.BiuAreaEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.treehole.result.AreaInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component("AreaService")
 public class AreaService {

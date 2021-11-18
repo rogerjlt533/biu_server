@@ -85,7 +85,7 @@ public class UserService {
             add("id in ("  + String.join(",", relates) +")");
         }}));
         interests.forEach(item -> {
-            result.add(new UserInterestResult(item.getId(), item.getTag(), 0));
+            result.add(new UserInterestResult(item.getId(), item.getTag(), 1));
         });
         return result;
     }
@@ -96,6 +96,20 @@ public class UserService {
             return new ArrayList<>();
         }
         return list.stream().map(UserInterestResult::getName).collect(Collectors.toList());
+    }
+
+    public List<UserInterestResult> getUserInterestList(long userId) {
+        List<UserInterestResult> interestList = getUserInterests(userId);
+        List<Long> interests = interestList.stream().map(UserInterestResult::getId).collect(Collectors.toList());
+        List<BiuInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption());
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<UserInterestResult> result = new ArrayList<>();
+        list.forEach(item -> {
+            result.add(new UserInterestResult(item.getId(), item.getTag(), interests.contains(item.getId()) ? 1 : 0));
+        });
+        return result;
     }
 
     public BiuUserImageEntity getHashImage(long userId, String hash) {

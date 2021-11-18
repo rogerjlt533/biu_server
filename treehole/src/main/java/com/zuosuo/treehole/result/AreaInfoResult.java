@@ -1,12 +1,17 @@
 package com.zuosuo.treehole.result;
 
-public class MyInfoAreaResult {
+public class AreaInfoResult {
 
     private String code, name;
 
-    public MyInfoAreaResult() {
+    public AreaInfoResult() {
         code = "";
         name = "";
+    }
+
+    public AreaInfoResult(String code, String name) {
+        this.code = code;
+        this.name = name;
     }
 
     public String getCode() {

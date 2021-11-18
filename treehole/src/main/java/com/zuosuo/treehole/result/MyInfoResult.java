@@ -4,22 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyInfoResult {
-    private String penName = "", sexTag = "", image = "", title = "", introduce = "", address = "", phone = "", email = "", zipcode = "";
-    private MyInfoAreaResult province, city, country;
+    private String username = "", penName = "", sexTag = "", image = "", title = "", introduce = "", address = "", phone = "", email = "", zipcode = "";
+    private AreaInfoResult province, city, country;
     private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0;
     private List<String> images;
     private MyInfoComboxResult<Integer> communicates, searchCommunicates, searchSexes;
     private MyInfoComboxResult<UserInterestResult> interests;
 
     public MyInfoResult() {
-        province = new MyInfoAreaResult();
-        city = new MyInfoAreaResult();
-        country = new MyInfoAreaResult();
+        province = new AreaInfoResult();
+        city = new AreaInfoResult();
+        country = new AreaInfoResult();
         images = new ArrayList<>();
         communicates = new MyInfoComboxResult<>();
         searchCommunicates = new MyInfoComboxResult<>();
         searchSexes = new MyInfoComboxResult<>();
         interests = new MyInfoComboxResult<>();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPenName() {
@@ -94,27 +102,27 @@ public class MyInfoResult {
         this.zipcode = zipcode;
     }
 
-    public MyInfoAreaResult getProvince() {
+    public AreaInfoResult getProvince() {
         return province;
     }
 
-    public void setProvince(MyInfoAreaResult province) {
+    public void setProvince(AreaInfoResult province) {
         this.province = province;
     }
 
-    public MyInfoAreaResult getCity() {
+    public AreaInfoResult getCity() {
         return city;
     }
 
-    public void setCity(MyInfoAreaResult city) {
+    public void setCity(AreaInfoResult city) {
         this.city = city;
     }
 
-    public MyInfoAreaResult getCountry() {
+    public AreaInfoResult getCountry() {
         return country;
     }
 
-    public void setCountry(MyInfoAreaResult country) {
+    public void setCountry(AreaInfoResult country) {
         this.country = country;
     }
 

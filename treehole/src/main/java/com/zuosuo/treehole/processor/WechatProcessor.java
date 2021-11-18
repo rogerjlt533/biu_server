@@ -42,7 +42,7 @@ public class WechatProcessor {
         BiuUserEntity user = userService.getUserByOpenid(openid);
         if (user == null) {
             user = new BiuUserEntity();
-            user.setUsername(String.valueOf(TimeTool.getCurrentTimestamp() / 1000) + StringTool.random(5));
+            user.setUsername("");
             user.setOpenid(openid);
             user.setUseStatus(BiuUserEntity.USER_AVAIL_STATUS);
             user.setUnionid(unionid != null ? unionid : "");

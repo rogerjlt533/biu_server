@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +41,15 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+//        try(BufferedReader reader = new BufferedReader(new FileReader("D:\\area.txt"))) {
+//            String line = reader.readLine();
+//            while (line != null) {
+//                System.out.println(line);
+//                line = reader.readLine();
+//            }
+//        } catch (IOException e) {
+//
+//        }
 //        System.out.println(qiniuTool.getConfig().getBucket());
 //        System.out.println(qiniuTool.getUploadToken());
 

@@ -178,6 +178,7 @@ public class UserProcessor {
             return new FuncResult(false, "");
         }
         MyInfoResult result = new MyInfoResult();
+        result.setUsername(user.getUsername());
         result.setPenName(user.getPenName());
         result.setSex(user.getSex());
         result.setSexTag(user.getSexTag());
@@ -192,7 +193,7 @@ public class UserProcessor {
         List<Integer> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
         result.getCommunicates().setList(communicates);
         result.getCommunicates().setTag(userService.parseCommunicates(communicates));
-        List<UserInterestResult> interests = userService.getUserInterests(user.getId());
+        List<UserInterestResult> interests = userService.getUserInterestList(user.getId());
         result.getInterests().setList(interests);
         result.getInterests().setTag(userService.parseInterests(interests));
         result.setTitle(user.getTitle());

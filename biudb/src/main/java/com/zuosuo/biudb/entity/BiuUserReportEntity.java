@@ -12,7 +12,13 @@ public class BiuUserReportEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    public static final int REPORT_TYPE_RECOMMEND = 1;
+    public static final int REPORT_TYPE_TOUSU = 2;
+    public static final int REPORT_TYPE_OTHER = 3;
+
     private long id;
+    @EntityProperty(comment = "类型 1-建议 2-举报 3-其他")
+    private int reportType = 0;
     @EntityProperty(comment = "用户ID")
     private long userId = 0;
     @EntityProperty(comment = "被举报用户ID")
@@ -30,6 +36,14 @@ public class BiuUserReportEntity extends BaseEntity {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public int getReportType() {
+        return reportType;
+    }
+
+    public void setReportType(int reportType) {
+        this.reportType = reportType;
     }
 
     public long getUserId() {
