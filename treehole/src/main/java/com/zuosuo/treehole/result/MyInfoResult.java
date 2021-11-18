@@ -5,7 +5,7 @@ import java.util.List;
 
 public class MyInfoResult {
     private String penName = "", sexTag = "", image = "", title = "", introduce = "", address = "", phone = "", email = "", zipcode = "";
-    private MyInfoAreaResult province, city, country, street;
+    private MyInfoAreaResult province, city, country;
     private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0;
     private List<String> images;
     private MyInfoComboxResult<Integer> communicates, searchCommunicates, searchSexes;
@@ -15,7 +15,6 @@ public class MyInfoResult {
         province = new MyInfoAreaResult();
         city = new MyInfoAreaResult();
         country = new MyInfoAreaResult();
-        street = new MyInfoAreaResult();
         images = new ArrayList<>();
         communicates = new MyInfoComboxResult<>();
         searchCommunicates = new MyInfoComboxResult<>();
@@ -117,14 +116,6 @@ public class MyInfoResult {
 
     public void setCountry(MyInfoAreaResult country) {
         this.country = country;
-    }
-
-    public MyInfoAreaResult getStreet() {
-        return street;
-    }
-
-    public void setStreet(MyInfoAreaResult street) {
-        this.street = street;
     }
 
     public int getSex() {

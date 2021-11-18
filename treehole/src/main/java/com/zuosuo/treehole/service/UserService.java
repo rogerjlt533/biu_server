@@ -71,7 +71,8 @@ public class UserService {
         return qiniuTool.getLink(file);
     }
 
-    public List<BiuUserInterestEntity> getUserInterests(long userId) {
+    public List<UserInterestResult> getUserInterests(long userId) {
+        List<UserInterestResult> result = new ArrayList<>();
         List<BiuUserInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().list(new ProviderOption(new ArrayList<String>(){{
             add("user_id=" + userId);
             add("use_type=" + BiuUserInterestEntity.USE_TYPE_SELF );
@@ -79,34 +80,22 @@ public class UserService {
         if (list.isEmpty()) {
             return new ArrayList<>();
         }
-        return list;
-    }
-
-    public List<String> getUserInterestSimpleList(long userId) {
-        List<BiuUserInterestEntity> list = getUserInterests(userId);
         List<String> relates = list.stream().map(item -> String.valueOf(item.getInterestId())).collect(Collectors.toList());
         List<BiuInterestEntity> interests = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption(new ArrayList<String>(){{
             add("id in ("  + String.join(",", relates) +")");
         }}));
-        if (interests.isEmpty()) {
-            return new ArrayList<>();
-        }
-        return interests.stream().map(BiuInterestEntity::getTag).collect(Collectors.toList());
-    }
-
-    public List<UserInterestResult> getUserInterestList(long userId) {
-        List<UserInterestResult> result = new ArrayList<>();
-        List<BiuUserInterestEntity> userInterests = getUserInterests(userId);
-        List<Long> myInterests = userInterests.stream().map(BiuUserInterestEntity::getInterestId).collect(Collectors.toList());
-        List<BiuInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption());
-        if (list.isEmpty()) {
-            return result;
-        }
-        list.forEach(item -> {
-            int checked = myInterests.contains(item.getId()) ? 1 : 0;
-            result.add(new UserInterestResult(item.getId(), item.getTag(), checked));
+        interests.forEach(item -> {
+            result.add(new UserInterestResult(item.getId(), item.getTag(), 0));
         });
         return result;
+    }
+
+    public List<String> getUserInterestSimpleList(long userId) {
+        List<UserInterestResult> list = getUserInterests(userId);
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return list.stream().map(UserInterestResult::getName).collect(Collectors.toList());
     }
 
     public BiuUserImageEntity getHashImage(long userId, String hash) {
