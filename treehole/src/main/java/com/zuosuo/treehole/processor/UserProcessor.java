@@ -260,34 +260,73 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    public FuncResult updateBaseInfo(long userId, UserInfoBean bean) {
+    public FuncResult updateInfo(long userId, UserInfoBean bean) {
         BiuUserEntity user = userService.find(userId);
         if (user == null) {
             return new FuncResult(false, "用户信息不存在");
         }
-        user.setPenName(bean.getPenName().trim());
-        user.setSex(bean.getSex());
-        user.setBirthdayYear(bean.getBirthdayYear());
-        user.setProvince(bean.getProvince());
-        user.setUsername(bean.getUsername());
-        user.setPhone(bean.getPhone());
-        user.setCity(bean.getCity());
-        user.setCountry(bean.getCountry());
-        user.setStreet(bean.getStreet());
-        user.setAddress(bean.getAddress());
-        user.setZipcode(bean.getZipcode());
-        user.setEmail(bean.getEmail());
-        user.setTitle(bean.getTitle());
-        user.setIntroduce(bean.getIntroduce());
-        userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, bean.getImages());
-        userService.setUserInterest(userId, bean.getInterests());
+        if (bean.getMethod().contains("pen_name")) {
+            user.setPenName(bean.getPenName().trim());
+        }
+        if (bean.getMethod().contains("sex")) {
+            user.setSex(bean.getSex());
+        }
+        if (bean.getMethod().contains("birthday_year")) {
+            user.setBirthdayYear(bean.getBirthdayYear());
+        }
+        if (bean.getMethod().contains("province")) {
+            user.setProvince(bean.getProvince());
+        }
+        if (bean.getMethod().contains("username")) {
+            user.setUsername(bean.getUsername());
+        }
+        if (bean.getMethod().contains("phone")) {
+            user.setPhone(bean.getPhone());
+        }
+        if (bean.getMethod().contains("city")) {
+            user.setCity(bean.getCity());
+        }
+        if (bean.getMethod().contains("country")) {
+            user.setCountry(bean.getCountry());
+        }
+        if (bean.getMethod().contains("address")) {
+            user.setAddress(bean.getAddress());
+        }
+        if (bean.getMethod().contains("email")) {
+            user.setEmail(bean.getEmail());
+        }
+        if (bean.getMethod().contains("zipcode")) {
+            user.setZipcode(bean.getZipcode());
+        }
+        if (bean.getMethod().contains("title")) {
+            user.setTitle(bean.getTitle());
+        }
+        if (bean.getMethod().contains("introduce")) {
+            user.setIntroduce(bean.getIntroduce());
+        }
+        if (bean.getMethod().contains("match_start_age")) {
+            user.setMatchStartAge(bean.getStartAge());
+        }
+        if (bean.getMethod().contains("match_end_age")) {
+            user.setMatchEndAge(bean.getEndAge());
+        }
         user.setIsPenuser(BiuUserEntity.USER_IS_PEN);
-        userService.setUserSexes(userId, bean.getSearch_sexes());
-        user.setMatchStartAge(bean.getStartAge());
-        user.setMatchEndAge(bean.getEndAge());
-        userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SELF, bean.getCommunicates());
-        userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        if (bean.getMethod().contains("image")) {
+            userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, bean.getImages());
+        }
+        if (bean.getMethod().contains("interest")) {
+            userService.setUserInterest(userId, bean.getInterests());
+        }
+        if (bean.getMethod().contains("search_sex")) {
+            userService.setUserSexes(userId, bean.getSearch_sexes());
+        }
+        if (bean.getMethod().contains("communicate")) {
+            userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SELF, bean.getCommunicates());
+        }
+        if (bean.getMethod().contains("search_communicate")) {
+            userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
+        }
         return new FuncResult(true);
     }
 }

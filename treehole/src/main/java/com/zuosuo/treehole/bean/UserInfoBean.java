@@ -10,8 +10,12 @@ public class UserInfoBean extends BaseVerifyBean {
     private String method, penName, username, phone, email, zipcode, title, introduce, address, province, city, country, street, images, search_sexes, communicates, search_communicates, interests;
     private int sex, birthdayYear, startAge, endAge;
 
-    public String getMethod() {
-        return method == null ? "" : method.trim();
+    public List<String> getMethod() {
+        String method = this.method == null ? "" : this.method.trim();
+        if (method == null) {
+            return new ArrayList<>();
+        }
+        return Arrays.asList(method.trim().split(","));
     }
 
     public void setMethod(String method) {
@@ -220,17 +224,6 @@ public class UserInfoBean extends BaseVerifyBean {
     public VerifyResult verify() {
         if (getMethod().isEmpty()) {
             return new VerifyResult("请选择方法参数");
-        }
-        String method = getMethod();
-        if (method.equals("base")) {
-            if (getPenName().isEmpty()) {
-                return new VerifyResult("请填写笔名");
-            }
-            if (getCommunicates().isEmpty()) {
-                return new VerifyResult("未选择通讯方式");
-            }
-        } else {
-            return new VerifyResult("方法参数错误");
         }
         return new VerifyResult();
     }
