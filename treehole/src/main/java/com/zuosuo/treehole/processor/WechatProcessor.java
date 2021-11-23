@@ -5,9 +5,9 @@ import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.HttpTool;
-import com.zuosuo.component.tool.StringTool;
 import com.zuosuo.treehole.config.MiniWechatConfig;
 import com.zuosuo.treehole.service.UserService;
+import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.JwtTool;
 import com.zuosuo.wechat.SessionInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,8 @@ public class WechatProcessor {
     private UserService userService;
     @Autowired
     private BiuDbFactory biuDbFactory;
+    @Autowired
+    private HashTool hashTool;
 
     public MiniWechatConfig getMiniWechatConfig() {
         return miniWechatConfig;
@@ -49,6 +51,8 @@ public class WechatProcessor {
             user.setLastIp(HttpTool.getIpAddr(request));
             user.setLastLogin(new Date());
             user = biuDbFactory.getUserDbFactory().getBiuUserImpl().insert(user);
+            user.setUserCardno("by" + TimeTool.formatDate(new Date(), "yyMM") + hashTool.getHashids(4, "0123456789abcdefghjkmnpqrstuvwxyz").encode(user.getId()));
+            biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
             if (user.getId() > 0) {
                 result.put("need_info", "1");
             }

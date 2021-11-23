@@ -22,4 +22,8 @@ public class HashTool {
     public HashidsTool getHashids(int minHashLength) {
         return new HashidsTool(SystemOption.APP_KEY.getValue(), minHashLength);
     }
+
+    public HashidsTool getHashids(int minHashLength, String alphabet) {
+        return new HashidsTool(SystemOption.APP_KEY.getValue(), minHashLength, alphabet);
+    }
 }

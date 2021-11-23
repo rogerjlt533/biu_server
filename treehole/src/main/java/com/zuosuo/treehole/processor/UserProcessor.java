@@ -178,6 +178,7 @@ public class UserProcessor {
             return new FuncResult(false, "");
         }
         MyInfoResult result = new MyInfoResult();
+        result.setCardno(user.getUserCardno());
         result.setUsername(user.getUsername());
         result.setPenName(user.getPenName());
         result.setSex(user.getSex());
@@ -259,39 +260,34 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    /**
-     * 修改用户信息
-     * @param userId
-     * @param bean
-     * @return
-     */
-    public FuncResult updateInfo(long userId, UserInfoBean bean) {
+    public FuncResult updateBaseInfo(long userId, UserInfoBean bean) {
         BiuUserEntity user = userService.find(userId);
         if (user == null) {
             return new FuncResult(false, "用户信息不存在");
         }
         user.setPenName(bean.getPenName().trim());
         user.setSex(bean.getSex());
-        user.setMatchStartAge(bean.getStartAge());
-        user.setMatchEndAge(bean.getEndAge());
-        user.setPhone(bean.getPhone());
-        user.setEmail(bean.getEmail());
+        user.setBirthdayYear(bean.getBirthdayYear());
         user.setProvince(bean.getProvince());
+        user.setUsername(bean.getUsername());
+        user.setPhone(bean.getPhone());
         user.setCity(bean.getCity());
         user.setCountry(bean.getCountry());
         user.setStreet(bean.getStreet());
         user.setAddress(bean.getAddress());
+        user.setZipcode(bean.getZipcode());
+        user.setEmail(bean.getEmail());
         user.setTitle(bean.getTitle());
         user.setIntroduce(bean.getIntroduce());
-        user.setZipcode(bean.getZipcode());
-        user.setBirthdayYear(bean.getBirthdayYear());
-        user.setIsPenuser(BiuUserEntity.USER_IS_PEN);
-        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, bean.getImages());
+        userService.setUserInterest(userId, bean.getInterests());
+        user.setIsPenuser(BiuUserEntity.USER_IS_PEN);
         userService.setUserSexes(userId, bean.getSearch_sexes());
+        user.setMatchStartAge(bean.getStartAge());
+        user.setMatchEndAge(bean.getEndAge());
         userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SELF, bean.getCommunicates());
         userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
-        userService.setUserInterest(userId, bean.getInterests());
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         return new FuncResult(true);
     }
 }

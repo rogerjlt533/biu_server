@@ -7,15 +7,31 @@ import java.util.stream.Collectors;
 
 public class UserInfoBean extends BaseVerifyBean {
 
-    private String penName, phone, email = "", zipcode = "", title, introduce, address, province, city, country, street, images, search_sexes, communicates, search_communicates, interests;
+    private String method, penName, username, phone, email, zipcode, title, introduce, address, province, city, country, street, images, search_sexes, communicates, search_communicates, interests;
     private int sex, birthdayYear, startAge, endAge;
 
+    public String getMethod() {
+        return method == null ? "" : method.trim();
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
     public String getPenName() {
-        return penName;
+        return penName == null ? "" : penName.trim();
     }
 
     public void setPenName(String penName) {
         this.penName = penName;
+    }
+
+    public String getUsername() {
+        return username == null ? "" : username.trim();
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPhone() {
@@ -202,17 +218,19 @@ public class UserInfoBean extends BaseVerifyBean {
 
     @Override
     public VerifyResult verify() {
-        if (penName == null) {
-            return new VerifyResult("请填写笔名");
+        if (getMethod().isEmpty()) {
+            return new VerifyResult("请选择方法参数");
         }
-        if (penName.trim().isEmpty()) {
-            return new VerifyResult("请填写笔名");
-        }
-        if (communicates == null) {
-            return new VerifyResult("未选择通讯方式");
-        }
-        if (communicates.trim().isEmpty()) {
-            return new VerifyResult("未选择通讯方式");
+        String method = getMethod();
+        if (method.equals("base")) {
+            if (getPenName().isEmpty()) {
+                return new VerifyResult("请填写笔名");
+            }
+            if (getCommunicates().isEmpty()) {
+                return new VerifyResult("未选择通讯方式");
+            }
+        } else {
+            return new VerifyResult("方法参数错误");
         }
         return new VerifyResult();
     }

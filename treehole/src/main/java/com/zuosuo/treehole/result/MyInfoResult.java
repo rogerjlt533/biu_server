@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyInfoResult {
-    private String username = "", penName = "", sexTag = "", image = "", title = "", introduce = "", address = "", phone = "", email = "", zipcode = "";
+    private String cardno = "", username = "", penName = "", sexTag = "", image = "", title = "", introduce = "", address = "", phone = "", email = "", zipcode = "";
     private AreaInfoResult province, city, country;
     private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0;
     private List<String> images;
@@ -20,6 +20,14 @@ public class MyInfoResult {
         searchCommunicates = new MyInfoComboxResult<>();
         searchSexes = new MyInfoComboxResult<>();
         interests = new MyInfoComboxResult<>();
+    }
+
+    public String getCardno() {
+        return cardno;
+    }
+
+    public void setCardno(String cardno) {
+        this.cardno = cardno;
     }
 
     public String getUsername() {

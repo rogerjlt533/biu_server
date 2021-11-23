@@ -24,7 +24,10 @@ public class UpdateInfoAction extends BaseAction {
 
     @Override
     public JsonResult run() {
-        FuncResult loginResult = userProcessor.updateInfo(getLoginInfoBean().getUserId(), bean);
+        FuncResult loginResult = new FuncResult();
+        if (bean.getMethod().equals("base")) {
+            loginResult = userProcessor.updateBaseInfo(getLoginInfoBean().getUserId(), bean);
+        }
         if (!loginResult.isStatus()) {
             return new JsonResult(loginResult.getMessage());
         }

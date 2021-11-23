@@ -29,6 +29,8 @@ public class BiuUserEntity extends BaseEntity {
     public static final String LABEL_USER_SEX_WOMEN = "女";
 
     private long id;
+    @EntityProperty(comment = "用户编号")
+    private String userCardno = "";
     @EntityProperty(comment = "名称")
     private String username = "";
     @EntityProperty(comment = "昵称")
@@ -102,6 +104,14 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getUserCardno() {
+        return userCardno;
+    }
+
+    public void setUserCardno(String userCardno) {
+        this.userCardno = userCardno;
     }
 
     public String getUsername() {
