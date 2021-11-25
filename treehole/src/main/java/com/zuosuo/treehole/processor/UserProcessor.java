@@ -193,7 +193,7 @@ public class UserProcessor {
         result.getCountry().setName(areaService.getArea(user.getCountry()));
         result.setAddress(user.getAddress());
         List<Integer> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
-        result.getCommunicates().setList(communicates);
+        result.getCommunicates().setValue(communicates.stream().reduce(Integer::sum).orElse(0));
         result.getCommunicates().setTag(userService.parseCommunicates(communicates));
         List<UserInterestResult> interests = userService.getUserInterestList(user.getId());
         result.getInterests().setList(interests);
@@ -204,10 +204,10 @@ public class UserProcessor {
         result.setEmail(user.getEmail());
         result.setZipcode(user.getZipcode());
         List<Integer> searchSexes = CommonTool.parseList(user.getSearchSex() != null && !user.getSearchSex().isEmpty() ? user.getSearchSex().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
-        result.getSearchSexes().setList(searchSexes);
+        result.getSearchSexes().setValue(searchSexes.stream().reduce(Integer::sum).orElse(0));
         result.getSearchSexes().setTag(userService.parseSexes(searchSexes));
         List<Integer> searchCommunicate = CommonTool.parseList(user.getSearchCommunicate() != null && !user.getSearchCommunicate().isEmpty() ? user.getSearchCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
-        result.getSearchCommunicates().setList(searchCommunicate);
+        result.getSearchCommunicates().setValue(searchCommunicate.stream().reduce(Integer::sum).orElse(0));
         result.getSearchCommunicates().setTag(userService.parseCommunicates(searchCommunicate));
         result.setStartAge(user.getMatchStartAge());
         result.setEndAge(user.getMatchEndAge());

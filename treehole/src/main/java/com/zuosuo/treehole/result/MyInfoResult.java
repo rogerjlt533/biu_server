@@ -8,7 +8,7 @@ public class MyInfoResult {
     private AreaInfoResult province, city, country;
     private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0;
     private List<String> images;
-    private MyInfoComboxResult<Integer> communicates, searchCommunicates, searchSexes;
+    private MyInfoSingleResult<Integer> communicates, searchCommunicates, searchSexes;
     private MyInfoComboxResult<UserInterestResult> interests;
 
     public MyInfoResult() {
@@ -16,9 +16,9 @@ public class MyInfoResult {
         city = new AreaInfoResult();
         country = new AreaInfoResult();
         images = new ArrayList<>();
-        communicates = new MyInfoComboxResult<>();
-        searchCommunicates = new MyInfoComboxResult<>();
-        searchSexes = new MyInfoComboxResult<>();
+        communicates = new MyInfoSingleResult<>();
+        searchCommunicates = new MyInfoSingleResult<>();
+        searchSexes = new MyInfoSingleResult<>();
         interests = new MyInfoComboxResult<>();
     }
 
@@ -198,27 +198,27 @@ public class MyInfoResult {
         this.images = images;
     }
 
-    public MyInfoComboxResult<Integer> getCommunicates() {
+    public MyInfoSingleResult<Integer> getCommunicates() {
         return communicates;
     }
 
-    public void setCommunicates(MyInfoComboxResult<Integer> communicates) {
+    public void setCommunicates(MyInfoSingleResult<Integer> communicates) {
         this.communicates = communicates;
     }
 
-    public MyInfoComboxResult<Integer> getSearchCommunicates() {
+    public MyInfoSingleResult<Integer> getSearchCommunicates() {
         return searchCommunicates;
     }
 
-    public void setSearchCommunicates(MyInfoComboxResult<Integer> searchCommunicates) {
+    public void setSearchCommunicates(MyInfoSingleResult<Integer> searchCommunicates) {
         this.searchCommunicates = searchCommunicates;
     }
 
-    public MyInfoComboxResult<Integer> getSearchSexes() {
+    public MyInfoSingleResult<Integer> getSearchSexes() {
         return searchSexes;
     }
 
-    public void setSearchSexes(MyInfoComboxResult<Integer> searchSexes) {
+    public void setSearchSexes(MyInfoSingleResult<Integer> searchSexes) {
         this.searchSexes = searchSexes;
     }
 
