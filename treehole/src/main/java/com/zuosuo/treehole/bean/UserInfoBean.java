@@ -11,8 +11,8 @@ public class UserInfoBean extends BaseVerifyBean {
     private int sex, birthdayYear, startAge, endAge;
 
     public List<String> getMethod() {
-        String method = this.method == null ? "" : this.method.trim();
-        if (method == null) {
+        String method = this.method == null ? "" : this.method.replaceAll(" ", "");
+        if (method.isEmpty()) {
             return new ArrayList<>();
         }
         return Arrays.asList(method.trim().split(","));
@@ -119,10 +119,8 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public List<String> getImages() {
-        if (images == null) {
-            return new ArrayList<>();
-        }
-        if (images.trim().isEmpty()) {
+        String images = this.images == null ? "" : this.images.replaceAll(" ", "");
+        if (images.isEmpty()) {
             return new ArrayList<>();
         }
         return Arrays.asList(images.trim().split(","));
@@ -133,10 +131,8 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public List<Integer> getSearch_sexes() {
-        if (search_sexes == null) {
-            return new ArrayList<>();
-        }
-        if (search_sexes.trim().isEmpty()) {
+        String search_sexes = this.search_sexes == null ? "" : this.search_sexes.replaceAll(" ", "");
+        if (search_sexes.isEmpty()) {
             return new ArrayList<>();
         }
         return Arrays.asList(search_sexes.trim().split(",")).stream().map(item -> Integer.parseInt(item.trim())).collect(Collectors.toList());
@@ -147,10 +143,8 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public List<Integer> getCommunicates() {
-        if (communicates == null) {
-            return new ArrayList<>();
-        }
-        if (communicates.trim().isEmpty()) {
+        String communicates = this.communicates == null ? "" : this.communicates.replaceAll(" ", "");
+        if (communicates.isEmpty()) {
             return new ArrayList<>();
         }
         return Arrays.asList(communicates.trim().split(",")).stream().map(item -> Integer.parseInt(item.trim())).collect(Collectors.toList());
@@ -161,10 +155,8 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public List<Integer> getSearch_communicates() {
-        if (search_communicates == null) {
-            return new ArrayList<>();
-        }
-        if (search_communicates.trim().isEmpty()) {
+        String search_communicates = this.search_communicates == null ? "" : this.search_communicates.replaceAll(" ", "");
+        if (search_communicates.isEmpty()) {
             return new ArrayList<>();
         }
         return Arrays.asList(search_communicates.trim().split(",")).stream().map(item -> Integer.parseInt(item.trim())).collect(Collectors.toList());
@@ -175,10 +167,8 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public List<Long> getInterests() {
-        if (interests == null) {
-            return new ArrayList<>();
-        }
-        if (interests.trim().isEmpty()) {
+        String interests = this.interests == null ? "" : this.interests.replaceAll(" ", "");
+        if (interests.isEmpty()) {
             return new ArrayList<>();
         }
         return Arrays.asList(interests.trim().split(",")).stream().map(item -> Long.parseLong(item.trim())).collect(Collectors.toList());
