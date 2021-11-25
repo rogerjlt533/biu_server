@@ -1,5 +1,8 @@
 package com.zuosuo.treehole.bean;
 
+import com.zuosuo.biudb.entity.BiuUserCommunicateEntity;
+import com.zuosuo.biudb.entity.BiuUserEntity;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,6 +138,9 @@ public class UserInfoBean extends BaseVerifyBean {
         if (search_sexes.isEmpty()) {
             return new ArrayList<>();
         }
+        if (search_sexes.equals("3")) {
+            search_sexes = String.join(",", String.valueOf(BiuUserEntity.USER_SEX_MAN), String.valueOf(BiuUserEntity.USER_SEX_WOMEN));
+        }
         return Arrays.asList(search_sexes.trim().split(",")).stream().map(item -> Integer.parseInt(item.trim())).collect(Collectors.toList());
     }
 
@@ -147,6 +153,9 @@ public class UserInfoBean extends BaseVerifyBean {
         if (communicates.isEmpty()) {
             return new ArrayList<>();
         }
+        if (communicates.equals("3")) {
+            communicates = String.join(",", String.valueOf(BiuUserCommunicateEntity.COM_METHOD_LETTER), String.valueOf(BiuUserCommunicateEntity.COM_METHOD_EMAIL));
+        }
         return Arrays.asList(communicates.trim().split(",")).stream().map(item -> Integer.parseInt(item.trim())).collect(Collectors.toList());
     }
 
@@ -158,6 +167,9 @@ public class UserInfoBean extends BaseVerifyBean {
         String search_communicates = this.search_communicates == null ? "" : this.search_communicates.replaceAll(" ", "");
         if (search_communicates.isEmpty()) {
             return new ArrayList<>();
+        }
+        if (search_communicates.equals("3")) {
+            search_communicates = String.join(",", String.valueOf(BiuUserCommunicateEntity.COM_METHOD_LETTER), String.valueOf(BiuUserCommunicateEntity.COM_METHOD_EMAIL));
         }
         return Arrays.asList(search_communicates.trim().split(",")).stream().map(item -> Integer.parseInt(item.trim())).collect(Collectors.toList());
     }
