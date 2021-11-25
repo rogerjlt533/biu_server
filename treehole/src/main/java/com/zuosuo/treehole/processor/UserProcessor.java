@@ -191,6 +191,7 @@ public class UserProcessor {
         result.getCity().setName(areaService.getArea(user.getCity()));
         result.getCountry().setCode(user.getCountry());
         result.getCountry().setName(areaService.getArea(user.getCountry()));
+        result.setAddress(user.getAddress());
         List<Integer> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
         result.getCommunicates().setList(communicates);
         result.getCommunicates().setTag(userService.parseCommunicates(communicates));
