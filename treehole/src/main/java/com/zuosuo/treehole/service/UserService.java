@@ -322,7 +322,12 @@ public class UserService {
     }
 
     public String parseInterests(List<UserInterestResult> list) {
-        List<String> interests = list.stream().map(item -> item.getName()).collect(Collectors.toList());
+        List<String> interests = new ArrayList<>();
+        list.forEach(item -> {
+            if (item.getChecked() > 0) {
+                interests.add(item.getName());
+            }
+        });
         return String.join("/", interests);
     }
 }
