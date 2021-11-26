@@ -39,6 +39,7 @@ public class WechatProcessor {
             return new FuncResult();
         }
         Map<String, Object> result = new HashMap<>();
+        result.put("is_penuse", 0);
         String openid = session.getOpenid();
         String unionid = session.getUnionid();
         BiuUserEntity user = userService.getUserByOpenid(openid);
@@ -56,6 +57,8 @@ public class WechatProcessor {
             if (user.getId() > 0) {
                 result.put("need_info", "1");
             }
+        } else {
+            result.put("is_penuse", user.getIsPenuser());
         }
         // 更新排序时间
         userService.setUserSortTime(user.getId());

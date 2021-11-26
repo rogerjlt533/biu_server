@@ -178,6 +178,7 @@ public class UserProcessor {
             return new FuncResult(false, "");
         }
         MyInfoResult result = new MyInfoResult();
+        result.setNick(user.getNick());
         result.setCardno(user.getUserCardno());
         result.setUsername(user.getUsername());
         result.setPenName(user.getPenName());
