@@ -267,6 +267,13 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "用户信息不存在");
         }
+        if (bean.getMethod().contains("nick")) {
+            user.setNick(bean.getNick());
+        }
+        if (bean.getMethod().contains("image")) {
+            BiuUserImageEntity image = userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_AVATOR, bean.getImage(), 0);
+            user.setImage(image.getFile());
+        }
         if (bean.getMethod().contains("pen_name")) {
             user.setPenName(bean.getPenName().trim());
         }
