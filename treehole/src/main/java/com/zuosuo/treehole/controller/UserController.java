@@ -95,4 +95,20 @@ public class UserController {
         }
         return new UpdateInfoAction(request, bean, userProcessor).run();
     }
+
+    /**
+     * 用户建议举报
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/report")
+    @Login
+    public JsonResult report(HttpServletRequest request, @RequestBody UserReportBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new UserReportAction(request, bean, userProcessor).run();
+    }
 }

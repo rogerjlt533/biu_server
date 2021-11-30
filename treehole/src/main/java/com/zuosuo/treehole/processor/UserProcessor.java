@@ -1,9 +1,6 @@
 package com.zuosuo.treehole.processor;
 
-import com.zuosuo.biudb.entity.BiuUserCommunicateEntity;
-import com.zuosuo.biudb.entity.BiuUserEntity;
-import com.zuosuo.biudb.entity.BiuUserImageEntity;
-import com.zuosuo.biudb.entity.BiuUserViewEntity;
+import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.BiuUserViewImpl;
 import com.zuosuo.component.response.FuncResult;
@@ -335,6 +332,33 @@ public class UserProcessor {
         }
         if (bean.getMethod().contains("search_communicate")) {
             userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
+        }
+        return new FuncResult(true);
+    }
+
+    public FuncResult submitReport(int type, long userId, long relateId, String content, List<String> images) {
+        BiuUserEntity user = userService.find(userId);
+        if (user == null) {
+            return new FuncResult(false, "用户信息不存在");
+        }
+        BiuUserReportEntity entity = new BiuUserReportEntity();
+        entity.setReportType(type);
+        entity.setUserId(userId);
+        entity.setRelateId(relateId);
+        entity.setContent(content);
+        biuDbFactory.getUserDbFactory().getBiuUserReportImpl().insert(entity);
+        if (images != null && !images.isEmpty()) {
+            int imageType = 0;
+            if (type == BiuUserReportEntity.REPORT_TYPE_TOUSU) {
+                imageType = BiuUserImageEntity.USE_TYPE_TOUSU;
+            } else if (type == BiuUserReportEntity.REPORT_TYPE_RECOMMEND) {
+                imageType = BiuUserImageEntity.USE_TYPE_RECOMMEND;
+            } else if (type == BiuUserReportEntity.REPORT_TYPE_OTHER) {
+                imageType = BiuUserImageEntity.USE_TYPE_REPORT_OTHER;
+            }
+            if (imageType > 0) {
+                userService.setUserImage(userId, imageType, images);
+            }
         }
         return new FuncResult(true);
     }
