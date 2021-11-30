@@ -151,6 +151,7 @@ public class UserInfoBean extends BaseVerifyBean {
 
     public List<Integer> getSearch_sexes() {
         String search_sexes = this.search_sexes == null ? "3" : this.search_sexes.replaceAll(" ", "");
+        search_sexes = search_sexes.isEmpty() ? "3" : search_sexes;
         if (search_sexes.isEmpty()) {
             return new ArrayList<>();
         }
@@ -181,6 +182,7 @@ public class UserInfoBean extends BaseVerifyBean {
 
     public List<Integer> getSearch_communicates() {
         String search_communicates = this.search_communicates == null ? "3" : this.search_communicates.replaceAll(" ", "");
+        search_communicates = search_communicates.isEmpty() ? "3" : search_communicates;
         if (search_communicates.isEmpty()) {
             return new ArrayList<>();
         }
