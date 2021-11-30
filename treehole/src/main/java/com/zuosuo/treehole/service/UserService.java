@@ -65,7 +65,7 @@ public class UserService {
             return "";
         }
         file = file.trim();
-        if (!file.contains("/upload")) {
+        if (!file.startsWith("upload/")) {
             return file;
         }
         return qiniuTool.getLink(file);

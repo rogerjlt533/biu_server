@@ -41,6 +41,7 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println(userService.parseImage("upload/d842ee3d20d04288ac23de0a248ecf89.png"));
 //        try(BufferedReader reader = new BufferedReader(new FileReader("D:\\area.txt"))) {
 //            String line = reader.readLine();
 //            while (line != null) {
