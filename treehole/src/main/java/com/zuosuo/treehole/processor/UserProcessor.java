@@ -9,6 +9,7 @@ import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.CommonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
+import com.zuosuo.treehole.bean.UserCollectBean;
 import com.zuosuo.treehole.bean.UserInfoBean;
 import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
 import com.zuosuo.treehole.bean.UserListBean;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class UserProcessor {
@@ -87,6 +87,14 @@ public class UserProcessor {
         if (ages != null) {
             option.addCondition("age>=" + ages[0] + " and age<=" + ages[1]);
         }
+        BiuUserViewEntity lastUser = null;
+        String last = bean.getLast();
+        if (!last.isEmpty()) {
+            long lastId = decodeUserHash(last);
+            if (lastId > 0) {
+                lastUser = userService.getUserView(lastId);
+            }
+        }
         if(user != null) {
             option.addCondition("id!=" + user.getId());
             int self_age = user.getAge();
@@ -111,20 +119,32 @@ public class UserProcessor {
                 }
             }
             option.addCondition("!FIND_IN_SET('" + user.getId() + "', protected_user)");
-        } else {
-            option.addCondition("(age=0 or ISNULL(search_sex))");
+        } else if(bean.getMethod() == UserListBean.RECOMMEND) {
+            // 非登录下系统推荐无数据
+            option.addCondition("1=0");
         }
         // 两个月内登录的
         option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setMonth(-2))) + "'");
+        // 最后记录排重
+        if (lastUser != null) {
+            option.addCondition("sort_time<'" + TimeTool.formatDate(lastUser.getSortTime()) + '"');
+        }
         option.addOrderby("sort_time desc");
-        option.setOffset(PageTool.getOffset(bean.getPage(), PageTool.DEFAULT_SIZE));
-        option.setLimit(PageTool.DEFAULT_SIZE);
+        option.setOffset(PageTool.getOffset(bean.getPage(), bean.getSize()));
+        option.setLimit(bean.getSize() + 1);
         BiuUserViewImpl impl = biuDbFactory.getUserDbFactory().getBiuUserViewImpl();
         List<BiuUserViewEntity> list = impl.list(option);
         Map<String, Object> result = new HashMap<>();
         result.put("page", PageTool.parsePage(bean.getPage()));
         result.put("size", bean.getSize());
-        result.put("count", impl.count(option));
+//        result.put("count", impl.count(option));
+        result.put("more", 0);
+        System.out.println(list.size());
+        System.out.println(bean.getSize());
+        if (list.size() > bean.getSize()) {
+            list.remove(list.size());
+            result.put("more", 1);
+        }
         if (list.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
@@ -143,7 +163,7 @@ public class UserProcessor {
         List<UserResult> result = new ArrayList<>();
         list.forEach(item -> {
             UserResult unit = new UserResult();
-            unit.setId(hashTool.getHashids(4).encode(item.getId()));
+            unit.setId(encodeUserHash(item.getId()));
             unit.setName(item.getPenName());
             unit.setAge(item.getAge());
             unit.setTitle(item.getTitle());
@@ -154,9 +174,9 @@ public class UserProcessor {
             unit.setImages(userService.getUserImageList(item.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
             unit.setInterests(userService.getUserInterestSimpleList(item.getId()));
             if (item.getSelfCommunicate() != null && !item.getSelfCommunicate().isEmpty()) {
-                unit.setCommunicates(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().map(e -> Integer.parseInt(e)).collect(Collectors.toList()));
+                unit.setCommunicates(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));
             } else {
-                unit.setCommunicates(new ArrayList<>());
+                unit.setCommunicates(3);
             }
             if (user != null) {
                 unit.setIsCollect(userCollectService.isCollected(user.getId(), item.getId()) ? 1 : 0);
@@ -347,6 +367,9 @@ public class UserProcessor {
         entity.setRelateId(relateId);
         entity.setContent(content);
         biuDbFactory.getUserDbFactory().getBiuUserReportImpl().insert(entity);
+        if (type == BiuUserReportEntity.REPORT_TYPE_REPORT) {
+            blackUser(userId, relateId);
+        }
         if (images != null && !images.isEmpty()) {
             int imageType = 0;
             if (type == BiuUserReportEntity.REPORT_TYPE_TOUSU) {
@@ -361,5 +384,51 @@ public class UserProcessor {
             }
         }
         return new FuncResult(true);
+    }
+
+    public void blackUser(long userId, long relateId) {
+        BiuUserBlacklistEntity black = userService.getUserBlack(userId, relateId);
+        if (black == null) {
+            black = new BiuUserBlacklistEntity();
+            black.setUserId(userId);
+            black.setBlackId(relateId);
+            biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().insert(black);
+        }
+    }
+
+    public void cancelBlackUser(long userId, long relateId) {
+        BiuUserBlacklistEntity black = userService.getUserBlack(userId, relateId);
+        if (black != null) {
+            biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().delete(black);
+        }
+    }
+
+    public String encodeUserHash(long userId) {
+        return hashTool.getHashids(4).encode(userId);
+    }
+
+    public long decodeUserHash(String hash) {
+        return hashTool.getHashids(4).first(hash);
+    }
+
+    public FuncResult collect(long userId, long relateId, String method) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("relate_id", relateId);
+        BiuUserCollectEntity collect = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(option);
+        if (method.equals(UserCollectBean.COLLECT)) {
+            if (collect != null) {
+                return new FuncResult(false, "已关注");
+            }
+            userCollectService.pushUserCollect(userId, relateId, new Date());
+            return new FuncResult(true);
+        } else if(method.equals(UserCollectBean.CANCEL)) {
+            if (collect == null) {
+                return new FuncResult(false, "未关注");
+            }
+            userCollectService.cancelUserCollect(userId, relateId, new Date());
+            return new FuncResult(true);
+        }
+        return new FuncResult(false, "操作错误");
     }
 }

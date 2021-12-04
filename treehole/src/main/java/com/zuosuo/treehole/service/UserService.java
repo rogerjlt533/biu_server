@@ -325,4 +325,11 @@ public class UserService {
         List<String> interests = list.stream().filter(item -> item.getChecked() > 0).map(UserInterestResult::getName).collect(Collectors.toList());
         return String.join("/", interests);
     }
+
+    public BiuUserBlacklistEntity getUserBlack(long userId, long relateId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("black_id", relateId);
+        return biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().single(option);
+    }
 }

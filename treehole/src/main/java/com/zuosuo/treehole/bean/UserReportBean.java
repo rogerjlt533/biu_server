@@ -9,7 +9,7 @@ import java.util.List;
 public class UserReportBean extends BaseVerifyBean {
 
     private int type;
-    private long relate;
+    private String relate;
     private String content, images;
 
     public int getType() {
@@ -20,11 +20,11 @@ public class UserReportBean extends BaseVerifyBean {
         this.type = type;
     }
 
-    public long getRelate() {
-        return relate;
+    public String getRelate() {
+        return relate != null ? relate.trim() : "";
     }
 
-    public void setRelate(long relate) {
+    public void setRelate(String relate) {
         this.relate = relate;
     }
 
@@ -56,7 +56,7 @@ public class UserReportBean extends BaseVerifyBean {
         if (getContent().isEmpty()) {
             return new VerifyResult("请填写内容");
         }
-        if (getType() == BiuUserReportEntity.REPORT_TYPE_REPORT && getRelate() <= 0) {
+        if (getType() == BiuUserReportEntity.REPORT_TYPE_REPORT && getRelate().isEmpty()) {
             return new VerifyResult("请选择投诉人");
         }
         return new VerifyResult();

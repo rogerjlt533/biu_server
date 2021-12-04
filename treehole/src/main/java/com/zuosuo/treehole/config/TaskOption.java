@@ -2,7 +2,7 @@ package com.zuosuo.treehole.config;
 
 public enum TaskOption {
 
-    USER_COLLECT("biu:user:collect");
+    USER_COLLECT("biu:user:collect"), USER_CANCEL("biu:user:collect:cancel");
 
     private String value;
 

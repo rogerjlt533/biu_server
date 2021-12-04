@@ -44,6 +44,28 @@ public class UserCollectService {
         return pushUserCollect(user, relate, time);
     }
 
+    public boolean cancelUserCollect(BiuUserEntity user, BiuUserEntity relate, Date time) {
+        if (user == null || relate == null) {
+            return false;
+        }
+        String key = TaskOption.USER_CANCEL.getValue();
+        ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
+        operator.rightPush(key, JsonTool.toJson(new UserCollectInput(user.getId(), relate.getId(), time)));
+        return true;
+    }
+
+    public boolean cancelUserCollect(long userId, long relateId, Date time) {
+        BiuUserEntity user = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(userId);
+        if (user == null) {
+            return false;
+        }
+        BiuUserEntity relate = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(relateId);
+        if (relate == null) {
+            return false;
+        }
+        return cancelUserCollect(user, relate, time);
+    }
+
     public boolean isCollected(long userId, long relateId) {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);

@@ -2,8 +2,11 @@ package com.zuosuo.treehole.bean;
 
 public class UserListBean extends BaseVerifyBean {
 
-    private int communicate = 0, sex = 0;
-    private String age = "";
+    public static final int ZONGHE = 0;
+    public static final int RECOMMEND = 1;
+
+    private int communicate = 0, sex = 0, method = 0;
+    private String age = "", last = "";
 
     public int getCommunicate() {
         return communicate = communicate > 0 ? communicate : 0;
@@ -19,6 +22,14 @@ public class UserListBean extends BaseVerifyBean {
 
     public void setSex(int sex) {
         this.sex = sex;
+    }
+
+    public int getMethod() {
+        return method;
+    }
+
+    public void setMethod(int method) {
+        this.method = method;
     }
 
     public int[] getAge() {
@@ -41,6 +52,14 @@ public class UserListBean extends BaseVerifyBean {
 
     public void setAge(String age) {
         this.age = age != null ? age.trim() : "";
+    }
+
+    public String getLast() {
+        return last == null ? "" : last.trim();
+    }
+
+    public void setLast(String last) {
+        this.last = last;
     }
 
     @Override

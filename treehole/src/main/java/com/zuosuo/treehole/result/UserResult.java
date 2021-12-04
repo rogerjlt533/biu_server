@@ -5,9 +5,8 @@ import java.util.List;
 
 public class UserResult {
     private String id = "", name = "", title = "", introduce = "", province = "", sex = "", sortTime = "";
-    private int age = 0, isCollect = 0;
+    private int age = 0, isCollect = 0, communicates;
     private List<String> images, interests;
-    private List<Integer> communicates;
 
     public UserResult() {
         images = new ArrayList<>();
@@ -102,11 +101,11 @@ public class UserResult {
         this.interests = interests;
     }
 
-    public List<Integer> getCommunicates() {
+    public int getCommunicates() {
         return communicates;
     }
 
-    public void setCommunicates(List<Integer> communicates) {
+    public void setCommunicates(int communicates) {
         this.communicates = communicates;
     }
 
@@ -116,9 +115,5 @@ public class UserResult {
 
     public void addInterest(String interest) {
         interests.add(interest);
-    }
-
-    public void addCommunicate(int communicate) {
-        communicates.add(communicate);
     }
 }

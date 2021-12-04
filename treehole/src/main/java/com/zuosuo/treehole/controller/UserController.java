@@ -111,4 +111,36 @@ public class UserController {
         }
         return new UserReportAction(request, bean, userProcessor).run();
     }
+
+    /**
+     * 用户关注与取消关注
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/collect")
+    @Login
+    public JsonResult collect(HttpServletRequest request, @RequestBody UserCollectBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new UserCollectAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 用户取消拉黑
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/black/cancel")
+    @Login
+    public JsonResult cancelBlack(HttpServletRequest request, @RequestBody CancelBlackBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new CancelBlackAction(request, bean, userProcessor).run();
+    }
 }

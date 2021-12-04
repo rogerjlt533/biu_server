@@ -1,5 +1,7 @@
 package com.zuosuo.treehole.bean;
 
+import com.zuosuo.mybatis.tool.PageTool;
+
 public abstract class BaseVerifyBean {
 
     private long page = 0;
@@ -16,7 +18,7 @@ public abstract class BaseVerifyBean {
     }
 
     public int getSize() {
-        return size;
+        return size <= 0 ? PageTool.DEFAULT_SIZE : size;
     }
 
     public void setSize(int size) {
