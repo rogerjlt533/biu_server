@@ -166,7 +166,8 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public List<Integer> getCommunicates() {
-        String communicates = this.communicates == null ? "" : this.communicates.replaceAll(" ", "");
+        String communicates = this.communicates == null ? "3" : this.communicates.replaceAll(" ", "");
+        communicates = communicates.isEmpty() ? "3" : communicates;
         if (communicates.isEmpty()) {
             return new ArrayList<>();
         }
