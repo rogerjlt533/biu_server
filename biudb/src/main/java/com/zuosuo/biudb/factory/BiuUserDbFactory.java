@@ -31,6 +31,12 @@ public class BiuUserDbFactory {
     private BiuUserBlacklistImpl biuUserBlacklistImpl;
     @Autowired
     private BiuUserFriendImpl biuUserFriendImpl;
+    @Autowired
+    private BiuUserFriendMemberImpl biuUserFriendMemberImpl;
+    @Autowired
+    private BiuUserFriendCommunicateImpl biuUserFriendCommunicateImpl;
+    @Autowired
+    private BiuUserFriendCommunicateLogImpl biuUserFriendCommunicateLogImpl;
 
     public BiuUserImpl getBiuUserImpl() {
         return biuUserImpl;
@@ -78,5 +84,17 @@ public class BiuUserDbFactory {
 
     public BiuUserFriendImpl getBiuUserFriendImpl() {
         return biuUserFriendImpl;
+    }
+
+    public BiuUserFriendMemberImpl getBiuUserFriendMemberImpl() {
+        return biuUserFriendMemberImpl;
+    }
+
+    public BiuUserFriendCommunicateImpl getBiuUserFriendCommunicateImpl() {
+        return biuUserFriendCommunicateImpl;
+    }
+
+    public BiuUserFriendCommunicateLogImpl getBiuUserFriendCommunicateLogImpl() {
+        return biuUserFriendCommunicateLogImpl;
     }
 }

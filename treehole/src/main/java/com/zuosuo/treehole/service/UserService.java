@@ -2,6 +2,7 @@ package com.zuosuo.treehole.service;
 
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
@@ -73,16 +74,16 @@ public class UserService {
 
     public List<UserInterestResult> getUserInterests(long userId) {
         List<UserInterestResult> result = new ArrayList<>();
-        List<BiuUserInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().list(new ProviderOption(new ArrayList<String>(){{
+        List<BiuUserInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().list(new ProviderOption(new ArrayList<String>() {{
             add("user_id=" + userId);
-            add("use_type=" + BiuUserInterestEntity.USE_TYPE_SELF );
+            add("use_type=" + BiuUserInterestEntity.USE_TYPE_SELF);
         }}));
         if (list.isEmpty()) {
             return new ArrayList<>();
         }
         List<String> relates = list.stream().map(item -> String.valueOf(item.getInterestId())).collect(Collectors.toList());
-        List<BiuInterestEntity> interests = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption(new ArrayList<String>(){{
-            add("id in ("  + String.join(",", relates) +")");
+        List<BiuInterestEntity> interests = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption(new ArrayList<String>() {{
+            add("id in (" + String.join(",", relates) + ")");
         }}));
         interests.forEach(item -> {
             result.add(new UserInterestResult(item.getId(), item.getTag(), 1));
@@ -174,7 +175,7 @@ public class UserService {
         } else {
             biuDbFactory.getUserDbFactory().getBiuUserImageImpl().restore(image);
         }
-        if(isQiniu) {
+        if (isQiniu) {
             BiuUserImageEntity relate = getUserImage(userId, file);
             image.setFile(relate.getFile());
             image.setUseType(type);
@@ -221,7 +222,7 @@ public class UserService {
             entity.setUseType(type);
             entity.setComMethod(communicate);
             biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().insert(entity);
-        } else if(entity.getDeletedAt() != null) {
+        } else if (entity.getDeletedAt() != null) {
             biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().restore(entity);
         }
     }
@@ -252,7 +253,7 @@ public class UserService {
             entity.setUserId(userId);
             entity.setSex(sex);
             biuDbFactory.getUserDbFactory().getBiuUserSexImpl().insert(entity);
-        } else if(entity.getDeletedAt() != null) {
+        } else if (entity.getDeletedAt() != null) {
             biuDbFactory.getUserDbFactory().getBiuUserSexImpl().restore(entity);
         }
     }
@@ -286,7 +287,7 @@ public class UserService {
             entity.setUseType(BiuUserInterestEntity.USE_TYPE_SELF);
             entity.setInterestId(interest);
             biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().insert(entity);
-        } else if(entity.getDeletedAt() != null) {
+        } else if (entity.getDeletedAt() != null) {
             biuDbFactory.getUserDbFactory().getBiuUserInterestImpl().restore(entity);
         }
     }
@@ -296,7 +297,7 @@ public class UserService {
             String sex;
             if (item == BiuUserEntity.USER_SEX_MAN) {
                 sex = BiuUserEntity.LABEL_USER_SEX_MAN;
-            } else if(item == BiuUserEntity.USER_SEX_WOMEN) {
+            } else if (item == BiuUserEntity.USER_SEX_WOMEN) {
                 sex = BiuUserEntity.LABEL_USER_SEX_WOMEN;
             } else {
                 sex = "";
@@ -311,7 +312,7 @@ public class UserService {
             String name;
             if (item == BiuUserCommunicateEntity.COM_METHOD_EMAIL) {
                 name = BiuUserCommunicateEntity.LABEL_COM_METHOD_EMAIL;
-            } else if(item == BiuUserCommunicateEntity.COM_METHOD_LETTER) {
+            } else if (item == BiuUserCommunicateEntity.COM_METHOD_LETTER) {
                 name = BiuUserCommunicateEntity.LABEL_COM_METHOD_LETTER;
             } else {
                 name = "";
@@ -331,5 +332,155 @@ public class UserService {
         option.addCondition("user_id", userId);
         option.addCondition("black_id", relateId);
         return biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().single(option);
+    }
+
+    /**
+     * 转化好友列表users
+     *
+     * @param userId
+     * @param friendId
+     * @return
+     */
+    public String formatUserFriendMembers(long userId, long friendId) {
+        List<Long> users = Arrays.asList(userId, friendId);
+        Collections.sort(users);
+        return String.join(",", users.stream().map(item -> String.valueOf(item)).collect(Collectors.toList()));
+    }
+
+    public BiuUserFriendEntity getUserFriend(long userId, long friendId, int confirmStatus) {
+        String users = formatUserFriendMembers(userId, friendId);
+        ProviderOption option = new ProviderOption();
+        option.addCondition("users", users);
+        option.addCondition("confirm_status", confirmStatus);
+        return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().single(option);
+    }
+
+    /**
+     * 生成用户好友记录
+     * @param userId
+     * @param friendId
+     * @return
+     */
+    public BiuUserFriendEntity applyFriend(long userId, long friendId) {
+        BiuUserFriendEntity passed = getUserFriend(userId, friendId, BiuUserFriendEntity.PASS_STATUS);
+        if (passed != null) {
+            return passed;
+        }
+        BiuUserFriendEntity waiting = getUserFriend(userId, friendId, BiuUserFriendEntity.WAITING_STATUS);
+        if (waiting != null) {
+            return waiting;
+        }
+        BiuUserFriendEntity friend = new BiuUserFriendEntity();
+        friend.setUsers(formatUserFriendMembers(userId, friendId));
+        friend.setConfirmStatus(BiuUserFriendEntity.WAITING_STATUS);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().insert(friend);
+        createFriendMember(userId, friendId, friend);
+        createFriendCommunicate(userId, friendId, friend);
+        return friend;
+    }
+
+    public void createFriendMember(long userId, long friendId, BiuUserFriendEntity friend) {
+        BiuUserFriendMemberEntity memberUser = new BiuUserFriendMemberEntity();
+        memberUser.setFriendId(friend.getId());
+        memberUser.setUserId(userId);
+        memberUser.setConfirmStatus(BiuUserFriendMemberEntity.PASS_STATUS);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().insert(memberUser);
+        BiuUserFriendMemberEntity memberFriend = new BiuUserFriendMemberEntity();
+        memberFriend.setFriendId(friend.getId());
+        memberFriend.setUserId(friendId);
+        memberFriend.setConfirmStatus(BiuUserFriendMemberEntity.WAITING_STATUS);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().insert(memberFriend);
+    }
+
+    public void createFriendCommunicate(long userId, long friendId, BiuUserFriendEntity friend) {
+        BiuUserViewEntity user = getUserView(userId);
+        BiuUserViewEntity friendUser = getUserView(friendId);
+        List<Integer> list = Arrays.asList(BiuUserCommunicateEntity.COM_METHOD_LETTER, BiuUserCommunicateEntity.COM_METHOD_EMAIL).stream().filter(item -> {
+            String compareValue = "'" + item + "'";
+            if (user.getSelfCommunicate().contains(compareValue) && friendUser.getSelfCommunicate().contains(compareValue)) {
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+        list.forEach(item -> {
+            BiuUserFriendCommunicateEntity entity = new BiuUserFriendCommunicateEntity();
+            entity.setFriendId(friend.getId());
+            entity.setCommunicateType(item);
+            entity.setConfirmStatus(BiuUserFriendCommunicateEntity.WAITING_STATUS);
+            biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateImpl().insert(entity);
+        });
+        addUserMessage(userId, userId, BiuMessageEntity.MNOTICE_APPLY, friendId, "正在向@" + friendUser.getPenName() + "提交笔友申请", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.MNOTICE_APPLY, userId, "@" + user.getPenName() + "正在向您提交笔友申请", "");
+    }
+
+    public void addUserMessage(long sourceId, long destId, int messageType, long relateId, String title, String content) {
+        BiuMessageEntity message = new BiuMessageEntity();
+        message.setSourceId(sourceId);
+        message.setDestId(destId);
+        message.setMessageType(messageType);
+        message.setRelateId(relateId);
+        message.setTitle(title);
+        message.setContent(content);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
+    }
+
+    public BiuUserFriendMemberEntity getUserFriendMember(long friendId, long userId, int status) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("friend_id", friendId);
+        option.addCondition("user_id", userId);
+        option.addCondition("confirm_status", status);
+        return biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().single(option);
+    }
+
+    /**
+     * 通过好友申请
+     * @param userId
+     * @param friendId
+     * @return
+     */
+    public JsonResult passFriend(long userId, long friendId) {
+        BiuUserViewEntity friendUser = getUserView(friendId);
+        BiuUserFriendEntity passed = getUserFriend(userId, friendId, BiuUserFriendEntity.PASS_STATUS);
+        if (passed != null) {
+            return new JsonResult("已通过申请");
+        }
+        BiuUserFriendEntity waiting = getUserFriend(userId, friendId, BiuUserFriendEntity.WAITING_STATUS);
+        if (waiting == null) {
+            return new JsonResult("非有效好友申请");
+        }
+        BiuUserFriendMemberEntity member = getUserFriendMember(waiting.getId(), friendId, BiuUserFriendMemberEntity.WAITING_STATUS);
+        if (member == null) {
+            return new JsonResult("无有效好友申请审核");
+        }
+        member.setConfirmStatus(BiuUserFriendMemberEntity.PASS_STATUS);
+        member.setConfirmTime(new Date());
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
+        waiting.setConfirmStatus(BiuUserFriendEntity.PASS_STATUS);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
+        addUserMessage(friendId, userId, BiuMessageEntity.MNOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已同意添加您为笔友", "");
+        return JsonResult.success();
+    }
+
+    public JsonResult refuseFriend(long userId, long friendId) {
+        BiuUserViewEntity friendUser = getUserView(friendId);
+        BiuUserFriendEntity refuseed = getUserFriend(userId, friendId, BiuUserFriendEntity.REFUSE_STATUS);
+        if (refuseed != null) {
+            return new JsonResult("已拒绝申请");
+        }
+        BiuUserFriendEntity waiting = getUserFriend(userId, friendId, BiuUserFriendEntity.WAITING_STATUS);
+        if (waiting == null) {
+            return new JsonResult("非有效好友申请");
+        }
+        BiuUserFriendMemberEntity member = getUserFriendMember(waiting.getId(), friendId, BiuUserFriendMemberEntity.WAITING_STATUS);
+        if (member == null) {
+            return new JsonResult("无有效好友申请审核");
+        }
+        member.setConfirmStatus(BiuUserFriendMemberEntity.REFUSE_STATUS);
+        member.setConfirmTime(new Date());
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
+        waiting.setConfirmStatus(BiuUserFriendEntity.REFUSE_STATUS);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
+        addUserMessage(friendId, userId, BiuMessageEntity.MNOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已拒绝添加您为笔友", "");
+        return JsonResult.success();
     }
 }

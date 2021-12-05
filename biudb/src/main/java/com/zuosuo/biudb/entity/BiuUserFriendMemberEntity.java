@@ -7,8 +7,8 @@ import org.apache.ibatis.type.Alias;
 
 import java.util.Date;
 
-@Alias("BiuUserFriendEntity")
-public class BiuUserFriendEntity extends BaseEntity {
+@Alias("BiuUserFriendMemberEntity")
+public class BiuUserFriendMemberEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -17,10 +17,15 @@ public class BiuUserFriendEntity extends BaseEntity {
     public static final int REFUSE_STATUS = 2;
 
     private long id;
+    @EntityProperty(comment = "好友记录ID")
+    private long friendId = 0;
     @EntityProperty(comment = "用户ID")
-    private String users = "";
+    private long userId = 0;
     @EntityProperty(comment = "确认状态 0-待确认 1-是 2-已拒绝")
     private int confirmStatus = 0;
+    @EntityProperty(comment = "确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date confirmTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -36,12 +41,20 @@ public class BiuUserFriendEntity extends BaseEntity {
         this.id = id;
     }
 
-    public String getUsers() {
-        return users;
+    public long getFriendId() {
+        return friendId;
     }
 
-    public void setUsers(String users) {
-        this.users = users;
+    public void setFriendId(long friendId) {
+        this.friendId = friendId;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 
     public int getConfirmStatus() {
@@ -50,6 +63,14 @@ public class BiuUserFriendEntity extends BaseEntity {
 
     public void setConfirmStatus(int confirmStatus) {
         this.confirmStatus = confirmStatus;
+    }
+
+    public Date getConfirmTime() {
+        return confirmTime;
+    }
+
+    public void setConfirmTime(Date confirmTime) {
+        this.confirmTime = confirmTime;
     }
 
     public Date getCreatedAt() {

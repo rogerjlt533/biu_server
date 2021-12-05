@@ -6,6 +6,7 @@ import com.zuosuo.treehole.action.user.*;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.processor.UserProcessor;
+import com.zuosuo.treehole.result.CollectUserResult;
 import com.zuosuo.treehole.result.MyInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -142,5 +144,32 @@ public class UserController {
             return new JsonResult(verify.getMessage());
         }
         return new CancelBlackAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 用户关注列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/collect/list")
+    @Login
+    public JsonDataResult<List<CollectUserResult>> collectUserList(HttpServletRequest request) {
+        return new CollectedUserListAction(request, userProcessor).run();
+    }
+
+    /**
+     * 用户好友申请处理
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/friend/apply")
+    @Login
+    public JsonResult applyFriend(HttpServletRequest request, @RequestBody ApplyFriendBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new ApplyFriendAction(request, bean, userProcessor).run();
     }
 }

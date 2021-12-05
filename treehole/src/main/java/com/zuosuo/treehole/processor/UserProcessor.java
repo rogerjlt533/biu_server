@@ -4,15 +4,15 @@ import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.BiuUserViewImpl;
 import com.zuosuo.component.response.FuncResult;
+import com.zuosuo.component.response.JsonResult;
+import com.zuosuo.component.response.ResponseConfig;
 import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.CommonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
-import com.zuosuo.treehole.bean.UserCollectBean;
-import com.zuosuo.treehole.bean.UserInfoBean;
-import com.zuosuo.treehole.bean.UserInitUpdateInfoBean;
-import com.zuosuo.treehole.bean.UserListBean;
+import com.zuosuo.treehole.bean.*;
+import com.zuosuo.treehole.result.CollectUserResult;
 import com.zuosuo.treehole.result.MyInfoResult;
 import com.zuosuo.treehole.result.UserInterestResult;
 import com.zuosuo.treehole.result.UserResult;
@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class UserProcessor {
@@ -430,5 +431,85 @@ public class UserProcessor {
             return new FuncResult(true);
         }
         return new FuncResult(false, "操作错误");
+    }
+
+    /**
+     * 处理笔友申请
+     * @param userId
+     * @param friendId
+     * @param method
+     * @return
+     */
+    public FuncResult processFriend(long userId, long friendId, String method) {
+        if (userId == friendId) {
+            return new FuncResult(false, "不能是同一人");
+        }
+        if (method.equals(ApplyFriendBean.APPLY)) {
+            userService.applyFriend(userId, friendId);
+            return new FuncResult(true);
+        } else if(method.equals(ApplyFriendBean.PASS)) {
+            JsonResult result = userService.passFriend(friendId, userId);
+            if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
+                return new FuncResult(true);
+            }
+            return new FuncResult(false, result.getMessage());
+        } else if(method.equals(ApplyFriendBean.REFUSE)) {
+            JsonResult result = userService.refuseFriend(friendId, userId);
+            if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
+                return new FuncResult(true);
+            }
+            return new FuncResult(false, result.getMessage());
+        }
+        return new FuncResult(false, "操作类型有误");
+    }
+
+    /**
+     * 关注用户列表
+     * @param userId
+     * @return
+     */
+    public FuncResult getCollectList(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addOrderby("created_at desc");
+        List<BiuUserCollectEntity> rows = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().list(option);
+        if (rows == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        List<CollectUserResult> list = new ArrayList<>();
+        rows.forEach(item -> {
+            BiuUserViewEntity entity = userService.getUserView(item.getRelateId());
+            int search = entity.getSearchStatus();
+            CollectUserResult unit = new CollectUserResult();
+            unit.setId(encodeUserHash(entity.getId()));
+            unit.setImage(userService.parseImage(entity.getImage()));
+            if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
+                unit.setName("匿名");
+                unit.setDesc("隐藏");
+            } else {
+                int communicate = 0;
+                if (entity.getSelfCommunicate() != null && !entity.getSelfCommunicate().isEmpty()) {
+                    communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
+                }
+                unit.setName(entity.getPenName());
+                List<String> descList = new ArrayList<>();
+                String province = areaService.getArea(entity.getProvince());
+                if (!province.isEmpty()) {
+                    descList.add(province);
+                }
+                String sex = entity.getSexTag();
+                if (!sex.isEmpty()) {
+                    descList.add(sex);
+                }
+                int age = entity.getAge();
+                if (age > 0) {
+                    descList.add(age + "岁");
+                }
+                unit.setDesc(String.join("/", descList));
+                unit.setCommunicate(communicate);
+            }
+            list.add(unit);
+        });
+        return new FuncResult(true, "", list);
     }
 }

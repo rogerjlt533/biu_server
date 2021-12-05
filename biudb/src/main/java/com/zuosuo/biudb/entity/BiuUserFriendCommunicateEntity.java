@@ -7,8 +7,8 @@ import org.apache.ibatis.type.Alias;
 
 import java.util.Date;
 
-@Alias("BiuUserFriendEntity")
-public class BiuUserFriendEntity extends BaseEntity {
+@Alias("BiuUserFriendCommunicateEntity")
+public class BiuUserFriendCommunicateEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -17,8 +17,12 @@ public class BiuUserFriendEntity extends BaseEntity {
     public static final int REFUSE_STATUS = 2;
 
     private long id;
-    @EntityProperty(comment = "用户ID")
-    private String users = "";
+    @EntityProperty(comment = "好友记录ID")
+    private long friendId = 0;
+    @EntityProperty(comment = "通信方式 1-信件 2-E-mail")
+    private int communicateType = 0;
+    @EntityProperty(comment = "最后的通讯记录ID")
+    private long lastLog = 0;
     @EntityProperty(comment = "确认状态 0-待确认 1-是 2-已拒绝")
     private int confirmStatus = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -36,12 +40,28 @@ public class BiuUserFriendEntity extends BaseEntity {
         this.id = id;
     }
 
-    public String getUsers() {
-        return users;
+    public long getFriendId() {
+        return friendId;
     }
 
-    public void setUsers(String users) {
-        this.users = users;
+    public void setFriendId(long friendId) {
+        this.friendId = friendId;
+    }
+
+    public int getCommunicateType() {
+        return communicateType;
+    }
+
+    public void setCommunicateType(int communicateType) {
+        this.communicateType = communicateType;
+    }
+
+    public long getLastLog() {
+        return lastLog;
+    }
+
+    public void setLastLog(long lastLog) {
+        this.lastLog = lastLog;
     }
 
     public int getConfirmStatus() {
