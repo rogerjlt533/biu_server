@@ -6,6 +6,7 @@ import com.zuosuo.treehole.action.user.*;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.processor.UserProcessor;
+import com.zuosuo.treehole.result.BlackUserResult;
 import com.zuosuo.treehole.result.CollectUserResult;
 import com.zuosuo.treehole.result.MyInfoResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -155,6 +156,17 @@ public class UserController {
     @Login
     public JsonDataResult<List<CollectUserResult>> collectUserList(HttpServletRequest request) {
         return new CollectedUserListAction(request, userProcessor).run();
+    }
+
+    /**
+     * 用户拉黑列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/black/list")
+    @Login
+    public JsonDataResult<List<BlackUserResult>> blackUserList(HttpServletRequest request) {
+        return new BlackedUserListAction(request, userProcessor).run();
     }
 
     /**

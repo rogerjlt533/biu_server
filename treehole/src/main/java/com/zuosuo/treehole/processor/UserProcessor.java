@@ -12,10 +12,7 @@ import com.zuosuo.component.tool.CommonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.*;
-import com.zuosuo.treehole.result.CollectUserResult;
-import com.zuosuo.treehole.result.MyInfoResult;
-import com.zuosuo.treehole.result.UserInterestResult;
-import com.zuosuo.treehole.result.UserResult;
+import com.zuosuo.treehole.result.*;
 import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.UserCollectService;
 import com.zuosuo.treehole.service.UserService;
@@ -481,6 +478,56 @@ public class UserProcessor {
             BiuUserViewEntity entity = userService.getUserView(item.getRelateId());
             int search = entity.getSearchStatus();
             CollectUserResult unit = new CollectUserResult();
+            unit.setId(encodeUserHash(entity.getId()));
+            unit.setImage(userService.parseImage(entity.getImage()));
+            if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
+                unit.setName("匿名");
+                unit.setDesc("隐藏");
+            } else {
+                int communicate = 0;
+                if (entity.getSelfCommunicate() != null && !entity.getSelfCommunicate().isEmpty()) {
+                    communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
+                }
+                unit.setName(entity.getPenName());
+                List<String> descList = new ArrayList<>();
+                String province = areaService.getArea(entity.getProvince());
+                if (!province.isEmpty()) {
+                    descList.add(province);
+                }
+                String sex = entity.getSexTag();
+                if (!sex.isEmpty()) {
+                    descList.add(sex);
+                }
+                int age = entity.getAge();
+                if (age > 0) {
+                    descList.add(age + "岁");
+                }
+                unit.setDesc(String.join("/", descList));
+                unit.setCommunicate(communicate);
+            }
+            list.add(unit);
+        });
+        return new FuncResult(true, "", list);
+    }
+
+    /**
+     * 关注用户列表
+     * @param userId
+     * @return
+     */
+    public FuncResult getBlackList(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addOrderby("created_at desc");
+        List<BiuUserBlacklistEntity> rows = biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().list(option);
+        if (rows == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        List<BlackUserResult> list = new ArrayList<>();
+        rows.forEach(item -> {
+            BiuUserViewEntity entity = userService.getUserView(item.getBlackId());
+            int search = entity.getSearchStatus();
+            BlackUserResult unit = new BlackUserResult();
             unit.setId(encodeUserHash(entity.getId()));
             unit.setImage(userService.parseImage(entity.getImage()));
             if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
