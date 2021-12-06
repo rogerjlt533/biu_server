@@ -21,7 +21,7 @@ public class UserCollectAction extends BaseAction {
 
     @Override
     public JsonResult run() {
-        long relateId = userProcessor.decodeUserHash(bean.getRelate());
+        long relateId = userProcessor.decodeHash(bean.getRelate());
         FuncResult loginResult = userProcessor.collect(getLoginInfoBean().getUserId(), relateId, bean.getMethod());
         if (!loginResult.isStatus()) {
             return new JsonResult(loginResult.getMessage());

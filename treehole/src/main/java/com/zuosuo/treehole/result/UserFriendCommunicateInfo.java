@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserFriendCommunicateInfo {
-    private int received = 0, communicate = 0;
-    private String label = "", sendTag = "", receiveTag = "", logTime = "";
+    private int received = 0, communicate = 0, allowReceive = 0;
+    private String logId = "",label = "", sendTag = "", receiveTag = "", logTime = "";
     private Map<String, String> info;
 
     public UserFriendCommunicateInfo() {
@@ -26,6 +26,22 @@ public class UserFriendCommunicateInfo {
 
     public void setCommunicate(int communicate) {
         this.communicate = communicate;
+    }
+
+    public int getAllowReceive() {
+        return allowReceive;
+    }
+
+    public void setAllowReceive(int allowReceive) {
+        this.allowReceive = allowReceive;
+    }
+
+    public String getLogId() {
+        return logId;
+    }
+
+    public void setLogId(String logId) {
+        this.logId = logId;
     }
 
     public String getLabel() {

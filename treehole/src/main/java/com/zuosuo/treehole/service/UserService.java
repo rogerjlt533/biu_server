@@ -401,8 +401,8 @@ public class UserService {
         memberFriend.setUserId(friendId);
         memberFriend.setConfirmStatus(BiuUserFriendMemberEntity.WAITING_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().insert(memberFriend);
-        addUserMessage(userId, userId, BiuMessageEntity.MNOTICE_APPLY, friendId, "正在向@" + friendUser.getPenName() + "提交笔友申请", "");
-        addUserMessage(userId, friendId, BiuMessageEntity.MNOTICE_APPLY, userId, "@" + user.getPenName() + "正在向您提交笔友申请", "");
+        addUserMessage(userId, userId, BiuMessageEntity.NOTICE_APPLY, friendId, "正在向@" + friendUser.getPenName() + "提交笔友申请", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_APPLY, userId, "@" + user.getPenName() + "正在向您提交笔友申请", "");
     }
 
     public void addUserMessage(long sourceId, long destId, int messageType, long relateId, String title, String content) {
@@ -449,7 +449,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.PASS_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(friendId, userId, BiuMessageEntity.MNOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已同意添加您为笔友", "");
+        addUserMessage(friendId, userId, BiuMessageEntity.NOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已同意添加您为笔友", "");
         return JsonResult.success();
     }
 
@@ -472,7 +472,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.REFUSE_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(friendId, userId, BiuMessageEntity.MNOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已拒绝添加您为笔友", "");
+        addUserMessage(friendId, userId, BiuMessageEntity.NOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已拒绝添加您为笔友", "");
         return JsonResult.success();
     }
 
@@ -553,6 +553,10 @@ public class UserService {
             initFriendCommunicate(friend, friendId, unit.getCommunicateInfo());
             if (friend.getLastLog() > 0) {
                 BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
+                if (log.getReceiveStatus() == 0 && log.getReceiveUser() == userId) {
+                    unit.getCommunicateInfo().setAllowReceive(1);
+                }
+                unit.getCommunicateInfo().setLogId(encodeHash(log.getId()));
                 unit.getCommunicateInfo().setReceived(log.getReceiveStatus());
                 unit.getCommunicateInfo().setLabel(log.getReceiveStatus() == 0? "笔友已寄出邮件": "笔友已收到邮件");
                 unit.getCommunicateInfo().setSendTag("邮件已寄出");
@@ -562,5 +566,33 @@ public class UserService {
             list.add(unit);
         });
         return list;
+    }
+
+    public void sendFriendCommunicate(BiuUserFriendEntity friend, long sendUser) {
+        long receiveUser = 0;
+        List<Long> users = Arrays.asList(friend.getUsers().split(",")).stream().map(item -> Long.parseLong(item)).collect(Collectors.toList());
+        for (long item: users) {
+            if (item != sendUser) {
+                receiveUser = item;
+            }
+        }
+        BiuUserFriendCommunicateLogEntity log = new BiuUserFriendCommunicateLogEntity();
+        log.setFriendId(friend.getId());
+        log.setCommunicateType(friend.getCommunicateType());
+        log.setSendUser(sendUser);
+        log.setReceiveUser(receiveUser);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().insert(log);
+        friend.setLastLog(log.getId());
+        biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(friend);
+        BiuUserViewEntity sender = getUserView(sendUser);
+        addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), "笔友@" + sender.getPenName() + "信件已发出", "");
+    }
+
+    public void receiveFriendCommunicate(BiuUserFriendCommunicateLogEntity log) {
+        log.setReceiveStatus(BiuUserFriendCommunicateLogEntity.RECEIVED);
+        log.setReceiveTime(new Date());
+        biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().update(log);
+        BiuUserViewEntity receiver = getUserView(log.getReceiveUser());
+        addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), "笔友@" + receiver.getPenName() + "已收到信件", "");
     }
 }

@@ -187,6 +187,22 @@ public class UserController {
     }
 
     /**
+     * 笔友寄信收信
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/friend/letter")
+    @Login
+    public JsonResult friendLetter(HttpServletRequest request, @RequestBody SignCommunicateBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new SignCommunicateAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 用户笔友列表
      * @param request
      * @return

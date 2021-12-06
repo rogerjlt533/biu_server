@@ -20,7 +20,7 @@ public class CancelBlackAction extends BaseAction {
 
     @Override
     public JsonResult run() {
-        long relateId = bean.getRelate().isEmpty() ? 0 : userProcessor.decodeUserHash(bean.getRelate());
+        long relateId = bean.getRelate().isEmpty() ? 0 : userProcessor.decodeHash(bean.getRelate());
         userProcessor.cancelBlackUser(getLoginInfoBean().getUserId(), relateId);
         return JsonResult.success();
     }

@@ -24,7 +24,7 @@ public class UserReportAction extends BaseAction {
 
     @Override
     public JsonResult run() {
-        long relateId = bean.getRelate().isEmpty() ? 0 : userProcessor.decodeUserHash(bean.getRelate());
+        long relateId = bean.getRelate().isEmpty() ? 0 : userProcessor.decodeHash(bean.getRelate());
         FuncResult loginResult = userProcessor.submitReport(bean.getType(), getLoginInfoBean().getUserId(), relateId, bean.getContent(), bean.getImages());
         if (!loginResult.isStatus()) {
             return new JsonResult(loginResult.getMessage());

@@ -88,7 +88,7 @@ public class UserProcessor {
         BiuUserViewEntity lastUser = null;
         String last = bean.getLast();
         if (!last.isEmpty()) {
-            long lastId = decodeUserHash(last);
+            long lastId = decodeHash(last);
             if (lastId > 0) {
                 lastUser = userService.getUserView(lastId);
             }
@@ -161,7 +161,7 @@ public class UserProcessor {
         List<UserResult> result = new ArrayList<>();
         list.forEach(item -> {
             UserResult unit = new UserResult();
-            unit.setId(encodeUserHash(item.getId()));
+            unit.setId(encodeHash(item.getId()));
             unit.setName(item.getPenName());
             unit.setAge(item.getAge());
             unit.setTitle(item.getTitle());
@@ -401,11 +401,11 @@ public class UserProcessor {
         }
     }
 
-    public String encodeUserHash(long userId) {
+    public String encodeHash(long userId) {
         return hashTool.getHashids(4).encode(userId);
     }
 
-    public long decodeUserHash(String hash) {
+    public long decodeHash(String hash) {
         return hashTool.getHashids(4).first(hash);
     }
 
@@ -482,7 +482,7 @@ public class UserProcessor {
             BiuUserViewEntity entity = userService.getUserView(item.getRelateId());
             int search = entity.getSearchStatus();
             CollectUserResult unit = new CollectUserResult();
-            unit.setId(encodeUserHash(entity.getId()));
+            unit.setId(encodeHash(entity.getId()));
             unit.setImage(userService.parseImage(entity.getImage()));
             if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
                 unit.setName("匿名");
@@ -532,7 +532,7 @@ public class UserProcessor {
             BiuUserViewEntity entity = userService.getUserView(item.getBlackId());
             int search = entity.getSearchStatus();
             BlackUserResult unit = new BlackUserResult();
-            unit.setId(encodeUserHash(entity.getId()));
+            unit.setId(encodeHash(entity.getId()));
             unit.setImage(userService.parseImage(entity.getImage()));
             if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
                 unit.setName("匿名");
@@ -587,5 +587,38 @@ public class UserProcessor {
         }
         List<UserFriendResult> list = userService.processFriendList(friends, userId);
         return new FuncResult(true, "", list);
+    }
+
+    /**
+     * 处理邮件发收
+     * @param userId
+     * @param bean
+     * @return
+     */
+    public FuncResult processSignCommunicate(long userId, SignCommunicateBean bean) {
+        if (bean.getMethod().equals(SignCommunicateBean.SEND)) {
+            BiuUserFriendEntity friend = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().find(decodeHash(bean.getFriend()));
+            if (friend == null) {
+                return new FuncResult(false, "无对应记录");
+            }
+            if (friend.getConfirmStatus() != BiuUserFriendEntity.PASS_STATUS) {
+                return new FuncResult(false, "好友记录无效");
+            }
+            userService.sendFriendCommunicate(friend, userId);
+        } else {
+            BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(decodeHash(bean.getLog()));
+            if (log == null) {
+                return new FuncResult(false, "无对应记录");
+            }
+            if (log.getReceiveStatus() == BiuUserFriendCommunicateLogEntity.RECEIVED) {
+                return new FuncResult(false, "邮件已接收");
+            }
+            if (log.getReceiveUser() != userId) {
+                return new FuncResult(false, "您不是收件人，请等待笔友确认哟");
+            }
+            userService.receiveFriendCommunicate(log);
+        }
+        return new FuncResult(true, "");
+
     }
 }
