@@ -23,8 +23,8 @@ public class ApplyFriendAction extends BaseAction {
 
     @Override
     public JsonResult run() {
-        bean.setFriend(userProcessor.encodeUserHash(9));
-        long friendId = bean.getFriend().isEmpty() ? 0 : userProcessor.decodeUserHash(bean.getFriend());
+//        bean.setFriend(userProcessor.encodeHash(9));
+        long friendId = bean.getFriend().isEmpty() ? 0 : userProcessor.decodeHash(bean.getFriend());
         FuncResult processResult = userProcessor.processFriend(getLoginInfoBean().getUserId(), friendId, bean);
         if (!processResult.isStatus()) {
             return new JsonResult(processResult.getMessage());

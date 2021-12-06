@@ -38,7 +38,6 @@ public class ApplyFriendBean extends BaseVerifyBean {
 
     @Override
     public VerifyResult verify() {
-
         String method = getMethod();
         if (method.isEmpty()) {
             return new VerifyResult("操作类型不能为空");
