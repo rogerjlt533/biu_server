@@ -434,16 +434,20 @@ public class UserProcessor {
      * 处理笔友申请
      * @param userId
      * @param friendId
-     * @param method
+     * @param bean
      * @return
      */
-    public FuncResult processFriend(long userId, long friendId, String method) {
+    public FuncResult processFriend(long userId, long friendId, ApplyFriendBean bean) {
+        String method = bean.getMethod();
         if (userId == friendId) {
             return new FuncResult(false, "不能是同一人");
         }
         if (method.equals(ApplyFriendBean.APPLY)) {
-            userService.applyFriend(userId, friendId);
+            userService.applyFriend(userId, friendId, bean.getCommunicate());
             return new FuncResult(true);
+        } else if(method.equals(ApplyFriendBean.COMMUNICATE)) {
+            List<FriendCommunicateInfo> list = userService.getFriendCommunicateList(Arrays.asList(userId, friendId));
+            return new FuncResult(true, "", list);
         } else if(method.equals(ApplyFriendBean.PASS)) {
             JsonResult result = userService.passFriend(friendId, userId);
             if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
@@ -557,6 +561,27 @@ public class UserProcessor {
             }
             list.add(unit);
         });
+        return new FuncResult(true, "", list);
+    }
+
+    public FuncResult getUserFriendList(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("confirm_status", BiuUserFriendMemberEntity.PASS_STATUS);
+        List<BiuUserFriendMemberEntity> members = biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().list(option);
+        if (members == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        List<String> friendIdList = members.stream().map(item -> String.valueOf(item.getFriendId())).collect(Collectors.toList());
+        option = new ProviderOption();
+        option.setColumns("id,users,last_log");
+        option.addCondition("id in (" + String.join(",", friendIdList) + ")");
+        option.addCondition("confirm_status", BiuUserFriendEntity.PASS_STATUS);
+        List<BiuUserFriendEntity> friends = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().list(option);
+        if (friends == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        List<UserFriendResult> list = userService.processFriendList(friends, userId);
         return new FuncResult(true, "", list);
     }
 }

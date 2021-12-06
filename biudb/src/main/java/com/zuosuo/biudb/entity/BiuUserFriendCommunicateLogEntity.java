@@ -12,6 +12,9 @@ public class BiuUserFriendCommunicateLogEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    public static final int RECEIVING = 0;
+    public static final int RECEIVED = 1;
+
     private long id;
     @EntityProperty(comment = "好友记录ID")
     private long friendId = 0;
