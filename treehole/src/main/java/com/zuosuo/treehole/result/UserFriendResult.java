@@ -1,7 +1,7 @@
 package com.zuosuo.treehole.result;
 
 public class UserFriendResult {
-    private String id, name, image, desc;
+    private String id, friend, name, image, desc;
     private UserFriendCommunicateInfo communicateInfo;
 
     public UserFriendResult() {
@@ -14,6 +14,14 @@ public class UserFriendResult {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getFriend() {
+        return friend;
+    }
+
+    public void setFriend(String friend) {
+        this.friend = friend;
     }
 
     public String getName() {

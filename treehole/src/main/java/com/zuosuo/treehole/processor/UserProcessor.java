@@ -564,6 +564,11 @@ public class UserProcessor {
         return new FuncResult(true, "", list);
     }
 
+    /**
+     * 获取笔友列表
+     * @param userId
+     * @return
+     */
     public FuncResult getUserFriendList(long userId) {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
@@ -574,7 +579,6 @@ public class UserProcessor {
         }
         List<String> friendIdList = members.stream().map(item -> String.valueOf(item.getFriendId())).collect(Collectors.toList());
         option = new ProviderOption();
-        option.setColumns("id,users,last_log");
         option.addCondition("id in (" + String.join(",", friendIdList) + ")");
         option.addCondition("confirm_status", BiuUserFriendEntity.PASS_STATUS);
         List<BiuUserFriendEntity> friends = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().list(option);

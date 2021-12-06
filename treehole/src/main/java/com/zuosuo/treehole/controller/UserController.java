@@ -9,6 +9,7 @@ import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.result.BlackUserResult;
 import com.zuosuo.treehole.result.CollectUserResult;
 import com.zuosuo.treehole.result.MyInfoResult;
+import com.zuosuo.treehole.result.UserFriendResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -183,5 +184,16 @@ public class UserController {
             return new JsonResult(verify.getMessage());
         }
         return new ApplyFriendAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 用户笔友列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/friend/list")
+    @Login
+    public JsonDataResult<List<UserFriendResult>> friendUserList(HttpServletRequest request) {
+        return new UserFriendListAction(request, userProcessor).run();
     }
 }

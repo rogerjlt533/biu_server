@@ -1,8 +1,16 @@
 package com.zuosuo.treehole.result;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class UserFriendCommunicateInfo {
-    private int received = 0;
-    private String id = "", name = "", phone = "", address = "", email = "", label = "", sendTag = "", receiveTag = "", logTime = "";
+    private int received = 0, communicate = 0;
+    private String label = "", sendTag = "", receiveTag = "", logTime = "";
+    private Map<String, String> info;
+
+    public UserFriendCommunicateInfo() {
+        info = new HashMap<>();
+    }
 
     public int getReceived() {
         return received;
@@ -12,44 +20,12 @@ public class UserFriendCommunicateInfo {
         this.received = received;
     }
 
-    public String getId() {
-        return id;
+    public int getCommunicate() {
+        return communicate;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name != null? name.trim(): "";
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhone() {
-        return phone != null? phone.trim(): "";
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address != null? address.trim(): "";
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getEmail() {
-        return email != null? email.trim(): "";
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setCommunicate(int communicate) {
+        this.communicate = communicate;
     }
 
     public String getLabel() {
@@ -82,5 +58,13 @@ public class UserFriendCommunicateInfo {
 
     public void setLogTime(String logTime) {
         this.logTime = logTime;
+    }
+
+    public Map<String, String> getInfo() {
+        return info;
+    }
+
+    public void setInfo(Map<String, String> info) {
+        this.info = info;
     }
 }
