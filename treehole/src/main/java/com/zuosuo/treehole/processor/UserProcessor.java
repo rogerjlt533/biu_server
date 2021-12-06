@@ -336,7 +336,7 @@ public class UserProcessor {
         }
         user.setIsPenuser(BiuUserEntity.USER_IS_PEN);
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
-        if (bean.getMethod().contains("image")) {
+        if (bean.getMethod().contains("images")) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, bean.getImages());
         }
         if (bean.getMethod().contains("interest")) {
