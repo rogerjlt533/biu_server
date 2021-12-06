@@ -525,8 +525,7 @@ public class UserService {
         return communicates;
     }
 
-    public void initFriendCommunicate(BiuUserFriendEntity friend, long memberId, UserFriendCommunicateInfo info) {
-        BiuUserViewEntity member = getUserView(memberId);
+    public void initFriendCommunicate(BiuUserFriendEntity friend, BiuUserViewEntity member, UserFriendCommunicateInfo info) {
         if (friend.getCommunicateType() == BiuUserCommunicateEntity.COM_METHOD_LETTER) {
             info.getInfo().put("name", member.getUsername());
             info.getInfo().put("phone", member.getPhone());
@@ -550,7 +549,24 @@ public class UserService {
                 }
             }
             unit.setFriend(encodeHash(friendId));
-            initFriendCommunicate(friend, friendId, unit.getCommunicateInfo());
+            BiuUserViewEntity member = getUserView(friendId);
+            unit.setName(member.getPenName());
+            unit.setImage(parseImage(member.getImage()));
+            List<String> descList = new ArrayList<>();
+            String province = areaService.getArea(member.getProvince());
+            if (!province.isEmpty()) {
+                descList.add(province);
+            }
+            String sex = member.getSexTag();
+            if (!sex.isEmpty()) {
+                descList.add(sex);
+            }
+            int age = member.getAge();
+            if (age > 0) {
+                descList.add(age + "岁");
+            }
+            unit.setDesc(String.join("/", descList));
+            initFriendCommunicate(friend, member, unit.getCommunicateInfo());
             if (friend.getLastLog() > 0) {
                 BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
                 if (log.getReceiveStatus() == 0 && log.getReceiveUser() == userId) {
