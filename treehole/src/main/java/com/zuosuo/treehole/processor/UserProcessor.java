@@ -305,7 +305,7 @@ public class UserProcessor {
                 result.setProvince(areaService.getArea(user.getProvince()));
                 desc.add(result.getProvince());
             }
-            if (user.getSexTag().isEmpty()) {
+            if (!user.getSexTag().isEmpty()) {
                 result.setSex(user.getSexTag());
                 desc.add(result.getSex());
             }
