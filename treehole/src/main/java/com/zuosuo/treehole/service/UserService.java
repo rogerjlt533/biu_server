@@ -55,9 +55,18 @@ public class UserService {
     }
 
     public List<String> getUserImageList(long userId, int type) {
+        return getUserImageList(userId, type, 0);
+    }
+
+    public List<String> getUserImageList(long userId, int type, int limit) {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("use_type", type);
+        if (limit > 0) {
+            option.setUsePager(true);
+            option.setOffset(0);
+            option.setLimit(limit);
+        }
         option.addOrderby("sort_index asc");
         List<BiuUserImageEntity> list = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().list(option);
         if (list.isEmpty()) {

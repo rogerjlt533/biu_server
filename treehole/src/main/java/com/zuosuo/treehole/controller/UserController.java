@@ -6,10 +6,7 @@ import com.zuosuo.treehole.action.user.*;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.processor.UserProcessor;
-import com.zuosuo.treehole.result.BlackUserResult;
-import com.zuosuo.treehole.result.CollectUserResult;
-import com.zuosuo.treehole.result.MyInfoResult;
-import com.zuosuo.treehole.result.UserFriendResult;
+import com.zuosuo.treehole.result.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,6 +63,22 @@ public class UserController {
     @Login
     public JsonDataResult<MyInfoResult> myInfo(HttpServletRequest request) {
         return new MyInfoAction(request, userProcessor).run();
+    }
+
+    /**
+     * 用户首页
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/home")
+    @Login(open = true)
+    public JsonDataResult<UserHomeResult> userHome(HttpServletRequest request, @RequestBody UserHomeBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<>(verify.getMessage());
+        }
+        return new UserHomeAction(request, bean, userProcessor).run();
     }
 
     /**

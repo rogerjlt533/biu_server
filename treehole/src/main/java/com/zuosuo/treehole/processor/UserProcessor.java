@@ -9,6 +9,7 @@ import com.zuosuo.component.response.ResponseConfig;
 import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.CommonTool;
+import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.*;
@@ -232,6 +233,98 @@ public class UserProcessor {
         result.setCommentStatus(user.getCommentStatus());
         result.setIsPenuser(user.getIsPenuser());
         result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
+        return new FuncResult(true, "", result);
+    }
+
+    /**
+     * 获取用户首页信息
+     * @param userId
+     * @param guestId
+     * @return
+     */
+    public FuncResult getUserHomeInfo(long userId, long guestId) {
+        BiuUserViewEntity user = userService.getUserView(userId);
+        if (user == null) {
+            return new FuncResult(false, "");
+        }
+        int hide = 0;
+        if (guestId > 0 && guestId != userId && user.getSearchStatus() == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
+            hide = 1;
+        }
+        if (guestId == 0 && user.getSearchStatus() == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
+            hide = 1;
+        }
+        UserHomeResult result = new UserHomeResult();
+        result.setId(encodeHash(user.getId()));
+        result.setTitle(user.getTitle());
+        result.setIntroduce(user.getIntroduce());
+        if (hide > 0) {
+            result.setName("匿名");
+            result.setDesc("保密");
+            result.setProvince("保密");
+            result.setSex("保密");
+            result.setAge("保密");
+        } else {
+            result.setName(user.getPenName());
+            List<String> desc = new ArrayList<>();
+            if (!areaService.getArea(user.getProvince()).isEmpty()) {
+                result.setProvince(areaService.getArea(user.getProvince()));
+                desc.add(result.getProvince());
+            }
+            if (user.getSexTag().isEmpty()) {
+                result.setSex(user.getSexTag());
+                desc.add(result.getSex());
+            }
+            if (user.getAge() > 0) {
+                result.setAge(user.getAge() + "岁");
+                desc.add(result.getAge());
+            }
+            result.setDesc(String.join("/", desc));
+        }
+        List<UserInterestResult> interests = userService.getUserInterestList(user.getId());
+        interests = interests.stream().filter(item -> {
+            if (item.getChecked() > 0) {
+                return true;
+            }
+            return false;
+        }).collect(Collectors.toList());
+        result.setInterests(interests);
+        List<Integer> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
+        result.getCommunicate().setValue(communicates.stream().reduce(Integer::sum).orElse(0));
+        result.getCommunicate().setTag(userService.parseCommunicates(communicates));
+        result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE, 6));
+        if (guestId > 0) {
+            ProviderOption option = new ProviderOption();
+            option.addCondition("user_id", guestId);
+            option.addCondition("relate_id", userId);
+            BiuUserCollectEntity collect = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(option);
+            if (collect == null) {
+                result.setAllowCollect(1);
+                result.setCollectTag("关注");
+            } else {
+                result.setCollect(1);
+                result.setCollectTag("取消关注");
+            }
+            option = new ProviderOption();
+            option.addCondition("user_id", guestId);
+            option.addCondition("black_id", userId);
+            BiuUserBlacklistEntity black = biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().single(option);
+            result.setBlack(black == null ? 0 : 1);
+            BiuUserFriendEntity passed = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.PASS_STATUS);
+            if (passed != null) {
+                result.setFriend(1);
+                result.setFriendTag("解除好友");
+                result.setCancelFriend(1);
+            } else {
+                BiuUserFriendEntity waiting = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.WAITING_STATUS);
+                if (waiting != null) {
+                    result.setFriendTag("等待确认");
+                } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {
+                    result.setAllowFriend(1);
+                    result.setFriendTag("申请好友");
+                }
+            }
+        }
         return new FuncResult(true, "", result);
     }
 

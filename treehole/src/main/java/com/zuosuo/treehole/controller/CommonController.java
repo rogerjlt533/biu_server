@@ -1,12 +1,14 @@
 package com.zuosuo.treehole.controller;
 
 import com.zuosuo.component.response.JsonDataResult;
+import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.common.UploadAction;
 import com.zuosuo.treehole.action.common.UploadTokenAction;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.tool.QiniuTool;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,11 @@ public class CommonController {
     private QiniuTool qiniuTool;
     @Autowired
     private UserProcessor userProcessor;
+
+    @GetMapping("/")
+    public JsonResult index() {
+        return JsonResult.success();
+    }
 
     /**
      * 七牛上传token
