@@ -80,7 +80,7 @@ public class UserProcessor {
         }
         int com_method = bean.getCommunicate();
         if (com_method > 0) {
-            option.addCondition("FIND_IN_SET('" + com_method + "', self_communicate)");
+            option.addCondition("FIND_IN_SET(\"'" + com_method + "'\", self_communicate)");
         }
         int[] ages = bean.getAge();
         if (ages != null) {
