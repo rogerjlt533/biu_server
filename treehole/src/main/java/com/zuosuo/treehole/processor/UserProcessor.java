@@ -255,6 +255,40 @@ public class UserProcessor {
             hide = 1;
         }
         UserHomeResult result = new UserHomeResult();
+        if (guestId > 0) {
+            ProviderOption option = new ProviderOption();
+            option.addCondition("user_id", guestId);
+            option.addCondition("relate_id", userId);
+            BiuUserCollectEntity collect = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(option);
+            if (collect == null) {
+                result.setAllowCollect(1);
+                result.setCollectTag("关注");
+            } else {
+                result.setCollect(1);
+                result.setCollectTag("取消关注");
+            }
+            option = new ProviderOption();
+            option.addCondition("user_id", guestId);
+            option.addCondition("black_id", userId);
+            BiuUserBlacklistEntity black = biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().single(option);
+            result.setBlack(black == null ? 0 : 1);
+            BiuUserFriendEntity passed = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.PASS_STATUS);
+            if (passed != null) {
+                result.setFriend(1);
+                result.setFriendTag("解除好友");
+                result.setCancelFriend(1);
+                hide = 0;
+            } else {
+                BiuUserFriendEntity waiting = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.WAITING_STATUS);
+                if (waiting != null) {
+                    result.setFriendTag("申请中");
+                    hide = 0;
+                } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {
+                    result.setAllowFriend(1);
+                    result.setFriendTag("申请好友");
+                }
+            }
+        }
         result.setId(encodeHash(user.getId()));
         result.setTitle(user.getTitle());
         result.setIntroduce(user.getIntroduce());
@@ -293,38 +327,6 @@ public class UserProcessor {
         result.getCommunicate().setValue(communicates.stream().reduce(Integer::sum).orElse(0));
         result.getCommunicate().setTag(userService.parseCommunicates(communicates));
         result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE, 6));
-        if (guestId > 0) {
-            ProviderOption option = new ProviderOption();
-            option.addCondition("user_id", guestId);
-            option.addCondition("relate_id", userId);
-            BiuUserCollectEntity collect = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().single(option);
-            if (collect == null) {
-                result.setAllowCollect(1);
-                result.setCollectTag("关注");
-            } else {
-                result.setCollect(1);
-                result.setCollectTag("取消关注");
-            }
-            option = new ProviderOption();
-            option.addCondition("user_id", guestId);
-            option.addCondition("black_id", userId);
-            BiuUserBlacklistEntity black = biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().single(option);
-            result.setBlack(black == null ? 0 : 1);
-            BiuUserFriendEntity passed = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.PASS_STATUS);
-            if (passed != null) {
-                result.setFriend(1);
-                result.setFriendTag("解除好友");
-                result.setCancelFriend(1);
-            } else {
-                BiuUserFriendEntity waiting = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.WAITING_STATUS);
-                if (waiting != null) {
-                    result.setFriendTag("申请中");
-                } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {
-                    result.setAllowFriend(1);
-                    result.setFriendTag("申请好友");
-                }
-            }
-        }
         return new FuncResult(true, "", result);
     }
 
