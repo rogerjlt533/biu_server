@@ -102,7 +102,7 @@ public class UserProcessor {
             }
             int self_sex = user.getSex();
             if (self_sex > 0) {
-                option.addCondition("FIND_IN_SET('" + self_sex + "', search_sex)");
+                option.addCondition("FIND_IN_SET(\"'" + self_sex + "'\", search_sex)");
             }
             String self_communicate = user.getSelfCommunicate() != null ? user.getSelfCommunicate() : "";
             String[] communicates = self_communicate.split(",");
@@ -110,14 +110,14 @@ public class UserProcessor {
                 List<String> communicateCondition = new ArrayList<>();
                 for (String communicate: communicates) {
                     if (!communicate.isEmpty()) {
-                        communicateCondition.add("FIND_IN_SET(" + communicate + ", search_communicate)");
+                        communicateCondition.add("FIND_IN_SET(\"" + communicate + "\", search_communicate)");
                     }
                 }
                 if (!communicateCondition.isEmpty()) {
                     option.addCondition("(" + String.join(" or ", communicateCondition) + ")");
                 }
             }
-            option.addCondition("!FIND_IN_SET('" + user.getId() + "', protected_user)");
+            option.addCondition("(!FIND_IN_SET(\"'" + user.getId() + "'\", protected_user) or ISNULL(protected_user))");
         } else if(bean.getMethod() == UserListBean.RECOMMEND) {
             // 非登录下系统推荐无数据
             option.addCondition("1=0");

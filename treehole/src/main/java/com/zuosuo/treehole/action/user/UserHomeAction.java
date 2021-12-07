@@ -22,8 +22,8 @@ public class UserHomeAction extends BaseAction {
 
     @Override
     public JsonDataResult<UserHomeResult> run() {
-//        bean.setId(userProcessor.encodeHash(177));
-//        getLoginInfoBean().setUserId(175);
+//        bean.setId(userProcessor.encodeHash(178));
+//        getLoginInfoBean().setUserId(9);
         long userId = userProcessor.decodeHash(bean.getId());
 //        System.out.println(userId);
         FuncResult getResult = userProcessor.getUserHomeInfo(userId, getLoginInfoBean().getUserId());
