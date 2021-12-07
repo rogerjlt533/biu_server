@@ -318,7 +318,7 @@ public class UserProcessor {
             } else {
                 BiuUserFriendEntity waiting = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.WAITING_STATUS);
                 if (waiting != null) {
-                    result.setFriendTag("等待确认");
+                    result.setFriendTag("申请中");
                 } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {
                     result.setAllowFriend(1);
                     result.setFriendTag("申请好友");
