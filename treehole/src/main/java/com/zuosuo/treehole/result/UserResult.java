@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserResult {
-    private String id = "", name = "", title = "", introduce = "", province = "", sex = "", sortTime = "";
-    private int age = 0, isCollect = 0, communicates;
+    private String id = "", name = "", title = "", introduce = "", desc = "", sortTime = "";
+    private int isCollect = 0, communicates;
     private List<String> images, interests;
 
     public UserResult() {
@@ -45,20 +45,12 @@ public class UserResult {
         this.introduce = introduce;
     }
 
-    public String getProvince() {
-        return province;
+    public String getDesc() {
+        return desc;
     }
 
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     public String getSortTime() {
@@ -67,14 +59,6 @@ public class UserResult {
 
     public void setSortTime(String sortTime) {
         this.sortTime = sortTime;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 
     public int getIsCollect() {

@@ -138,8 +138,6 @@ public class UserProcessor {
         result.put("size", bean.getSize());
 //        result.put("count", impl.count(option));
         result.put("more", 0);
-        System.out.println(list.size());
-        System.out.println(bean.getSize());
         if (list.size() > bean.getSize()) {
             list.remove(list.size());
             result.put("more", 1);
@@ -163,12 +161,20 @@ public class UserProcessor {
         list.forEach(item -> {
             UserResult unit = new UserResult();
             unit.setId(encodeHash(item.getId()));
-            unit.setName(item.getPenName());
-            unit.setAge(item.getAge());
             unit.setTitle(item.getTitle());
             unit.setIntroduce(item.getIntroduce());
-            unit.setProvince(areaService.getArea(item.getProvince()));
-            unit.setSex(item.getSexTag());
+            unit.setName(item.getPenName());
+            List<String> desc = new ArrayList<>();
+            if (!areaService.getArea(item.getProvince()).isEmpty()) {
+                desc.add(areaService.getArea(item.getProvince()));
+            }
+            if (!item.getSexTag().isEmpty()) {
+                desc.add(item.getSexTag());
+            }
+            if (item.getAge() > 0) {
+                desc.add(item.getAge() + "岁");
+            }
+            unit.setDesc(String.join("/", desc));
             unit.setSortTime(TimeTool.friendlyTime(item.getSortTime()));
             unit.setImages(userService.getUserImageList(item.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
             unit.setInterests(userService.getUserInterestSimpleList(item.getId()));
