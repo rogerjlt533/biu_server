@@ -6,7 +6,8 @@ import java.util.List;
 public class UserResult {
     private String id = "", name = "", image = "", title = "", introduce = "", desc = "", sortTime = "";
     private int isCollect = 0, communicate;
-    private List<String> images,interests;
+    private List<String> images;
+    private List<UserInterestResult> interests;
 
     public UserResult() {
         images = new ArrayList<>();
@@ -85,11 +86,11 @@ public class UserResult {
         this.images = images;
     }
 
-    public List<String> getInterests() {
+    public List<UserInterestResult> getInterests() {
         return interests;
     }
 
-    public void setInterests(List<String> interests) {
+    public void setInterests(List<UserInterestResult> interests) {
         this.interests = interests;
     }
 
