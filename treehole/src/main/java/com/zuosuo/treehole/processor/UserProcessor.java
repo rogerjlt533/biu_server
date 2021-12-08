@@ -161,6 +161,7 @@ public class UserProcessor {
         list.forEach(item -> {
             UserResult unit = new UserResult();
             unit.setId(encodeHash(item.getId()));
+            unit.setImage(userService.parseImage(item.getImage()));
             unit.setTitle(item.getTitle());
             unit.setIntroduce(item.getIntroduce());
             unit.setName(item.getPenName());
@@ -179,9 +180,9 @@ public class UserProcessor {
             unit.setImages(userService.getUserImageList(item.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
             unit.setInterests(userService.getUserInterestSimpleList(item.getId()));
             if (item.getSelfCommunicate() != null && !item.getSelfCommunicate().isEmpty()) {
-                unit.setCommunicates(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));
+                unit.setCommunicate(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));
             } else {
-                unit.setCommunicates(3);
+                unit.setCommunicate(3);
             }
             if (user != null) {
                 unit.setIsCollect(userCollectService.isCollected(user.getId(), item.getId()) ? 1 : 0);

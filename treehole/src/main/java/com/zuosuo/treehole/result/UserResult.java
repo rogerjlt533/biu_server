@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserResult {
-    private String id = "", name = "", title = "", introduce = "", desc = "", sortTime = "";
-    private int isCollect = 0, communicates;
+    private String id = "", name = "", image = "", title = "", introduce = "", desc = "", sortTime = "";
+    private int isCollect = 0, communicate;
     private List<String> images, interests;
 
     public UserResult() {
@@ -27,6 +27,14 @@ public class UserResult {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getTitle() {
@@ -85,12 +93,12 @@ public class UserResult {
         this.interests = interests;
     }
 
-    public int getCommunicates() {
-        return communicates;
+    public int getCommunicate() {
+        return communicate;
     }
 
-    public void setCommunicates(int communicates) {
-        this.communicates = communicates;
+    public void setCommunicate(int communicate) {
+        this.communicate = communicate;
     }
 
     public void addImage(String file) {
