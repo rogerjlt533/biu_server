@@ -262,7 +262,10 @@ public class UserProcessor {
             hide = 1;
         }
         UserHomeResult result = new UserHomeResult();
-        if (guestId > 0) {
+        if (guestId > 0 && guestId == userId) {
+            result.setSelf(1);
+        }
+        if (guestId > 0 && result.getSelf() == 0) {
             ProviderOption option = new ProviderOption();
             option.addCondition("user_id", guestId);
             option.addCondition("relate_id", userId);
@@ -288,6 +291,7 @@ public class UserProcessor {
             } else {
                 BiuUserFriendEntity waiting = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.WAITING_STATUS);
                 if (waiting != null) {
+                    result.setFriend(2);
                     result.setFriendTag("申请中");
                     hide = 0;
                 } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {

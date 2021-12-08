@@ -9,7 +9,7 @@ public class UserHomeResult {
     private List<String> images;
     private MyInfoSingleResult<Integer> communicate;
     private List<UserInterestResult> interests;
-    private int collect, black, friend, allowCollect, allowFriend, cancelFriend;
+    private int self, collect, black, friend, allowCollect, allowFriend, cancelFriend;
 
     public UserHomeResult() {
         images = new ArrayList<>();
@@ -119,6 +119,14 @@ public class UserHomeResult {
 
     public void setInterests(List<UserInterestResult> interests) {
         this.interests = interests;
+    }
+
+    public int getSelf() {
+        return self;
+    }
+
+    public void setSelf(int self) {
+        this.self = self;
     }
 
     public int getCollect() {
