@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserResult {
-    private String id = "", name = "", image = "", title = "", introduce = "", desc = "", sortTime = "", interests;
+    private String id = "", name = "", image = "", title = "", introduce = "", desc = "", sortTime = "";
     private int isCollect = 0, communicate;
-    private List<String> images;
+    private List<String> images,interests;
 
     public UserResult() {
         images = new ArrayList<>();
+        interests = new ArrayList<>();
     }
 
     public String getId() {
@@ -84,11 +85,11 @@ public class UserResult {
         this.images = images;
     }
 
-    public String getInterests() {
+    public List<String> getInterests() {
         return interests;
     }
 
-    public void setInterests(String interests) {
+    public void setInterests(List<String> interests) {
         this.interests = interests;
     }
 

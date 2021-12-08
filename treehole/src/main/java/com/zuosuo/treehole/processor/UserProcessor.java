@@ -178,7 +178,7 @@ public class UserProcessor {
             unit.setDesc(String.join("/", desc));
             unit.setSortTime(TimeTool.friendlyTime(item.getSortTime()));
             unit.setImages(userService.getUserImageList(item.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
-            unit.setInterests(String.join("/", userService.getUserInterestSimpleList(item.getId())));
+            unit.setInterests(userService.getUserInterestSimpleList(item.getId()));
             if (item.getSelfCommunicate() != null && !item.getSelfCommunicate().isEmpty()) {
                 unit.setCommunicate(Arrays.asList(item.getSelfCommunicate().replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));
             } else {
