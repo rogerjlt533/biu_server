@@ -485,6 +485,21 @@ public class UserService {
         return JsonResult.success();
     }
 
+    public JsonResult removeFriend(long userId, long friendId) {
+        BiuUserFriendEntity passed = getUserFriend(userId, friendId, BiuUserFriendEntity.PASS_STATUS);
+        if (passed == null) {
+            BiuUserFriendEntity waiting = getUserFriend(userId, friendId, BiuUserFriendEntity.WAITING_STATUS);
+            if (waiting == null) {
+                return new JsonResult("非好友关系");
+            } else {
+                biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().delete(waiting);
+            }
+        } else {
+            biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().delete(passed);
+        }
+        return JsonResult.success();
+    }
+
     public String getUserAddress(long userId) {
         BiuUserViewEntity user = getUserView(userId);
         List<String> address = new ArrayList<>();

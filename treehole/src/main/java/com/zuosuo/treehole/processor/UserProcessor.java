@@ -566,6 +566,12 @@ public class UserProcessor {
                 return new FuncResult(true);
             }
             return new FuncResult(false, result.getMessage());
+        } else if(method.equals(ApplyFriendBean.CANCEL)) {
+            JsonResult result = userService.removeFriend(friendId, userId);
+            if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
+                return new FuncResult(true);
+            }
+            return new FuncResult(false, result.getMessage());
         }
         return new FuncResult(false, "操作类型有误");
     }

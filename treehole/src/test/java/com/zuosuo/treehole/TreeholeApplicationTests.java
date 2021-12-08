@@ -11,6 +11,7 @@ import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.processor.WechatProcessor;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.task.UserCollectInput;
+import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +39,12 @@ class TreeholeApplicationTests {
     private UserService userService;
     @Autowired
     private QiniuTool qiniuTool;
+    @Autowired
+    private HashTool hashTool;
 
     @Test
     void contextLoads() {
+        System.out.println(hashTool.getHashids(4).encode(9));
         System.out.println(userService.parseImage("upload/d842ee3d20d04288ac23de0a248ecf89.png"));
 //        try(BufferedReader reader = new BufferedReader(new FileReader("D:\\area.txt"))) {
 //            String line = reader.readLine();

@@ -53,7 +53,7 @@ public class UserReportBean extends BaseVerifyBean {
         if (getType() <= 0) {
             return new VerifyResult("请选择类型");
         }
-        if (getContent().isEmpty()) {
+        if (getType() != BiuUserReportEntity.REPORT_TYPE_REPORT && getContent().isEmpty()) {
             return new VerifyResult("请填写内容");
         }
         if (getType() == BiuUserReportEntity.REPORT_TYPE_REPORT && getRelate().isEmpty()) {
