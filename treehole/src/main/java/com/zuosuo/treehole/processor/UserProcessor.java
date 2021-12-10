@@ -707,6 +707,43 @@ public class UserProcessor {
         return new FuncResult(true, "");
     }
 
+    /**
+     * 待读用户消息数
+     * @param userId
+     * @return
+     */
+    public FuncResult readingMessageCount(long userId) {
+        Map<String, Long> result = new HashMap<>();
+        ProviderOption option = new ProviderOption();
+        option.addCondition("dest_id", userId);
+        String types = Arrays.asList(BiuMessageEntity.NOTICE_APPLY, BiuMessageEntity.NOTICE_FRIEND, BiuMessageEntity.NOTICE_SEND, BiuMessageEntity.NOTICE_RECEIVE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
+        option.addCondition("message_type in (" + types + ")");
+        option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
+        long notice_count = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(option);
+        result.put("notice", notice_count);
+        option = new ProviderOption();
+        option.addCondition("dest_id", userId);
+        types = Arrays.asList(BiuMessageEntity.MESSAGE_COMMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
+        option.addCondition("message_type in (" + types + ")");
+        option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
+        long message_count = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(option);
+        result.put("message", message_count);
+        option = new ProviderOption();
+        option.addCondition("dest_id", userId);
+        types = Arrays.asList(BiuMessageEntity.PUBLIC_NOTICE, BiuMessageEntity.PUBLIC_ACTIVE, BiuMessageEntity.PUBLIC_UPDATE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
+        option.addCondition("message_type in (" + types + ")");
+        option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
+        long public_count = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(option);
+        result.put("public", public_count);
+        return new FuncResult(true, "", result);
+    }
+
+    /**
+     * 用户信息列表
+     * @param userId
+     * @param bean
+     * @return
+     */
     public FuncResult messageList(long userId, UserMessageListBean bean) {
         ProviderOption option = new ProviderOption();
         option.addCondition("dest_id", userId);

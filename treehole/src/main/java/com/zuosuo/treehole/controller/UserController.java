@@ -241,4 +241,15 @@ public class UserController {
         }
         return new UserMessageListAction(request, bean, userProcessor).run();
     }
+
+    /**
+     * 待读用户消息数
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/message/tip")
+    @Login
+    public JsonResult readingMessageList(HttpServletRequest request) {
+        return new UserMessageTipAction(request, userProcessor).run();
+    }
 }
