@@ -713,7 +713,7 @@ public class UserProcessor {
         if (bean.getRead() < 2) {
             option.addCondition("read_status", bean.getRead());
         }
-        if (bean.getSub() % 1000 > 0) {
+        if (bean.getSub() > 0) {
             option.addCondition("message_type", bean.getSub());
         } else {
             option.addCondition("message_type in (" + bean.subList().stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");

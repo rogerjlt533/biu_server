@@ -54,7 +54,7 @@ public class UserMessageListBean extends BaseVerifyBean {
         if (getType().isEmpty()) {
             return new VerifyResult("请选择类型");
         }
-        if (getSub() % 1000 > 0  && !subList().contains(getSub())) {
+        if (getSub() > 0  && !subList().contains(getSub())) {
             return new VerifyResult("请选择正确的子类别");
         }
         if (getRead() < 0 || getRead() > 2) {
