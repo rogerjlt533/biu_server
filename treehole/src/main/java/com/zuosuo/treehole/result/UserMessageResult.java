@@ -1,8 +1,8 @@
 package com.zuosuo.treehole.result;
 
 public class UserMessageResult {
-    private int messageType, readStatus;
-    private String id, messageTag, title, content;
+    private int messageType, readStatus, useFriendApply;
+    private String id, messageTag, title, content, showTime;
     private UserMessageFriendResult friendApply;
 
     public UserMessageResult() {
@@ -23,6 +23,14 @@ public class UserMessageResult {
 
     public void setReadStatus(int readStatus) {
         this.readStatus = readStatus;
+    }
+
+    public int getUseFriendApply() {
+        return useFriendApply;
+    }
+
+    public void setUseFriendApply(int useFriendApply) {
+        this.useFriendApply = useFriendApply;
     }
 
     public String getId() {
@@ -55,6 +63,14 @@ public class UserMessageResult {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getShowTime() {
+        return showTime != null ? showTime.trim() : "";
+    }
+
+    public void setShowTime(String showTime) {
+        this.showTime = showTime;
     }
 
     public UserMessageFriendResult getFriendApply() {

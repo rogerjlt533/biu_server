@@ -790,12 +790,14 @@ public class UserProcessor {
             unit.setId(encodeHash(item.getId()));
             unit.setTitle(item.getTitle());
             unit.setContent(item.getContent());
+            unit.setShowTime(TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
             if (item.getMessageType() == BiuMessageEntity.NOTICE_APPLY || item.getMessageType() == BiuMessageEntity.NOTICE_FRIEND) {
                 long sourceId = item.getSourceId();
                 long destId = item.getDestId();
                 if (destId == sourceId) {
                     destId = item.getRelateId();
                 }
+                unit.setUseFriendApply(1);
                 BiuUserFriendEntity friendEntity = userService.getUserFriend(sourceId, destId);
                 if (friendEntity != null) {
                     long friendId = userService.getFriendId(friendEntity, user.getId());
