@@ -137,4 +137,17 @@ public class BiuMessageEntity extends BaseEntity {
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
     }
+
+    public String getMessageTag() {
+        if (messageType == NOTICE_APPLY) {
+            return "申请";
+        } else if (messageType == NOTICE_FRIEND) {
+            return "笔友";
+        } else if (messageType == NOTICE_SEND) {
+            return "寄信";
+        } else if (messageType == NOTICE_SEND) {
+            return "收信";
+        }
+        return "";
+    }
 }

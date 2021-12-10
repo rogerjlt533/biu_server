@@ -24,4 +24,9 @@ public abstract class BaseVerifyBean {
     public void setSize(int size) {
         this.size = size;
     }
+
+    public long getOffset() {
+        long page = getPage() > 0 ? getPage() : 1;
+        return (page - 1) * getSize();
+    }
 }

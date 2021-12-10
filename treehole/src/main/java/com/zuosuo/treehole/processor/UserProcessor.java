@@ -605,20 +605,7 @@ public class UserProcessor {
                     communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
                 }
                 unit.setName(entity.getPenName());
-                List<String> descList = new ArrayList<>();
-                String province = areaService.getArea(entity.getProvince());
-                if (!province.isEmpty()) {
-                    descList.add(province);
-                }
-                String sex = entity.getSexTag();
-                if (!sex.isEmpty()) {
-                    descList.add(sex);
-                }
-                int age = entity.getAge();
-                if (age > 0) {
-                    descList.add(age + "岁");
-                }
-                unit.setDesc(String.join("/", descList));
+                unit.setDesc(userService.getUserDesc(entity));
                 unit.setCommunicate(communicate);
             }
             list.add(unit);
@@ -655,20 +642,7 @@ public class UserProcessor {
                     communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
                 }
                 unit.setName(entity.getPenName());
-                List<String> descList = new ArrayList<>();
-                String province = areaService.getArea(entity.getProvince());
-                if (!province.isEmpty()) {
-                    descList.add(province);
-                }
-                String sex = entity.getSexTag();
-                if (!sex.isEmpty()) {
-                    descList.add(sex);
-                }
-                int age = entity.getAge();
-                if (age > 0) {
-                    descList.add(age + "岁");
-                }
-                unit.setDesc(String.join("/", descList));
+                unit.setDesc(userService.getUserDesc(entity));
                 unit.setCommunicate(communicate);
             }
             list.add(unit);
@@ -731,6 +705,76 @@ public class UserProcessor {
             userService.receiveFriendCommunicate(log);
         }
         return new FuncResult(true, "");
+    }
 
+    public FuncResult messageList(long userId, UserMessageListBean bean) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("dest_id", userId);
+        if (bean.getRead() < 2) {
+            option.addCondition("read_status", bean.getRead());
+        }
+        if (bean.getSub() > 0) {
+            option.addCondition("message_type", bean.getSub());
+        } else {
+            option.addCondition("message_type in (" + bean.subList().stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+        }
+        option.addOrderby("created_at desc");
+        option.setUsePager(true);
+        option.setOffset(bean.getOffset());
+        option.setLimit(bean.getSize() + 1);
+        List<BiuMessageEntity> rows = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(option);
+        if (rows == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        BiuUserViewEntity user = userService.getUserView(userId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+        result.put("more", 0);
+        if (rows.size() > bean.getSize()) {
+            rows.remove(rows.size());
+            result.put("more", 1);
+        }
+        if (rows.isEmpty()) {
+            return new FuncResult(false, "无对应记录", result);
+        }
+        List<UserMessageResult> messageList = processFriendList(rows, user);
+        result.put("list", messageList);
+        return new FuncResult(true, "", result);
+    }
+
+    public List<UserMessageResult> processFriendList(List<BiuMessageEntity> rows, BiuUserViewEntity user) {
+        List<UserMessageResult> list = new ArrayList<>();
+        rows.forEach(item -> {
+            UserMessageResult unit = new UserMessageResult();
+            unit.setMessageType(item.getMessageType());
+            unit.setMessageTag(item.getMessageTag());
+            unit.setReadStatus(item.getReadStatus());
+            unit.setId(encodeHash(item.getId()));
+            unit.setTitle(item.getTitle());
+            unit.setContent(item.getContent());
+            if (item.getMessageType() == BiuMessageEntity.NOTICE_APPLY || item.getMessageType() == BiuMessageEntity.NOTICE_FRIEND) {
+                long sourceId = item.getSourceId();
+                long destId = item.getDestId();
+                if (destId == sourceId) {
+                    destId = item.getRelateId();
+                }
+                BiuUserFriendEntity friendEntity = userService.getUserFriend(sourceId, destId);
+                if (friendEntity != null) {
+                    long friendId = userService.getFriendId(friendEntity, user.getId());
+                    unit.getFriendApply().setId(encodeHash(friendId));
+                    unit.getFriendApply().setUser(encodeHash(user.getId()));
+                    unit.getFriendApply().setFriend(encodeHash(friendId));
+                    unit.getFriendApply().setName(user.getPenName());
+                    unit.getFriendApply().setDesc(userService.getUserDesc(user));
+                    unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
+                    if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
+                        unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
+                    }
+                }
+            }
+            list.add(unit);
+        });
+        return list;
     }
 }

@@ -225,4 +225,20 @@ public class UserController {
     public JsonDataResult<List<UserFriendResult>> friendUserList(HttpServletRequest request) {
         return new UserFriendListAction(request, userProcessor).run();
     }
+
+    /**
+     * 用户消息列表
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/message/list")
+    @Login
+    public JsonResult messageList(HttpServletRequest request, @RequestBody UserMessageListBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new UserMessageListAction(request, bean, userProcessor).run();
+    }
 }

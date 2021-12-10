@@ -372,6 +372,14 @@ public class UserService {
         return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().single(option);
     }
 
+    public BiuUserFriendEntity getUserFriend(long userId, long friendId) {
+        String users = formatUserFriendMembers(userId, friendId);
+        ProviderOption option = new ProviderOption();
+        option.addCondition("users", users);
+        option.addCondition("confirm_status<>2");
+        return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().single(option);
+    }
+
     /**
      * 生成用户好友记录
      * @param userId
@@ -500,6 +508,20 @@ public class UserService {
         return JsonResult.success();
     }
 
+    public long getFriendId(BiuUserFriendEntity friend, long userId) {
+        if (friend == null) {
+            return 0;
+        }
+        List<Long> users = Arrays.asList(friend.getUsers().split(",")).stream().map(item -> Long.parseLong(item)).collect(Collectors.toList());
+        long friendId = 0;
+        for (long memberId: users) {
+            if (memberId != userId) {
+                friendId = memberId;
+            }
+        }
+        return friendId;
+    }
+
     public String getUserAddress(long userId) {
         BiuUserViewEntity user = getUserView(userId);
         List<String> address = new ArrayList<>();
@@ -565,31 +587,12 @@ public class UserService {
             UserFriendResult unit = new UserFriendResult();
             unit.setId(encodeHash(friend.getId()));
             unit.getCommunicateInfo().setCommunicate(friend.getCommunicateType());
-            List<Long> users = Arrays.asList(friend.getUsers().split(",")).stream().map(item -> Long.parseLong(item)).collect(Collectors.toList());
-            long friendId = 0;
-            for (long memberId: users) {
-                if (memberId != userId) {
-                    friendId = memberId;
-                }
-            }
+            long friendId = getFriendId(friend, userId);
             unit.setFriend(encodeHash(friendId));
             BiuUserViewEntity member = getUserView(friendId);
             unit.setName(member.getPenName());
             unit.setImage(parseImage(member.getImage()));
-            List<String> descList = new ArrayList<>();
-            String province = areaService.getArea(member.getProvince());
-            if (!province.isEmpty()) {
-                descList.add(province);
-            }
-            String sex = member.getSexTag();
-            if (!sex.isEmpty()) {
-                descList.add(sex);
-            }
-            int age = member.getAge();
-            if (age > 0) {
-                descList.add(age + "岁");
-            }
-            unit.setDesc(String.join("/", descList));
+            unit.setDesc(getUserDesc(member));
             initFriendCommunicate(friend, member, unit.getCommunicateInfo());
             if (friend.getLastLog() > 0) {
                 BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
@@ -609,13 +612,7 @@ public class UserService {
     }
 
     public void sendFriendCommunicate(BiuUserFriendEntity friend, long sendUser) {
-        long receiveUser = 0;
-        List<Long> users = Arrays.asList(friend.getUsers().split(",")).stream().map(item -> Long.parseLong(item)).collect(Collectors.toList());
-        for (long item: users) {
-            if (item != sendUser) {
-                receiveUser = item;
-            }
-        }
+        long receiveUser = getFriendId(friend, sendUser);
         BiuUserFriendCommunicateLogEntity log = new BiuUserFriendCommunicateLogEntity();
         log.setFriendId(friend.getId());
         log.setCommunicateType(friend.getCommunicateType());
@@ -634,5 +631,22 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().update(log);
         BiuUserViewEntity receiver = getUserView(log.getReceiveUser());
         addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), "笔友@" + receiver.getPenName() + "已收到信件", "");
+    }
+
+    public String getUserDesc(BiuUserViewEntity user) {
+        List<String> descList = new ArrayList<>();
+        String province = areaService.getArea(user.getProvince());
+        if (!province.isEmpty()) {
+            descList.add(province);
+        }
+        String sex = user.getSexTag();
+        if (!sex.isEmpty()) {
+            descList.add(sex);
+        }
+        int age = user.getAge();
+        if (age > 0) {
+            descList.add(age + "岁");
+        }
+        return String.join("/", descList);
     }
 }
