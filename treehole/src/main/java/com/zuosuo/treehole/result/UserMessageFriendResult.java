@@ -7,7 +7,7 @@ public class UserMessageFriendResult {
     public static final int ENABLE = 1;
     public static final int UNENABLE = 0;
 
-    private String id, user, friend, name, desc;
+    private String id, user, friend, name, image, desc;
     private int allowAuth, status;
 
     public String getId() {
@@ -40,6 +40,14 @@ public class UserMessageFriendResult {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImage() {
+        return image != null ? image.trim() : "";
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getDesc() {

@@ -801,10 +801,12 @@ public class UserProcessor {
                 BiuUserFriendEntity friendEntity = userService.getUserFriend(sourceId, destId);
                 if (friendEntity != null) {
                     long friendId = userService.getFriendId(friendEntity, user.getId());
+                    BiuUserViewEntity friendUser = userService.getUserView(friendId);
                     unit.getFriendApply().setId(encodeHash(friendId));
                     unit.getFriendApply().setUser(encodeHash(user.getId()));
                     unit.getFriendApply().setFriend(encodeHash(friendId));
                     unit.getFriendApply().setName(user.getPenName());
+                    unit.getFriendApply().setImage(userService.parseImage(friendUser.getImage()));
                     unit.getFriendApply().setDesc(userService.getUserDesc(user));
                     if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
                         unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
