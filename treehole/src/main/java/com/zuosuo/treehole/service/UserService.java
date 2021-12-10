@@ -376,7 +376,7 @@ public class UserService {
         String users = formatUserFriendMembers(userId, friendId);
         ProviderOption option = new ProviderOption();
         option.addCondition("users", users);
-        option.addCondition("confirm_status<>2");
+//        option.addCondition("confirm_status<>2");
         return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().single(option);
     }
 

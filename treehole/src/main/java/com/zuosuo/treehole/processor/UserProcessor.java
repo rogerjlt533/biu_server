@@ -767,9 +767,11 @@ public class UserProcessor {
                     unit.getFriendApply().setFriend(encodeHash(friendId));
                     unit.getFriendApply().setName(user.getPenName());
                     unit.getFriendApply().setDesc(userService.getUserDesc(user));
-                    unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
                     if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
                         unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
+                    }
+                    if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
+                        unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
                     }
                 }
             }
