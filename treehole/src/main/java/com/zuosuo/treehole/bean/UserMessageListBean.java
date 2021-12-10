@@ -3,6 +3,7 @@ package com.zuosuo.treehole.bean;
 import com.zuosuo.biudb.entity.BiuMessageEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class UserMessageListBean extends BaseVerifyBean {
@@ -51,7 +52,7 @@ public class UserMessageListBean extends BaseVerifyBean {
 
     @Override
     public VerifyResult verify() {
-        if (getType().isEmpty()) {
+        if (!Arrays.asList(NOTICE, MESSAGE, PUBLIC).contains(getType())) {
             return new VerifyResult("请选择类型");
         }
         if (getSub() > 0  && !subList().contains(getSub())) {
