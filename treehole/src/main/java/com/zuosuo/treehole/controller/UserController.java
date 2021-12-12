@@ -252,4 +252,15 @@ public class UserController {
     public JsonResult readingMessageList(HttpServletRequest request) {
         return new UserMessageTipAction(request, userProcessor).run();
     }
+
+    /**
+     * 用户消息标记已读
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/message/read")
+    @Login
+    public JsonResult readMessage(HttpServletRequest request, @RequestBody UserMessageReadBean bean) {
+        return new UserMessageReadAction(request, bean, userProcessor).run();
+    }
 }

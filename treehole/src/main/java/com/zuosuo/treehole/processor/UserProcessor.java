@@ -820,4 +820,26 @@ public class UserProcessor {
         });
         return list;
     }
+
+    /**
+     * 标记消息已读
+     * @param userId
+     * @param messageId
+     * @return
+     */
+    public FuncResult readMessage(long userId, long messageId) {
+        BiuMessageEntity message = biuDbFactory.getUserDbFactory().getBiuMessageImpl().find(messageId);
+        if (message == null) {
+            return new FuncResult(false, "用户信息不存在");
+        }
+        if (message.getDestId() != userId) {
+            return new FuncResult(false, "非本用户消息");
+        }
+        if (message.getReadStatus() == BiuMessageEntity.READ_OK) {
+            return new FuncResult(false, "已标记已读");
+        }
+        message.setReadStatus(BiuMessageEntity.READ_OK);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().update(message);
+        return new FuncResult(true);
+    }
 }
