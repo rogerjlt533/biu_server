@@ -27,7 +27,13 @@ public class HashidsTool {
     }
 
     public long[] decode(String code) {
-        return client.decode(code);
+        try {
+            return client.decode(code);
+        } catch (Exception e) {
+            long[] result = new long[1];
+            result[0] = 0;
+            return result;
+        }
     }
 
     public long first(String code) {

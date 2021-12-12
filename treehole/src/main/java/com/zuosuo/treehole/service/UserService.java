@@ -2,14 +2,13 @@ package com.zuosuo.treehole.service;
 
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeTool;
+import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
-import com.zuosuo.treehole.result.FriendCommunicateInfo;
-import com.zuosuo.treehole.result.UserFriendCommunicateInfo;
-import com.zuosuo.treehole.result.UserFriendResult;
-import com.zuosuo.treehole.result.UserInterestResult;
+import com.zuosuo.treehole.result.*;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,10 +144,11 @@ public class UserService {
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
     }
 
-    public long clearUserImage(long userId, int type) {
+    public long clearUserImage(long userId, int type, long relateId) {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("use_type", type);
+        option.addCondition("relate_id", relateId);
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().destroy(option);
     }
 
@@ -159,31 +159,32 @@ public class UserService {
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
     }
 
-    public BiuUserImageEntity getUserImage(long userId, int type, String file, CheckStatusEnum status) {
+    public BiuUserImageEntity getUserImage(long userId, int type, long relateId, String file, CheckStatusEnum status) {
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("use_type", type);
+        option.addCondition("relate_id", relateId);
         option.addCondition("file", file);
         option.setStatus(status.getValue());
         return biuDbFactory.getUserDbFactory().getBiuUserImageImpl().single(option);
     }
 
-    public void setUserImage(long userId, int type, List<String> files) {
-        clearUserImage(userId, type);
+    public void setUserImage(long userId, int type, long relateId, List<String> files) {
+        clearUserImage(userId, type, relateId);
         if (!files.isEmpty()) {
             for (int i = 0; i < files.size(); i++) {
-                setUserImage(userId, type, files.get(i), i + 1);
+                setUserImage(userId, type, relateId, files.get(i), i + 1);
             }
         }
     }
 
-    public BiuUserImageEntity setUserImage(long userId, int type, String file, int sort) {
+    public BiuUserImageEntity setUserImage(long userId, int type, long relateId, String file, int sort) {
         boolean isQiniu = false;
         if (file.contains("/upload")) {
             file = file.substring(file.indexOf("/upload") + 1);
             isQiniu = true;
         }
-        BiuUserImageEntity image = getUserImage(userId, type, file, CheckStatusEnum.DELETED);
+        BiuUserImageEntity image = getUserImage(userId, type, relateId, file, CheckStatusEnum.DELETED);
         if (image == null) {
             image = new BiuUserImageEntity();
             image.setUserId(userId);
@@ -648,5 +649,116 @@ public class UserService {
             descList.add(age + "岁");
         }
         return String.join("/", descList);
+    }
+
+    public List<NoteLabelResult> getUserLabelList(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addOrderby("use_time desc");
+        option.setUsePager(true);
+        option.setLimit(10);
+        return getNoteLabelList(option);
+    }
+
+    public List<NoteLabelResult> getRecommendLabelList() {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("is_recommend", 1);
+        option.addOrderby("use_time desc");
+        option.setUsePager(true);
+        option.setLimit(10);
+        return getNoteLabelList(option);
+    }
+
+    public List<NoteLabelResult> getNoteLabelList(ProviderOption option) {
+        List<BiuLabelEntity> list = biuDbFactory.getHoleDbFactory().getLabelImpl().list(option);
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<NoteLabelResult> result = new ArrayList<>();
+        list.forEach(item -> {
+            NoteLabelResult unit = new NoteLabelResult();
+            unit.setId(encodeHash(item.getId()));
+            unit.setTag(item.getTag());
+            result.add(unit);
+        });
+        return result;
+    }
+
+    public List<NoteMoodResult> getNoteMoodList() {
+        ProviderOption option = new ProviderOption();
+        option.setUsePager(true);
+        option.setLimit(10);
+        List<BiuMoodEntity> list = biuDbFactory.getHoleDbFactory().getMoodImpl().list(option);
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<NoteMoodResult> result = new ArrayList<>();
+        list.forEach(item -> {
+            NoteMoodResult unit = new NoteMoodResult();
+            unit.setId(encodeHash(item.getId()));
+            unit.setTag(item.getTag());
+            unit.setEmoj(item.getEmoj());
+            result.add(unit);
+        });
+        return result;
+    }
+
+    public Map getNoteInitSelection(long userId) {
+        Map<String, List> selections = new HashMap<>();
+        selections.put("my_label", getUserLabelList(userId));
+        selections.put("recommend_label", getRecommendLabelList());
+        selections.put("moods", getNoteMoodList());
+        return selections;
+    }
+
+    public void setNoteLabel(long userId, long noteId, long label) {
+        BiuHoleNoteLabelEntity entity = new BiuHoleNoteLabelEntity();
+        entity.setUserId(userId);
+        entity.setNoteId(noteId);
+        entity.setLabelId(label);
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteLabelImpl().insert(entity);
+        ProviderOption option = new ProviderOption();
+        option.addCondition("id", label);
+        option.setAttribute("use_time", "NOW()", true);
+        biuDbFactory.getHoleDbFactory().getLabelImpl().modify(option);
+
+    }
+
+    public void setNoteMood(long userId, long noteId, long mood) {
+        BiuHoleNoteMoodEntity entity = new BiuHoleNoteMoodEntity();
+        entity.setUserId(userId);
+        entity.setNoteId(noteId);
+        entity.setMoodId(mood);
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteMoodImpl().insert(entity);
+    }
+
+    public JsonDataResult<Map> addLabel(long userId, String name) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("tag", name);
+        BiuLabelEntity entity = biuDbFactory.getHoleDbFactory().getLabelImpl().single(option);
+        if (entity != null) {
+            return new JsonDataResult<>("用户标签存在");
+        }
+        entity = new BiuLabelEntity();
+        entity.setUserId(userId);
+        entity.setTag(name);
+        entity.setUseTime(new Date());
+        biuDbFactory.getHoleDbFactory().getLabelImpl().insert(entity);
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", encodeHash(entity.getId()));
+        return JsonDataResult.success(result);
+    }
+
+    public JsonDataResult<Map> removeLabel(long userId, long id) {
+        BiuLabelEntity entity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(id);
+        if (entity == null) {
+            return new JsonDataResult<>("标签不存在");
+        }
+        if (entity.getUserId() != userId) {
+            return new JsonDataResult<>("非本人标签不可删除");
+        }
+        biuDbFactory.getHoleDbFactory().getLabelImpl().delete(entity);
+        return JsonDataResult.success(new HashMap<>());
     }
 }

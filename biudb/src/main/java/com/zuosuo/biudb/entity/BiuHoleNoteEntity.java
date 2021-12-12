@@ -15,6 +15,11 @@ public class BiuHoleNoteEntity extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    public static final int PRIVATE_YES = 1;
+    public static final int PRIVATE_NO = 0;
+    public static final int NICK_YES = 1;
+    public static final int NICK_NO = 0;
+
     private long id;
     @EntityProperty(comment = "用户ID")
     private long userId = 0;

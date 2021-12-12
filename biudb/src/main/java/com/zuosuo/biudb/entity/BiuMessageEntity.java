@@ -17,6 +17,8 @@ public class BiuMessageEntity extends BaseEntity {
 
     public static final int READ_WAITING = 0;
     public static final int READ_OK = 1;
+    public static final int RELATE_NOTE_TYPE = 1;
+    public static final int RELATE_NOTE_COMMENT_TYPE = 2;
     public static final int PUBLIC_NOTICE = 1001;
     public static final int PUBLIC_ACTIVE = 1002;
     public static final int PUBLIC_UPDATE = 1003;
@@ -37,6 +39,8 @@ public class BiuMessageEntity extends BaseEntity {
     private int messageType = 0;
     @EntityProperty(comment = "关联记录")
     private long relateId = 0;
+    @EntityProperty(comment = "关联类型 1-树洞信 2-树洞信评论")
+    private int relateType = 0;
     @EntityProperty(comment = "标题")
     private String title = "";
     @EntityProperty(comment = "内容")
@@ -88,6 +92,14 @@ public class BiuMessageEntity extends BaseEntity {
 
     public void setRelateId(long relateId) {
         this.relateId = relateId;
+    }
+
+    public int getRelateType() {
+        return relateType;
+    }
+
+    public void setRelateType(int relateType) {
+        this.relateType = relateType;
     }
 
     public String getTitle() {

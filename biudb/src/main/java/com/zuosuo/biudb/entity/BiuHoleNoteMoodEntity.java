@@ -22,8 +22,6 @@ public class BiuHoleNoteMoodEntity extends BaseEntity {
     private long noteId = 0;
     @EntityProperty(comment = "心情ID")
     private long moodId = 0;
-    @EntityProperty(comment = "是否推荐 0-否 1-是")
-    private int isRecommend = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -61,14 +59,6 @@ public class BiuHoleNoteMoodEntity extends BaseEntity {
 
     public void setMoodId(long moodId) {
         this.moodId = moodId;
-    }
-
-    public int getIsRecommend() {
-        return isRecommend;
-    }
-
-    public void setIsRecommend(int isRecommend) {
-        this.isRecommend = isRecommend;
     }
 
     public Date getCreatedAt() {

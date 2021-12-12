@@ -4,6 +4,7 @@ import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.BiuUserViewImpl;
 import com.zuosuo.component.response.FuncResult;
+import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.response.ResponseConfig;
 import com.zuosuo.component.time.DiscTime;
@@ -55,7 +56,7 @@ public class UserProcessor {
         }
         user.setNick(bean.getNick().trim());
         user.setImage(bean.getImage().trim());
-        BiuUserImageEntity image = userService.setUserImage(id, BiuUserImageEntity.USE_TYPE_AVATOR, bean.getImage(), 0);
+        BiuUserImageEntity image = userService.setUserImage(id, BiuUserImageEntity.USE_TYPE_AVATOR, 0, bean.getImage(), 0);
         user.setImage(image.getFile());
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         return new FuncResult(true);
@@ -392,7 +393,7 @@ public class UserProcessor {
             user.setNick(bean.getNick());
         }
         if (bean.getMethod().contains("image")) {
-            BiuUserImageEntity image = userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_AVATOR, bean.getImage(), 0);
+            BiuUserImageEntity image = userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_AVATOR, 0, bean.getImage(), 0);
             user.setImage(image.getFile());
         }
         if (bean.getMethod().contains("pen_name")) {
@@ -443,7 +444,7 @@ public class UserProcessor {
         user.setIsPenuser(BiuUserEntity.USER_IS_PEN);
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         if (bean.getMethod().contains("images")) {
-            userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, bean.getImages());
+            userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, 0, bean.getImages());
         }
         if (bean.getMethod().contains("interest")) {
             userService.setUserInterest(userId, bean.getInterests());
@@ -484,7 +485,7 @@ public class UserProcessor {
                 imageType = BiuUserImageEntity.USE_TYPE_REPORT_OTHER;
             }
             if (imageType > 0) {
-                userService.setUserImage(userId, imageType, images);
+                userService.setUserImage(userId, imageType, entity.getId(), images);
             }
         }
         return new FuncResult(true);
@@ -507,8 +508,8 @@ public class UserProcessor {
         }
     }
 
-    public String encodeHash(long userId) {
-        return hashTool.getHashids(4).encode(userId);
+    public String encodeHash(long number) {
+        return hashTool.getHashids(4).encode(number);
     }
 
     public long decodeHash(String hash) {
@@ -841,5 +842,49 @@ public class UserProcessor {
         message.setReadStatus(BiuMessageEntity.READ_OK);
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().update(message);
         return new FuncResult(true);
+    }
+
+    /**
+     * 生成树洞记录
+     * @param userId
+     * @param bean
+     * @return
+     */
+    public FuncResult createHoleNote(long userId, CreateNoteBean bean) {
+        if (bean.getMethod().isEmpty()) {
+            Map result = userService.getNoteInitSelection(userId);
+            return new FuncResult(true, "", result);
+        }
+        BiuHoleNoteEntity note = new BiuHoleNoteEntity();
+        note.setUserId(userId);
+        note.setContent(bean.getContent());
+        note.setIsPrivate(bean.getIsSelf());
+        note.setNickShow(bean.getNick());
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().insert(note);
+        if (note.getId() > 0) {
+            userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
+            if (!bean.getLabel().isEmpty()) {
+                userService.setNoteLabel(userId, note.getId(), decodeHash(bean.getLabel()));
+            }
+            if (!bean.getMethod().isEmpty()) {
+                userService.setNoteMood(userId, note.getId(), decodeHash(bean.getMood()));
+            }
+        }
+        return new FuncResult(true, "", new HashMap<>());
+    }
+
+    public FuncResult processLabel(long userId, OperateLabelBean bean) {
+        JsonDataResult<Map> result;
+        if (bean.getMethod().equals(OperateLabelBean.ADD)) {
+            result = userService.addLabel(userId, bean.getTag());
+        } else if(!bean.getId().isEmpty()) {
+            result = userService.removeLabel(userId, decodeHash(bean.getId()));
+        } else {
+            result = new JsonDataResult<>("操作错误");
+        }
+        if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
+            return new FuncResult(true, "", result.getData());
+        }
+        return new FuncResult(false, result.getMessage());
     }
 }

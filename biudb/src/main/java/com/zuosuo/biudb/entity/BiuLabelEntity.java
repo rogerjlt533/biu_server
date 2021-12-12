@@ -22,6 +22,9 @@ public class BiuLabelEntity extends BaseEntity {
     private String tag = "";
     @EntityProperty(comment = "是否推荐 0-否 1-是")
     private int isRecommend = 0;
+    @EntityProperty(comment = "使用时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date useTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -59,6 +62,14 @@ public class BiuLabelEntity extends BaseEntity {
 
     public void setIsRecommend(int isRecommend) {
         this.isRecommend = isRecommend;
+    }
+
+    public Date getUseTime() {
+        return useTime;
+    }
+
+    public void setUseTime(Date useTime) {
+        this.useTime = useTime;
     }
 
     public Date getCreatedAt() {
