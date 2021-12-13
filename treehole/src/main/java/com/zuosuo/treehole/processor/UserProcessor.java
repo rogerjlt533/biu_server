@@ -803,7 +803,7 @@ public class UserProcessor {
                 if (friendEntity != null) {
                     long friendId = userService.getFriendId(friendEntity, user.getId());
                     BiuUserViewEntity friendUser = userService.getUserView(friendId);
-                    unit.getFriendApply().setId(encodeHash(friendId));
+                    unit.getFriendApply().setId(encodeHash(friendEntity.getId()));
                     unit.getFriendApply().setUser(encodeHash(user.getId()));
                     unit.getFriendApply().setFriend(encodeHash(friendId));
                     unit.getFriendApply().setName(user.getPenName());
