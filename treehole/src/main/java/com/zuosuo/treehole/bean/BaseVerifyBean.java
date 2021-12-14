@@ -10,7 +10,7 @@ public abstract class BaseVerifyBean {
     public abstract VerifyResult verify();
 
     public long getPage() {
-        return page;
+        return page > 0 ? page : 1;
     }
 
     public void setPage(long page) {

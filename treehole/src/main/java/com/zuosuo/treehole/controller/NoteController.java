@@ -80,6 +80,22 @@ public class NoteController {
     }
 
     /**
+     * 点赞树洞消息
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/favor")
+    @Login
+    public JsonDataResult<Map> favor(HttpServletRequest request, @RequestBody NoteInfoBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<>(verify.getMessage());
+        }
+        return new NoteFavorAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 树洞消息列表
      * @param request
      * @param bean

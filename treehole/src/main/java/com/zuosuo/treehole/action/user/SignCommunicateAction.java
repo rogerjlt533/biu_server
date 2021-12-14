@@ -9,6 +9,7 @@ import com.zuosuo.treehole.bean.SignCommunicateBean;
 import com.zuosuo.treehole.processor.UserProcessor;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public class SignCommunicateAction extends BaseAction {
 
@@ -23,14 +24,14 @@ public class SignCommunicateAction extends BaseAction {
     }
 
     @Override
-    public JsonResult run() {
+    public JsonDataResult<Map> run() {
 //        bean.setFriend(userProcessor.encodeHash(4));
 //        bean.setLog(userProcessor.encodeHash(2));
 //        getLoginInfoBean().setUserId(9);
         FuncResult processResult = userProcessor.processSignCommunicate(getLoginInfoBean().getUserId(), bean);
         if (!processResult.isStatus()) {
-            return new JsonResult(processResult.getMessage());
+            return new JsonDataResult<>(processResult.getMessage());
         }
-        return JsonResult.success();
+        return JsonDataResult.success((Map) processResult.getResult());
     }
 }

@@ -14,6 +14,9 @@ public class NoteInfoBean extends BaseVerifyBean {
 
     @Override
     public VerifyResult verify() {
-        return null;
+        if (getId().isEmpty()) {
+            return new VerifyResult("请选择消息记录");
+        }
+        return new VerifyResult();
     }
 }

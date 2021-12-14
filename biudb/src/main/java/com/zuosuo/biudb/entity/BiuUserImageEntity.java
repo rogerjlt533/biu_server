@@ -34,7 +34,7 @@ public class BiuUserImageEntity extends BaseEntity {
     @EntityProperty(comment = "资源排序")
     private int sortIndex = 0;
     @EntityProperty(comment = "资源关联记录")
-    private int relateId = 0;
+    private long relateId = 0;
     @EntityProperty(comment = "文件hash")
     private String hashCode = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -84,11 +84,11 @@ public class BiuUserImageEntity extends BaseEntity {
         this.sortIndex = sortIndex;
     }
 
-    public int getRelateId() {
+    public long getRelateId() {
         return relateId;
     }
 
-    public void setRelateId(int relateId) {
+    public void setRelateId(long relateId) {
         this.relateId = relateId;
     }
 

@@ -142,7 +142,7 @@ public class UserProcessor {
 //        result.put("count", impl.count(option));
         result.put("more", 0);
         if (list.size() > bean.getSize()) {
-            list.remove(list.size());
+            list.remove(list.size() - 1);
             result.put("more", 1);
         }
         if (list.isEmpty()) {
@@ -685,6 +685,7 @@ public class UserProcessor {
      * @return
      */
     public FuncResult processSignCommunicate(long userId, SignCommunicateBean bean) {
+        Map result = null;
         if (bean.getMethod().equals(SignCommunicateBean.SEND)) {
             BiuUserFriendEntity friend = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().find(decodeHash(bean.getFriend()));
             if (friend == null) {
@@ -693,7 +694,7 @@ public class UserProcessor {
             if (friend.getConfirmStatus() != BiuUserFriendEntity.PASS_STATUS) {
                 return new FuncResult(false, "好友记录无效");
             }
-            userService.sendFriendCommunicate(friend, userId);
+            result = userService.sendFriendCommunicate(friend, userId);
         } else {
             BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(decodeHash(bean.getLog()));
             if (log == null) {
@@ -705,9 +706,9 @@ public class UserProcessor {
             if (log.getReceiveUser() != userId) {
                 return new FuncResult(false, "您不是收件人，请等待笔友确认哟");
             }
-            userService.receiveFriendCommunicate(log);
+            result = userService.receiveFriendCommunicate(log);
         }
-        return new FuncResult(true, "");
+        return new FuncResult(true, "", result);
     }
 
     /**
@@ -772,18 +773,18 @@ public class UserProcessor {
         result.put("size", bean.getSize());
         result.put("more", 0);
         if (rows.size() > bean.getSize()) {
-            rows.remove(rows.size());
+            rows.remove(rows.size() - 1);
             result.put("more", 1);
         }
         if (rows.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
-        List<UserMessageResult> messageList = processFriendList(rows, user);
+        List<UserMessageResult> messageList = processMessageList(rows, user);
         result.put("list", messageList);
         return new FuncResult(true, "", result);
     }
 
-    public List<UserMessageResult> processFriendList(List<BiuMessageEntity> rows, BiuUserViewEntity user) {
+    public List<UserMessageResult> processMessageList(List<BiuMessageEntity> rows, BiuUserViewEntity user) {
         List<UserMessageResult> list = new ArrayList<>();
         rows.forEach(item -> {
             UserMessageResult unit = new UserMessageResult();
@@ -882,6 +883,9 @@ public class UserProcessor {
             return new FuncResult(false, "无对应记录");
         }
         BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
+        if (note == null) {
+            return new FuncResult(false, "无对应记录");
+        }
         if (note.getUserId() != userId) {
             return new FuncResult(false, "非本人树洞消息，不可修改");
         }
@@ -905,6 +909,9 @@ public class UserProcessor {
             return new FuncResult(false, "无对应记录");
         }
         BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
+        if (note == null) {
+            return new FuncResult(false, "无对应记录");
+        }
         if (note.getUserId() != userId) {
             return new FuncResult(false, "非本人树洞消息，不可修改");
         }
@@ -932,13 +939,14 @@ public class UserProcessor {
             long last = decodeHash(bean.getLast());
             option.addCondition("id<" + last);
         }
+        option.setUsePager(true);
         option.addOrderby("id desc");
         option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
         BiuHoleNoteViewImpl viewImpl = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl();
         List<BiuHoleNoteViewEntity> rows = viewImpl.list(option);
         if (rows.size() > bean.getSize()) {
-            rows.remove(rows.size());
+            rows.remove(rows.size() - 1);
             result.put("more", 1);
         }
         if (rows.isEmpty()) {
@@ -989,6 +997,7 @@ public class UserProcessor {
                 unit.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
                 unit.put("content", item.getContent());
                 unit.put("favor_num", item.getFavorNum());
+                unit.put("comment_num", item.getCommentNum());
                 unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
                 unit.put("is_collect", 0);
                 unit.put("allow_report", 0);
@@ -996,10 +1005,46 @@ public class UserProcessor {
                     unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
                     unit.put("allow_report", 1);
                 }
+                Map favorResult = userService.getNoteFavorCondition(item.getId());
+                unit.put("favor_images", favorResult.get("images"));
+                unit.put("images", userService.getNoteImages(item.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 3));
                 list.add(unit);
             }
         });
         return list;
+    }
+
+    /**
+     * 点赞树洞信
+     * @param userId
+     * @param bean
+     * @return
+     */
+    public FuncResult favorNote(long userId, NoteInfoBean bean) {
+        Map<String, Object> result = new HashMap<>();
+        long id = decodeHash(bean.getId());
+        BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(id);
+        if (note == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("note_id", id);
+        BiuUserFavorEntity favor = biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().single(option);
+        if (favor == null) {
+            favor = new BiuUserFavorEntity();
+            favor.setUserId(userId);
+            favor.setNoteId(id);
+            favor.setRelateId(note.getUserId());
+            biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().insert(favor);
+            userService.addNoteFavorMessage(userId, note.getUserId(), id, BiuMessageEntity.RELATE_NOTE_TYPE);
+        } else {
+            biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().delete(favor);
+        }
+        Map favorResult = userService.getNoteFavorCondition(id);
+        result.put("favor_num", favorResult.get("number"));
+        result.put("images", favorResult.get("images"));
+        return new FuncResult(true, "", result);
     }
 
     /**

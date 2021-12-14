@@ -191,6 +191,7 @@ public class UserService {
             image = new BiuUserImageEntity();
             image.setUserId(userId);
             image.setUseType(type);
+            image.setRelateId(relateId);
             biuDbFactory.getUserDbFactory().getBiuUserImageImpl().insert(image);
         } else {
             biuDbFactory.getUserDbFactory().getBiuUserImageImpl().restore(image);
@@ -597,6 +598,7 @@ public class UserService {
             unit.setImage(parseImage(member.getImage()));
             unit.setDesc(getUserDesc(member));
             initFriendCommunicate(friend, member, unit.getCommunicateInfo());
+            System.out.println(friend.getLastLog());
             if (friend.getLastLog() > 0) {
                 BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
                 if (log.getReceiveStatus() == 0 && log.getReceiveUser() == userId) {
@@ -614,7 +616,8 @@ public class UserService {
         return list;
     }
 
-    public void sendFriendCommunicate(BiuUserFriendEntity friend, long sendUser) {
+    public Map sendFriendCommunicate(BiuUserFriendEntity friend, long sendUser) {
+        Map<String, Object> result = new HashMap<>();
         long receiveUser = getFriendId(friend, sendUser);
         BiuUserFriendCommunicateLogEntity log = new BiuUserFriendCommunicateLogEntity();
         log.setFriendId(friend.getId());
@@ -626,14 +629,21 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(friend);
         BiuUserViewEntity sender = getUserView(sendUser);
         addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), "笔友@" + sender.getPenName() + "信件已发出", "");
+        result.put("log", encodeHash(log.getId()));
+        result.put("time", TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
+        return result;
     }
 
-    public void receiveFriendCommunicate(BiuUserFriendCommunicateLogEntity log) {
+    public Map receiveFriendCommunicate(BiuUserFriendCommunicateLogEntity log) {
+        Map<String, Object> result = new HashMap<>();
         log.setReceiveStatus(BiuUserFriendCommunicateLogEntity.RECEIVED);
         log.setReceiveTime(new Date());
         biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().update(log);
         BiuUserViewEntity receiver = getUserView(log.getReceiveUser());
         addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), "笔友@" + receiver.getPenName() + "已收到信件", "");
+        result.put("log", encodeHash(log.getId()));
+        result.put("time", TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
+        return result;
     }
 
     public String getUserDesc(BiuUserViewEntity user) {
@@ -796,5 +806,84 @@ public class UserService {
         }
         biuDbFactory.getHoleDbFactory().getLabelImpl().delete(entity);
         return JsonDataResult.success(new HashMap<>());
+    }
+
+    public Map getNoteFavorCondition(long noteId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        option.addCondition("comment_id", 0);
+        return getFavorCondition(option);
+    }
+
+    public Map getFavorCondition(ProviderOption option) {
+        Map<String, Object> result = new HashMap<>();
+        List<String> images = new ArrayList<>();
+        result.put("number", 0);
+        result.put("images", images);
+        List<BiuUserFavorEntity> favorList = biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().list(option);
+        if (favorList == null) {
+            return result;
+        }
+        if (favorList.size() == 0) {
+            return result;
+        }
+        result.put("number", favorList.size());
+        String users = favorList.stream().map(item -> item.getUserId()).map(value -> String.valueOf(value)).collect(Collectors.joining(","));
+        ProviderOption userOption = new ProviderOption();
+        userOption.setColumns("id,image");
+        userOption.addCondition("id in (" + users + ")");
+        List<BiuUserEntity> userList = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(userOption);
+        userList.forEach(item -> {
+            images.add(parseImage(item.getImage()));
+        });
+        return result;
+    }
+
+    public List<String> getNoteImages(long noteId, int useType, int size) {
+        ProviderOption option = new ProviderOption();
+        option.setColumns("id,file");
+        option.addCondition("use_type", useType);
+        option.addCondition("relate_id", noteId);
+        if (size > 0) {
+            option.setUsePager(true);
+            option.setLimit(size);
+        }
+        option.addOrderby("sort_index asc");
+        List<BiuUserImageEntity> list = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().list(option);
+        if (list == null) {
+            return new ArrayList<>();
+        }
+        List<String> result = new ArrayList<>();
+        list.forEach(item -> {
+            result.add(parseImage(item.getFile()));
+        });
+        return result;
+    }
+
+    public boolean addNoteFavorMessage(long sourceId, long destId, long noteId, int relateType) {
+        if (sourceId == destId) {
+            return false;
+        }
+        BiuUserViewEntity user = getUserView(sourceId);
+        String title = "笔友【" + user.getPenName() + "】点赞了您的树洞信";
+        ProviderOption option = new ProviderOption();
+        option.addCondition("source_id", sourceId);
+        option.addCondition("dest_id", destId);
+        option.addCondition("relate_id", noteId);
+        option.addCondition("relate_type", relateType);
+        option.addCondition("message_type", BiuMessageEntity.MESSAGE_FAVOR);
+        BiuMessageEntity message = biuDbFactory.getUserDbFactory().getBiuMessageImpl().single(option);
+        if (message != null) {
+            return false;
+        }
+        message = new BiuMessageEntity();
+        message.setSourceId(sourceId);
+        message.setDestId(destId);
+        message.setMessageType(BiuMessageEntity.MESSAGE_FAVOR);
+        message.setRelateId(noteId);
+        message.setRelateType(relateType);
+        message.setTitle(title);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
+        return true;
     }
 }
