@@ -1014,6 +1014,40 @@ public class UserProcessor {
         return list;
     }
 
+    public FuncResult noteInfo(long userId, NoteInfoBean bean) {
+        Map<String, Object> result = new HashMap<>();
+        long id = decodeHash(bean.getId());
+        BiuHoleNoteViewEntity note = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl().find(id);
+        if (note == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        if (note.getUserId() != userId) {
+            return new FuncResult(false, "非本人记录不可操作");
+        }
+        long moods = 0, label = 0;
+        BiuMoodEntity moodEntity = null;
+        BiuLabelEntity labelEntity = null;
+        if (!note.getMoods().isEmpty()) {
+            moods = Arrays.stream(note.getMoods().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
+            moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().find(moods);
+        }
+        if (!note.getLabels().isEmpty()) {
+            label = Arrays.stream(note.getLabels().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
+            labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(label);
+        }
+        result.put("id", encodeHash(note.getId()));
+        result.put("mood", moodEntity != null ? moods : 0);
+        result.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
+        result.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
+        result.put("label", labelEntity != null ? label : 0);
+        result.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
+        result.put("content", note.getContent());
+        result.put("images", userService.getNoteImages(note.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
+        result.put("is_private", note.getIsPrivate());
+        result.put("nick_show", note.getNickShow());
+        return new FuncResult(true, "", result);
+    }
+
     /**
      * 点赞树洞信
      * @param userId

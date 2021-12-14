@@ -64,6 +64,22 @@ public class NoteController {
     }
 
     /**
+     * 树洞消息详情
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/info")
+    @Login
+    public JsonDataResult<Map> info(HttpServletRequest request, @RequestBody NoteInfoBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<>(verify.getMessage());
+        }
+        return new NoteInfoAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 删除树洞消息
      * @param request
      * @param bean
