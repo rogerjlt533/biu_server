@@ -727,7 +727,7 @@ public class UserProcessor {
         result.put("notice", notice_count);
         option = new ProviderOption();
         option.addCondition("dest_id", userId);
-        types = Arrays.asList(BiuMessageEntity.MESSAGE_COMMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
+        types = Arrays.asList(BiuMessageEntity.MESSAGE_COMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
         option.addCondition("message_type in (" + types + ")");
         option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
         long message_count = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(option);

@@ -47,7 +47,7 @@ public class UserMessageListBean extends BaseVerifyBean {
             list.add(BiuMessageEntity.NOTICE_SEND);
             list.add(BiuMessageEntity.NOTICE_RECEIVE);
         } else if(getType().equals(MESSAGE)) {
-            list.add(BiuMessageEntity.MESSAGE_COMMMENT);
+            list.add(BiuMessageEntity.MESSAGE_COMMENT);
             list.add(BiuMessageEntity.MESSAGE_FAVOR);
             list.add(BiuMessageEntity.MESSAGE_REPLY);
         } else if(getType().equals(PUBLIC)) {

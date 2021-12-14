@@ -22,7 +22,7 @@ public class BiuMessageEntity extends BaseEntity {
     public static final int PUBLIC_NOTICE = 1001;
     public static final int PUBLIC_ACTIVE = 1002;
     public static final int PUBLIC_UPDATE = 1003;
-    public static final int MESSAGE_COMMMENT = 2001;
+    public static final int MESSAGE_COMMENT = 2001;
     public static final int MESSAGE_FAVOR = 2002;
     public static final int MESSAGE_REPLY = 2003;
     public static final int NOTICE_APPLY= 3001;
