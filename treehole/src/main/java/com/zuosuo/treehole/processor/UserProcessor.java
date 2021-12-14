@@ -2,6 +2,8 @@ package com.zuosuo.treehole.processor;
 
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.biudb.impl.BiuHoleNoteViewImpl;
+import com.zuosuo.biudb.impl.BiuUserImpl;
 import com.zuosuo.biudb.impl.BiuUserViewImpl;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
@@ -844,6 +846,11 @@ public class UserProcessor {
         return new FuncResult(true);
     }
 
+    public FuncResult getNoteInitSelection(long userId) {
+        Map result = userService.getNoteInitSelection(userId);
+        return new FuncResult(true, "", result);
+    }
+
     /**
      * 生成树洞记录
      * @param userId
@@ -851,10 +858,6 @@ public class UserProcessor {
      * @return
      */
     public FuncResult createHoleNote(long userId, CreateNoteBean bean) {
-        if (bean.getMethod().isEmpty()) {
-            Map result = userService.getNoteInitSelection(userId);
-            return new FuncResult(true, "", result);
-        }
         BiuHoleNoteEntity note = new BiuHoleNoteEntity();
         note.setUserId(userId);
         note.setContent(bean.getContent());
@@ -862,17 +865,149 @@ public class UserProcessor {
         note.setNickShow(bean.getNick());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().insert(note);
         if (note.getId() > 0) {
-            userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
-            if (!bean.getLabel().isEmpty()) {
-                userService.setNoteLabel(userId, note.getId(), decodeHash(bean.getLabel()));
-            }
-            if (!bean.getMethod().isEmpty()) {
-                userService.setNoteMood(userId, note.getId(), decodeHash(bean.getMood()));
-            }
+            userService.processNoteOther(userId, note.getId(), bean.getLabel(), bean.getMood(), bean.getImages());
         }
         return new FuncResult(true, "", new HashMap<>());
     }
 
+    /**
+     * 编辑树洞记录
+     * @param userId
+     * @param bean
+     * @return
+     */
+    public FuncResult editHoleNote(long userId, CreateNoteBean bean) {
+        long noteId = decodeHash(bean.getId());
+        if (noteId <= 0) {
+            return new FuncResult(false, "无对应记录");
+        }
+        BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
+        if (note.getUserId() != userId) {
+            return new FuncResult(false, "非本人树洞消息，不可修改");
+        }
+        note.setContent(bean.getContent());
+        note.setIsPrivate(bean.getIsSelf());
+        note.setNickShow(bean.getNick());
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().update(note);
+        userService.processNoteOther(userId, note.getId(), bean.getLabel(), bean.getMood(), bean.getImages());
+        return new FuncResult(true, "");
+    }
+
+    /**
+     * 删除树洞消息
+     * @param userId
+     * @param bean
+     * @return
+     */
+    public FuncResult removeHoleNote(long userId, RemoveNoteBean bean) {
+        long noteId = decodeHash(bean.getId());
+        if (noteId <= 0) {
+            return new FuncResult(false, "无对应记录");
+        }
+        BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
+        if (note.getUserId() != userId) {
+            return new FuncResult(false, "非本人树洞消息，不可修改");
+        }
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().delete(note);
+        return new FuncResult(true, "");
+    }
+
+    public FuncResult getNoteList(long userId, NoteListBean bean) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+        result.put("more", 0);
+        ProviderOption option = new ProviderOption();
+        if (bean.getMethod().equals(NoteListBean.INDEX)) {
+            option.addCondition("is_private", BiuHoleNoteEntity.PRIVATE_NO);
+        } else if(bean.getMethod().equals(NoteListBean.MINE)) {
+
+        } else if(bean.getMethod().equals(NoteListBean.MINE)) {
+
+        } else {
+            result.put("list", new ArrayList<>());
+            return new FuncResult(false, "", result);
+        }
+        if (!bean.getLast().isEmpty()) {
+            long last = decodeHash(bean.getLast());
+            option.addCondition("id<" + last);
+        }
+        option.addOrderby("id desc");
+        option.setOffset(bean.getPage(), bean.getSize());
+        option.setLimit(bean.getSize() + 1);
+        BiuHoleNoteViewImpl viewImpl = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl();
+        List<BiuHoleNoteViewEntity> rows = viewImpl.list(option);
+        if (rows.size() > bean.getSize()) {
+            rows.remove(rows.size());
+            result.put("more", 1);
+        }
+        if (rows.isEmpty()) {
+            return new FuncResult(false, "无对应记录", result);
+        }
+        List<Map> list = processNoteList(rows, userId);
+        result.put("list", list);
+        return new FuncResult(true, "", result);
+    }
+
+    public List<Map> processNoteList(List<BiuHoleNoteViewEntity> rows, long userId) {
+        List<Map> list = new ArrayList<>();
+        BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
+        BiuUserEntity user = userImpl.find(userId);
+        rows.forEach(item -> {
+            BiuUserEntity noteUser = null;
+            if (item.getUserId() == userId) {
+                noteUser = user;
+            } else {
+                noteUser = userImpl.find(item.getUserId());
+            }
+            if (noteUser != null) {
+                long moods = 0, label = 0;
+                BiuMoodEntity moodEntity = null;
+                BiuLabelEntity labelEntity = null;
+                if (!item.getMoods().isEmpty()) {
+                    moods = Arrays.stream(item.getMoods().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
+                    moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().find(moods);
+                }
+                if (!item.getLabels().isEmpty()) {
+                    label = Arrays.stream(item.getLabels().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
+                    labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(label);
+                }
+                Map<String, Object> unit = new HashMap<>();
+                unit.put("id", encodeHash(item.getId()));
+                unit.put("user", encodeHash(noteUser.getId()));
+                if (user.getId() != noteUser.getId() && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+                    unit.put("name", "匿名");
+                    unit.put("image", "");
+                } else {
+                    unit.put("name", noteUser.getPenName());
+                    unit.put("image", userService.parseImage(noteUser.getImage()));
+                }
+                unit.put("mood", moodEntity != null ? moods : 0);
+                unit.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
+                unit.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
+                unit.put("label", labelEntity != null ? label : 0);
+                unit.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
+                unit.put("content", item.getContent());
+                unit.put("favor_num", item.getFavorNum());
+                unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
+                unit.put("is_collect", 0);
+                unit.put("allow_report", 0);
+                if (user.getId() != noteUser.getId()) {
+                    unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
+                    unit.put("allow_report", 1);
+                }
+                list.add(unit);
+            }
+        });
+        return list;
+    }
+
+    /**
+     * 处理树洞标签
+     * @param userId
+     * @param bean
+     * @return
+     */
     public FuncResult processLabel(long userId, OperateLabelBean bean) {
         JsonDataResult<Map> result;
         if (bean.getMethod().equals(OperateLabelBean.ADD)) {

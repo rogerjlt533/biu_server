@@ -2,12 +2,9 @@ package com.zuosuo.treehole.controller;
 
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
-import com.zuosuo.treehole.action.note.CreateNoteAction;
-import com.zuosuo.treehole.action.note.OperateLabelAction;
+import com.zuosuo.treehole.action.note.*;
 import com.zuosuo.treehole.annotation.Login;
-import com.zuosuo.treehole.bean.CreateNoteBean;
-import com.zuosuo.treehole.bean.OperateLabelBean;
-import com.zuosuo.treehole.bean.VerifyResult;
+import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.processor.UserProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +21,17 @@ public class NoteController {
     private UserProcessor userProcessor;
 
     /**
+     * 树洞选择项信息
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/hole/note/selections")
+    @Login
+    public JsonDataResult<Map> selections(HttpServletRequest request) {
+        return new NoteSelectionAction(request, userProcessor).run();
+    }
+
+    /**
      * 发送树洞消息
      * @param request
      * @param bean
@@ -31,12 +39,60 @@ public class NoteController {
      */
     @PostMapping("/api/hole/note/create")
     @Login
-    public JsonDataResult<Map> create(HttpServletRequest request, @RequestBody CreateNoteBean bean) {
+    public JsonResult create(HttpServletRequest request, @RequestBody CreateNoteBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new CreateNoteAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 编辑树洞消息
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/edit")
+    @Login
+    public JsonResult edit(HttpServletRequest request, @RequestBody CreateNoteBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new EditNoteAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 删除树洞消息
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/remove")
+    @Login
+    public JsonResult remove(HttpServletRequest request, @RequestBody RemoveNoteBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new RemoveNoteAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 树洞消息列表
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/list")
+    @Login(open = true)
+    public JsonDataResult<Map> list(HttpServletRequest request, @RequestBody NoteListBean bean) {
         VerifyResult verify = bean.verify();
         if (!verify.isStatus()) {
             return new JsonDataResult<>(verify.getMessage());
         }
-        return new CreateNoteAction(request, bean, userProcessor).run();
+        return new NoteListAction(request, bean, userProcessor).run();
     }
 
     /**

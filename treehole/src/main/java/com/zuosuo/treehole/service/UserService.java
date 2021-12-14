@@ -2,6 +2,8 @@ package com.zuosuo.treehole.service;
 
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.biudb.impl.BiuHoleNoteLabelImpl;
+import com.zuosuo.biudb.impl.BiuHoleNoteMoodImpl;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeTool;
@@ -712,24 +714,58 @@ public class UserService {
     }
 
     public void setNoteLabel(long userId, long noteId, long label) {
-        BiuHoleNoteLabelEntity entity = new BiuHoleNoteLabelEntity();
-        entity.setUserId(userId);
-        entity.setNoteId(noteId);
-        entity.setLabelId(label);
-        biuDbFactory.getHoleDbFactory().getBiuHoleNoteLabelImpl().insert(entity);
+        BiuHoleNoteLabelImpl biuHoleNoteLabelImpl = biuDbFactory.getHoleDbFactory().getBiuHoleNoteLabelImpl();
         ProviderOption option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        biuHoleNoteLabelImpl.destroy(option);
+        option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        option.addCondition("label_id", label);
+        option.setStatus(CheckStatusEnum.DELETED.getValue());
+        BiuHoleNoteLabelEntity entity = biuHoleNoteLabelImpl.single(option);
+        if (entity == null) {
+            entity.setUserId(userId);
+            entity.setNoteId(noteId);
+            entity.setLabelId(label);
+            biuHoleNoteLabelImpl.insert(entity);
+        } else {
+            biuHoleNoteLabelImpl.restore(entity);
+        }
+        option = new ProviderOption();
         option.addCondition("id", label);
         option.setAttribute("use_time", "NOW()", true);
         biuDbFactory.getHoleDbFactory().getLabelImpl().modify(option);
-
     }
 
     public void setNoteMood(long userId, long noteId, long mood) {
-        BiuHoleNoteMoodEntity entity = new BiuHoleNoteMoodEntity();
-        entity.setUserId(userId);
-        entity.setNoteId(noteId);
-        entity.setMoodId(mood);
+        BiuHoleNoteMoodImpl biuHoleNoteMoodImpl = biuDbFactory.getHoleDbFactory().getBiuHoleNoteMoodImpl();
+        ProviderOption option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        biuHoleNoteMoodImpl.destroy(option);
+        option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        option.addCondition("mood_id", mood);
+        option.setStatus(CheckStatusEnum.DELETED.getValue());
+        BiuHoleNoteMoodEntity entity = biuHoleNoteMoodImpl.single(option);
+        if (entity == null) {
+            entity.setUserId(userId);
+            entity.setNoteId(noteId);
+            entity.setMoodId(mood);
+            biuHoleNoteMoodImpl.insert(entity);
+        } else {
+            biuHoleNoteMoodImpl.restore(entity);
+        }
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteMoodImpl().insert(entity);
+    }
+
+    public void processNoteOther(long userId, long nodeId, String label, String mood, List<String> images) {
+        setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, nodeId, images);
+        if (!label.isEmpty()) {
+            setNoteLabel(userId, nodeId, decodeHash(label));
+        }
+        if (!mood.isEmpty()) {
+            setNoteMood(userId, nodeId, decodeHash(mood));
+        }
     }
 
     public JsonDataResult<Map> addLabel(long userId, String name) {

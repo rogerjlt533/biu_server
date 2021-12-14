@@ -8,7 +8,10 @@ import java.util.List;
 
 public class CreateNoteBean extends BaseVerifyBean {
 
-    private String method, content, images, mood, label;
+    public static final String CREATE = "create";
+    public static final String EDIT = "edit";
+
+    private String method, id, content, images, mood, label;
     private int isSelf, nick;
 
     public String getMethod() {
@@ -17,6 +20,14 @@ public class CreateNoteBean extends BaseVerifyBean {
 
     public void setMethod(String method) {
         this.method = method;
+    }
+
+    public String getId() {
+        return id != null ? id.trim() : "";
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getContent() {
@@ -73,16 +84,17 @@ public class CreateNoteBean extends BaseVerifyBean {
 
     @Override
     public VerifyResult verify() {
-        if (!getMethod().isEmpty() && !getMethod().equals("create")) {
+        if (!Arrays.asList(CREATE, EDIT).contains(getMethod())) {
             return new VerifyResult("请选择正确的操作类型");
         }
-        if (!getMethod().isEmpty()) {
-            if (getContent().isEmpty()) {
-                return new VerifyResult("请输入树洞内容");
-            }
-            if (getIsSelf() == BiuHoleNoteEntity.PRIVATE_YES && getNick() == BiuHoleNoteEntity.NICK_YES) {
-                return new VerifyResult("私有内容不可设置昵称显示");
-            }
+        if (getMethod().equals(EDIT) && getId().isEmpty()) {
+            return new VerifyResult("请选择树洞信息");
+        }
+        if (getContent().isEmpty()) {
+            return new VerifyResult("请输入树洞内容");
+        }
+        if (getIsSelf() == BiuHoleNoteEntity.PRIVATE_YES && getNick() == BiuHoleNoteEntity.NICK_YES) {
+            return new VerifyResult("私有内容不可设置昵称显示");
         }
         return new VerifyResult();
     }
