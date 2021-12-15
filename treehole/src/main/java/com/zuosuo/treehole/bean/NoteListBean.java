@@ -8,7 +8,7 @@ public class NoteListBean extends BaseVerifyBean {
     public static final String MINE = "mine";
     public static final String FRIEND = "friend";
 
-    private String method, last;
+    private String method, friend, last;
 
     public String getMethod() {
         return method != null ? method.trim() : "";
@@ -16,6 +16,14 @@ public class NoteListBean extends BaseVerifyBean {
 
     public void setMethod(String method) {
         this.method = method;
+    }
+
+    public String getFriend() {
+        return friend != null ? friend.trim() : "";
+    }
+
+    public void setFriend(String friend) {
+        this.friend = friend;
     }
 
     public String getLast() {
@@ -30,6 +38,9 @@ public class NoteListBean extends BaseVerifyBean {
     public VerifyResult verify() {
         if (!Arrays.asList(INDEX, MINE, FRIEND).contains(getMethod())) {
             return new VerifyResult("请选择正确的查询类型");
+        }
+        if (getMethod().equals(FRIEND) && !getFriend().isEmpty()) {
+            return new VerifyResult("请选择笔友");
         }
         return new VerifyResult();
     }

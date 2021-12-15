@@ -926,9 +926,13 @@ public class UserProcessor {
         if (bean.getMethod().equals(NoteListBean.INDEX)) {
             option.addCondition("is_private", BiuHoleNoteEntity.PRIVATE_NO);
         } else if(bean.getMethod().equals(NoteListBean.MINE)) {
-
-        } else if(bean.getMethod().equals(NoteListBean.MINE)) {
-
+            option.addCondition("user_id", userId);
+        } else if(bean.getMethod().equals(NoteListBean.FRIEND)) {
+            long friend = decodeHash(bean.getFriend());
+            option.addCondition("user_id", friend);
+            if (userId != friend) {
+                option.addCondition("is_private", BiuHoleNoteEntity.PRIVATE_NO);
+            }
         } else {
             result.put("list", new ArrayList<>());
             return new FuncResult(false, "无对应记录", result);
@@ -999,6 +1003,7 @@ public class UserProcessor {
                 unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
                 unit.put("is_collect", 0);
                 unit.put("allow_report", 0);
+                unit.put("is_private", item.getIsPrivate());
                 if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
                     unit.put("allow_comment", 1);
                 } else {
