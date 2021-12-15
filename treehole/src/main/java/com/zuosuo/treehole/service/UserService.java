@@ -886,4 +886,38 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
         return true;
     }
+
+    public boolean addNoteCommentMessage(long sourceId, long destId, long noteId) {
+        if (sourceId == destId) {
+            return false;
+        }
+        BiuUserViewEntity user = getUserView(sourceId);
+        String title = "笔友【" + user.getPenName() + "】评论了您的树洞信";
+        BiuMessageEntity message = new BiuMessageEntity();
+        message.setSourceId(sourceId);
+        message.setDestId(destId);
+        message.setMessageType(BiuMessageEntity.MESSAGE_COMMENT);
+        message.setRelateId(noteId);
+        message.setRelateType(BiuMessageEntity.RELATE_NOTE_TYPE);
+        message.setTitle(title);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
+        return true;
+    }
+
+    public boolean addNoteCommentReplyMessage(long sourceId, long destId, long commentId) {
+        if (sourceId == destId) {
+            return false;
+        }
+        BiuUserViewEntity user = getUserView(sourceId);
+        String title = "笔友【" + user.getPenName() + "】回复了您的评论";
+        BiuMessageEntity message = new BiuMessageEntity();
+        message.setSourceId(sourceId);
+        message.setDestId(destId);
+        message.setMessageType(BiuMessageEntity.MESSAGE_REPLY);
+        message.setRelateId(commentId);
+        message.setRelateType(BiuMessageEntity.RELATE_NOTE_COMMENT_TYPE);
+        message.setTitle(title);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
+        return true;
+    }
 }

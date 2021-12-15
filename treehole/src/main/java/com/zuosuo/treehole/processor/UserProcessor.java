@@ -1101,4 +1101,83 @@ public class UserProcessor {
         }
         return new FuncResult(false, result.getMessage());
     }
+
+    /**
+     * 处理树洞评论
+     * @param userId
+     * @param bean
+     * @return
+     */
+    public FuncResult processNoteComment(long userId, NoteCommentBean bean) {
+        JsonDataResult<Map> result = null;
+        if (bean.getMethod().equals(NoteCommentBean.NOTE)) {
+            long noteId = decodeHash(bean.getNote());
+            result = commentNote(userId, noteId, bean.getContent());
+        } else if(bean.getMethod().equals(NoteCommentBean.COMMENT)) {
+            long commentId = decodeHash(bean.getComment());
+            result = replyComment(userId, commentId, bean.getContent());
+        }
+        if (result == null) {
+            return new FuncResult(false, "", "参数错误");
+        }
+        if (result.getCode() != ResponseConfig.SUCCESS_CODE) {
+            return new FuncResult(false, "", result.getMessage());
+        }
+        return new FuncResult(true, "", result.getData());
+    }
+
+    /**
+     * 直接评论树洞信
+     * @param userId
+     * @param noteId
+     * @param content
+     * @return
+     */
+    public JsonDataResult<Map> commentNote(long userId, long noteId, String content) {
+        BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
+        if (note == null) {
+            return new JsonDataResult<>("树洞信不见了");
+        }
+        BiuHoleNoteCommentEntity entity = new BiuHoleNoteCommentEntity();
+        entity.setUserId(userId);
+        entity.setNoteId(noteId);
+        entity.setContent(content);
+        entity.setCommentUserid(note.getUserId());
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
+        if (userId != note.getUserId()) {
+            userService.addNoteCommentMessage(userId, note.getUserId(), note.getId());
+        }
+        BiuHoleNoteViewEntity noteInfo = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl().find(noteId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("comment_num", noteInfo.getCommentNum());
+        return new JsonDataResult<>(ResponseConfig.SUCCESS_CODE, "", result);
+    }
+
+    /**
+     * 回复树洞信评论
+     * @param userId
+     * @param commentId
+     * @param content
+     * @return
+     */
+    public JsonDataResult<Map> replyComment(long userId, long commentId, String content) {
+        BiuHoleNoteCommentEntity comment = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().find(commentId);
+        if (comment == null) {
+            return new JsonDataResult<>("树洞评论不见了");
+        }
+        BiuHoleNoteCommentEntity entity = new BiuHoleNoteCommentEntity();
+        entity.setUserId(userId);
+        entity.setNoteId(comment.getNoteId());
+        entity.setCommentId(commentId);
+        entity.setContent(content);
+        entity.setCommentUserid(comment.getUserId());
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
+        if (userId != comment.getUserId()) {
+            userService.addNoteCommentReplyMessage(userId, comment.getUserId(), comment.getId());
+        }
+        BiuHoleNoteViewEntity noteInfo = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl().find(comment.getNoteId());
+        Map<String, Object> result = new HashMap<>();
+        result.put("comment_num", noteInfo.getCommentNum());
+        return new JsonDataResult<>(ResponseConfig.SUCCESS_CODE, "", result);
+    }
 }
