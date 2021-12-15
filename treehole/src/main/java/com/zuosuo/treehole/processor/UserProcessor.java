@@ -2,9 +2,7 @@ package com.zuosuo.treehole.processor;
 
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
-import com.zuosuo.biudb.impl.BiuHoleNoteViewImpl;
-import com.zuosuo.biudb.impl.BiuUserImpl;
-import com.zuosuo.biudb.impl.BiuUserViewImpl;
+import com.zuosuo.biudb.impl.*;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
@@ -933,7 +931,7 @@ public class UserProcessor {
 
         } else {
             result.put("list", new ArrayList<>());
-            return new FuncResult(false, "", result);
+            return new FuncResult(false, "无对应记录", result);
         }
         if (!bean.getLast().isEmpty()) {
             long last = decodeHash(bean.getLast());
@@ -1001,6 +999,11 @@ public class UserProcessor {
                 unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
                 unit.put("is_collect", 0);
                 unit.put("allow_report", 0);
+                if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
+                    unit.put("allow_comment", 1);
+                } else {
+                    unit.put("allow_comment", 0);
+                }
                 if (user.getId() != noteUser.getId()) {
                     unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
                     unit.put("allow_report", 1);
@@ -1060,6 +1063,10 @@ public class UserProcessor {
         BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(id);
         if (note == null) {
             return new FuncResult(false, "无对应记录");
+        }
+        BiuUserViewEntity noteUser = userService.getUserView(note.getUserId());
+        if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_CLOSE_STATUS) {
+            return new FuncResult(false, "该用户树洞信不可评论");
         }
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
@@ -1138,6 +1145,10 @@ public class UserProcessor {
         if (note == null) {
             return new JsonDataResult<>("树洞信不见了");
         }
+        BiuUserViewEntity noteUser = userService.getUserView(note.getUserId());
+        if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_CLOSE_STATUS) {
+            return new JsonDataResult<>("该用户树洞信不可评论");
+        }
         BiuHoleNoteCommentEntity entity = new BiuHoleNoteCommentEntity();
         entity.setUserId(userId);
         entity.setNoteId(noteId);
@@ -1165,6 +1176,14 @@ public class UserProcessor {
         if (comment == null) {
             return new JsonDataResult<>("树洞评论不见了");
         }
+        BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(comment.getNoteId());
+        if (note == null) {
+            return new JsonDataResult<>("树洞信不见了");
+        }
+        BiuUserViewEntity noteUser = userService.getUserView(note.getUserId());
+        if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_CLOSE_STATUS) {
+            return new JsonDataResult<>("该用户树洞信不可评论");
+        }
         BiuHoleNoteCommentEntity entity = new BiuHoleNoteCommentEntity();
         entity.setUserId(userId);
         entity.setNoteId(comment.getNoteId());
@@ -1179,5 +1198,63 @@ public class UserProcessor {
         Map<String, Object> result = new HashMap<>();
         result.put("comment_num", noteInfo.getCommentNum());
         return new JsonDataResult<>(ResponseConfig.SUCCESS_CODE, "", result);
+    }
+
+    public FuncResult getCommentList(long userId, NoteCommentListBean bean) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+        result.put("more", 0);
+        long noteId = decodeHash(bean.getNote());
+        if (noteId <= 0) {
+            result.put("list", new ArrayList<>());
+            return new FuncResult(false, "无对应记录", result);
+        }
+        long last = 0;
+        if (!bean.getLast().isEmpty()) {
+            last = decodeHash(bean.getLast());
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        if (last > 0) {
+            option.addCondition("id<" + last);
+        }
+        option.setUsePager(true);
+        option.addOrderby("id desc");
+        option.setOffset(bean.getPage(), bean.getSize());
+        option.setLimit(bean.getSize() + 1);
+        BiuHoleNoteCommentImpl commentImpl = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl();
+        List<BiuHoleNoteCommentEntity> rows = commentImpl.list(option);
+        if (rows.size() > bean.getSize()) {
+            rows.remove(rows.size() - 1);
+            result.put("more", 1);
+        }
+        if (rows.isEmpty()) {
+            return new FuncResult(false, "无对应记录", result);
+        }
+        List<Map> list = processCommentList(rows);
+        result.put("list", list);
+        return new FuncResult(true, "", result);
+    }
+
+    public List<Map> processCommentList(List<BiuHoleNoteCommentEntity> rows) {
+        List<Map> list = new ArrayList<>();
+        BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
+        rows.forEach(item -> {
+            BiuUserEntity commentUser = userImpl.find(item.getCommentUserid());
+            BiuUserEntity user = userImpl.find(item.getUserId());
+            Map<String, Object> unit = new HashMap<>();
+            unit.put("comment_id", encodeHash(item.getId()));
+            unit.put("note_id", encodeHash(item.getNoteId()));
+            if (item.getCommentId() > 0) {
+                unit.put("title", "@" + commentUser.getPenName());
+            } else {
+                unit.put("title", user.getPenName());
+            }
+            unit.put("content", item.getContent());
+            unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
+            list.add(unit);
+        });
+        return list;
     }
 }

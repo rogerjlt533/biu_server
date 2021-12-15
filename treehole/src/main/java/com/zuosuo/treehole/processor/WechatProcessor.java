@@ -49,6 +49,7 @@ public class WechatProcessor {
             user.setOpenid(openid);
             user.setUseStatus(BiuUserEntity.USER_AVAIL_STATUS);
             user.setUnionid(unionid != null ? unionid : "");
+            user.setCommentStatus(BiuUserEntity.COMMUNICATE_OPEN_STATUS);
             user.setLastIp(HttpTool.getIpAddr(request));
             user.setLastLogin(new Date());
             user = biuDbFactory.getUserDbFactory().getBiuUserImpl().insert(user);

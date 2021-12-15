@@ -144,6 +144,22 @@ public class NoteController {
     }
 
     /**
+     * 树洞消息评论列表
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/comment/list")
+    @Login(open = true)
+    public JsonDataResult<Map> comment(HttpServletRequest request, @RequestBody NoteCommentListBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<>(verify.getMessage());
+        }
+        return new NoteCommentListAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 操作树洞标签
      * @param request
      * @param bean
