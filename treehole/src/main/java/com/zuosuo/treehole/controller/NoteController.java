@@ -151,7 +151,7 @@ public class NoteController {
      */
     @PostMapping("/api/hole/note/comment/list")
     @Login(open = true)
-    public JsonDataResult<Map> comment(HttpServletRequest request, @RequestBody NoteCommentListBean bean) {
+    public JsonDataResult<Map> commentList(HttpServletRequest request, @RequestBody NoteCommentListBean bean) {
         VerifyResult verify = bean.verify();
         if (!verify.isStatus()) {
             return new JsonDataResult<>(verify.getMessage());

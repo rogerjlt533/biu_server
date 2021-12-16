@@ -1232,10 +1232,14 @@ public class UserProcessor {
         ProviderOption option = new ProviderOption();
         option.addCondition("note_id", noteId);
         if (last > 0) {
-            option.addCondition("id<" + last);
+            if (bean.getOrderby().equals("desc")) {
+                option.addCondition("id<" + last);
+            } else {
+                option.addCondition("id>" + last);
+            }
         }
         option.setUsePager(true);
-        option.addOrderby("id desc");
+        option.addOrderby("id " + bean.getOrderby());
         option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
         BiuHoleNoteCommentImpl commentImpl = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl();
