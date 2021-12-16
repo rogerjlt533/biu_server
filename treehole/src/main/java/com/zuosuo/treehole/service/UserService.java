@@ -592,13 +592,13 @@ public class UserService {
             unit.setId(encodeHash(friend.getId()));
             unit.getCommunicateInfo().setCommunicate(friend.getCommunicateType());
             long friendId = getFriendId(friend, userId);
+            System.out.println(friendId);
             unit.setFriend(encodeHash(friendId));
             BiuUserViewEntity member = getUserView(friendId);
             unit.setName(member.getPenName());
             unit.setImage(parseImage(member.getImage()));
             unit.setDesc(getUserDesc(member));
             initFriendCommunicate(friend, member, unit.getCommunicateInfo());
-            System.out.println(friend.getLastLog());
             if (friend.getLastLog() > 0) {
                 BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
                 if (log.getReceiveStatus() == 0 && log.getReceiveUser() == userId) {
@@ -630,7 +630,7 @@ public class UserService {
         BiuUserViewEntity sender = getUserView(sendUser);
         addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), "笔友@" + sender.getPenName() + "信件已发出", "");
         result.put("log", encodeHash(log.getId()));
-        result.put("time", TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
+        result.put("time", TimeTool.formatDate(new Date(), "yyyy/MM/dd"));
         return result;
     }
 

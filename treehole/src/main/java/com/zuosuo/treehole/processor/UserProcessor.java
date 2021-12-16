@@ -664,12 +664,15 @@ public class UserProcessor {
         if (members == null) {
             return new FuncResult(false, "无对应记录");
         }
-        List<String> friendIdList = members.stream().map(item -> String.valueOf(item.getFriendId())).collect(Collectors.toList());
+        if (members.isEmpty()) {
+            return new FuncResult(false, "无对应记录");
+        }
+        String friendIdList = members.stream().map(item -> String.valueOf(item.getFriendId())).collect(Collectors.joining(","));
         option = new ProviderOption();
-        option.addCondition("id in (" + String.join(",", friendIdList) + ")");
+        option.addCondition("id in (" + friendIdList + ")");
         option.addCondition("confirm_status", BiuUserFriendEntity.PASS_STATUS);
         List<BiuUserFriendEntity> friends = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().list(option);
-        if (friends == null) {
+        if (friends.isEmpty()) {
             return new FuncResult(false, "无对应记录");
         }
         List<UserFriendResult> list = userService.processFriendList(friends, userId);
@@ -807,9 +810,9 @@ public class UserProcessor {
                     unit.getFriendApply().setId(encodeHash(friendEntity.getId()));
                     unit.getFriendApply().setUser(encodeHash(user.getId()));
                     unit.getFriendApply().setFriend(encodeHash(friendId));
-                    unit.getFriendApply().setName(user.getPenName());
+                    unit.getFriendApply().setName(friendUser.getPenName());
                     unit.getFriendApply().setImage(userService.parseImage(friendUser.getImage()));
-                    unit.getFriendApply().setDesc(userService.getUserDesc(user));
+                    unit.getFriendApply().setDesc(userService.getUserDesc(friendUser));
                     if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
                         unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
                     }
