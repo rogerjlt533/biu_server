@@ -16,6 +16,8 @@ public class BiuMoodEntity extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     private long id;
+    @EntityProperty(comment = "code")
+    private String code = "";
     @EntityProperty(comment = "心情文字")
     private String tag = "";
     @EntityProperty(comment = "表情")
@@ -33,6 +35,14 @@ public class BiuMoodEntity extends BaseEntity {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getTag() {

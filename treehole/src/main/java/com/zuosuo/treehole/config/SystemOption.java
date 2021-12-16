@@ -2,7 +2,7 @@ package com.zuosuo.treehole.config;
 
 public enum SystemOption {
     APP_KEY("base64:nOOymAy124XnwY74oG6MMs/cT98xeR7t5Z5P6PsQu0E="),
-    TOKEN_DAYS("2");
+    TOKEN_DAYS("30");
 
     private String value;
 

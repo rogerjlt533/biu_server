@@ -25,6 +25,10 @@ public class BiuHoleNoteEntity extends BaseEntity {
     private long userId = 0;
     @EntityProperty(comment = "内容")
     private String content = "";
+    @EntityProperty(comment = "标签ID")
+    private long labelId = 0;
+    @EntityProperty(comment = "心情code")
+    private String moodCode = "";
     @EntityProperty(comment = "是否私有 0-否 1-是")
     private int isPrivate = 0;
     @EntityProperty(comment = "是否匿名显示 0-否 1-是")
@@ -58,6 +62,22 @@ public class BiuHoleNoteEntity extends BaseEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public long getLabelId() {
+        return labelId;
+    }
+
+    public void setLabelId(long labelId) {
+        this.labelId = labelId;
+    }
+
+    public String getMoodCode() {
+        return moodCode;
+    }
+
+    public void setMoodCode(String moodCode) {
+        this.moodCode = moodCode;
     }
 
     public int getIsPrivate() {

@@ -1,14 +1,16 @@
 package com.zuosuo.treehole.result;
 
 public class NoteLabelResult {
-    private String id, tag;
+
+    private long id;
+    private String tag;
     private int checked;
 
-    public String getId() {
-        return id != null ? id.trim() : "";
+    public long getId() {
+        return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 

@@ -689,7 +689,7 @@ public class UserService {
         List<NoteLabelResult> result = new ArrayList<>();
         list.forEach(item -> {
             NoteLabelResult unit = new NoteLabelResult();
-            unit.setId(encodeHash(item.getId()));
+            unit.setId(item.getId());
             unit.setTag(item.getTag());
             result.add(unit);
         });
@@ -707,7 +707,7 @@ public class UserService {
         List<NoteMoodResult> result = new ArrayList<>();
         list.forEach(item -> {
             NoteMoodResult unit = new NoteMoodResult();
-            unit.setId(encodeHash(item.getId()));
+            unit.setCode(item.getCode());
             unit.setTag(item.getTag());
             unit.setEmoj(item.getEmoj());
             result.add(unit);
@@ -766,16 +766,6 @@ public class UserService {
             biuHoleNoteMoodImpl.restore(entity);
         }
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteMoodImpl().insert(entity);
-    }
-
-    public void processNoteOther(long userId, long nodeId, String label, String mood, List<String> images) {
-        setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, nodeId, images);
-        if (!label.isEmpty()) {
-            setNoteLabel(userId, nodeId, decodeHash(label));
-        }
-        if (!mood.isEmpty()) {
-            setNoteMood(userId, nodeId, decodeHash(mood));
-        }
     }
 
     public JsonDataResult<Map> addLabel(long userId, String name) {

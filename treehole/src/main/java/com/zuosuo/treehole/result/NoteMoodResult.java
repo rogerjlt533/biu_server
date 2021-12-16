@@ -1,15 +1,15 @@
 package com.zuosuo.treehole.result;
 
 public class NoteMoodResult {
-    private String id, emoj, tag;
+    private String code, emoj, tag;
     private int checked;
 
-    public String getId() {
-        return id != null ? id.trim() : "";
+    public String getCode() {
+        return code != null ? code.trim() : "";
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getEmoj() {

@@ -20,6 +20,10 @@ public class BiuHoleNoteViewEntity extends BaseEntity {
     private long userId = 0;
     @EntityProperty(comment = "内容")
     private String content = "";
+    @EntityProperty(comment = "标签ID")
+    private long labelId = 0;
+    @EntityProperty(comment = "心情code")
+    private String moodCode = "";
     @EntityProperty(comment = "是否私有 0-否 1-是")
     private int isPrivate = 0;
     @EntityProperty(comment = "是否匿名显示 0-否 1-是")
@@ -30,8 +34,6 @@ public class BiuHoleNoteViewEntity extends BaseEntity {
     private Date updatedAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date deletedAt;
-    private String labels = "";
-    private String moods = "";
     private long commentNum = 0;
     private long favorNum = 0;
 
@@ -57,6 +59,22 @@ public class BiuHoleNoteViewEntity extends BaseEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public long getLabelId() {
+        return labelId;
+    }
+
+    public void setLabelId(long labelId) {
+        this.labelId = labelId;
+    }
+
+    public String getMoodCode() {
+        return moodCode;
+    }
+
+    public void setMoodCode(String moodCode) {
+        this.moodCode = moodCode;
     }
 
     public int getIsPrivate() {
@@ -97,22 +115,6 @@ public class BiuHoleNoteViewEntity extends BaseEntity {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
-    }
-
-    public String getLabels() {
-        return labels;
-    }
-
-    public void setLabels(String labels) {
-        this.labels = labels;
-    }
-
-    public String getMoods() {
-        return moods;
-    }
-
-    public void setMoods(String moods) {
-        this.moods = moods;
     }
 
     public long getCommentNum() {

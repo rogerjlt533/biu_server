@@ -11,7 +11,8 @@ public class CreateNoteBean extends BaseVerifyBean {
     public static final String CREATE = "create";
     public static final String EDIT = "edit";
 
-    private String method, id, content, images, mood, label;
+    private String method, id, content, images, mood;
+    private long label;
     private int isSelf, nick;
 
     public String getMethod() {
@@ -74,11 +75,11 @@ public class CreateNoteBean extends BaseVerifyBean {
         this.mood = mood;
     }
 
-    public String getLabel() {
-        return label != null ? label.trim() : "";
+    public long getLabel() {
+        return label;
     }
 
-    public void setLabel(String label) {
+    public void setLabel(long label) {
         this.label = label;
     }
 

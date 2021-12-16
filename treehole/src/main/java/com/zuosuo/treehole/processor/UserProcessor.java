@@ -860,11 +860,13 @@ public class UserProcessor {
         BiuHoleNoteEntity note = new BiuHoleNoteEntity();
         note.setUserId(userId);
         note.setContent(bean.getContent());
+        note.setMoodCode(bean.getMood());
+        note.setLabelId(bean.getLabel());
         note.setIsPrivate(bean.getIsSelf());
         note.setNickShow(bean.getNick());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().insert(note);
         if (note.getId() > 0) {
-            userService.processNoteOther(userId, note.getId(), bean.getLabel(), bean.getMood(), bean.getImages());
+            userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
         }
         return new FuncResult(true, "", new HashMap<>());
     }
@@ -888,10 +890,14 @@ public class UserProcessor {
             return new FuncResult(false, "非本人树洞消息，不可修改");
         }
         note.setContent(bean.getContent());
+        note.setMoodCode(bean.getMood());
+        note.setLabelId(bean.getLabel());
         note.setIsPrivate(bean.getIsSelf());
         note.setNickShow(bean.getNick());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().update(note);
-        userService.processNoteOther(userId, note.getId(), bean.getLabel(), bean.getMood(), bean.getImages());
+        if (note.getId() > 0) {
+            userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
+        }
         return new FuncResult(true, "");
     }
 
@@ -971,16 +977,15 @@ public class UserProcessor {
                 noteUser = userImpl.find(item.getUserId());
             }
             if (noteUser != null) {
-                long moods = 0, label = 0;
                 BiuMoodEntity moodEntity = null;
                 BiuLabelEntity labelEntity = null;
-                if (!item.getMoods().isEmpty()) {
-                    moods = Arrays.stream(item.getMoods().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
-                    moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().find(moods);
+                if (!item.getMoodCode().isEmpty()) {
+                    ProviderOption option = new ProviderOption();
+                    option.addCondition("code", item.getMoodCode());
+                    moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().single(option);
                 }
-                if (!item.getLabels().isEmpty()) {
-                    label = Arrays.stream(item.getLabels().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
-                    labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(label);
+                if (item.getLabelId() > 0) {
+                    labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(item.getLabelId());
                 }
                 Map<String, Object> unit = new HashMap<>();
                 unit.put("id", encodeHash(item.getId()));
@@ -992,10 +997,10 @@ public class UserProcessor {
                     unit.put("name", noteUser.getPenName());
                     unit.put("image", userService.parseImage(noteUser.getImage()));
                 }
-                unit.put("mood", moodEntity != null ? moods : 0);
+                unit.put("mood_code", item.getMoodCode());
                 unit.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
                 unit.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
-                unit.put("label", labelEntity != null ? label : 0);
+                unit.put("label", labelEntity != null ? labelEntity.getId() : 0);
                 unit.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
                 unit.put("content", item.getContent());
                 unit.put("favor_num", item.getFavorNum());
@@ -1035,22 +1040,21 @@ public class UserProcessor {
         if (note.getUserId() != userId) {
             return new FuncResult(false, "非本人记录不可操作");
         }
-        long moods = 0, label = 0;
         BiuMoodEntity moodEntity = null;
         BiuLabelEntity labelEntity = null;
-        if (!note.getMoods().isEmpty()) {
-            moods = Arrays.stream(note.getMoods().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
-            moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().find(moods);
+        if (!note.getMoodCode().isEmpty()) {
+            ProviderOption option = new ProviderOption();
+            option.addCondition("code", note.getMoodCode());
+            moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().single(option);
         }
-        if (!note.getLabels().isEmpty()) {
-            label = Arrays.stream(note.getLabels().replaceAll("'", "").split(",")).map(value -> Long.parseLong(value)).reduce(Long::sum).orElse(0L);
-            labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(label);
+        if (note.getLabelId() > 0) {
+            labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(note.getLabelId());
         }
         result.put("id", encodeHash(note.getId()));
-        result.put("mood", moodEntity != null ? moods : 0);
+        result.put("mood_code", note.getMoodCode());
         result.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
         result.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
-        result.put("label", labelEntity != null ? label : 0);
+        result.put("label", labelEntity != null ? labelEntity.getId() : 0);
         result.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
         result.put("content", note.getContent());
         result.put("images", userService.getNoteImages(note.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
