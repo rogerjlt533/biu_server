@@ -1003,6 +1003,7 @@ public class UserProcessor {
                 unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
                 unit.put("is_collect", 0);
                 unit.put("allow_report", 0);
+                unit.put("allow_remove", 0);
                 unit.put("is_private", item.getIsPrivate());
                 if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
                     unit.put("allow_comment", 1);
@@ -1012,6 +1013,8 @@ public class UserProcessor {
                 if (user.getId() != noteUser.getId()) {
                     unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
                     unit.put("allow_report", 1);
+                } else {
+                    unit.put("allow_remove", 1);
                 }
                 Map favorResult = userService.getNoteFavorCondition(item.getId());
                 unit.put("favor_images", favorResult.get("images"));
