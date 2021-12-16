@@ -592,7 +592,6 @@ public class UserService {
             unit.setId(encodeHash(friend.getId()));
             unit.getCommunicateInfo().setCommunicate(friend.getCommunicateType());
             long friendId = getFriendId(friend, userId);
-            System.out.println(friendId);
             unit.setFriend(encodeHash(friendId));
             BiuUserViewEntity member = getUserView(friendId);
             unit.setName(member.getPenName());
