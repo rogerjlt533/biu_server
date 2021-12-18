@@ -865,7 +865,7 @@ public class UserProcessor {
         note.setContent(bean.getContent());
         note.setMoodCode(bean.getMood());
         note.setLabelId(bean.getLabel());
-        note.setIsPrivate(bean.getIsSelf());
+        note.setIsPrivate(bean.getIsSelfRealValue());
         note.setNickShow(bean.getNick());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().insert(note);
         if (note.getId() > 0) {
@@ -895,7 +895,7 @@ public class UserProcessor {
         note.setContent(bean.getContent());
         note.setMoodCode(bean.getMood());
         note.setLabelId(bean.getLabel());
-        note.setIsPrivate(bean.getIsSelf());
+        note.setIsPrivate(bean.getIsSelfRealValue());
         note.setNickShow(bean.getNick());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().update(note);
         if (note.getId() > 0) {
@@ -1012,7 +1012,7 @@ public class UserProcessor {
                 unit.put("is_collect", 0);
                 unit.put("allow_report", 0);
                 unit.put("allow_remove", 0);
-                unit.put("is_private", item.getIsPrivate());
+                unit.put("is_private", item.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
                 if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
                     unit.put("allow_comment", 1);
                 } else {
@@ -1061,7 +1061,7 @@ public class UserProcessor {
         result.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
         result.put("content", note.getContent());
         result.put("images", userService.getNoteImages(note.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
-        result.put("is_private", note.getIsPrivate());
+        result.put("is_private", note.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
         result.put("nick_show", note.getNickShow());
         return new FuncResult(true, "", result);
     }

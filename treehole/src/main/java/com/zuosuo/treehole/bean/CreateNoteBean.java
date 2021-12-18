@@ -55,6 +55,11 @@ public class CreateNoteBean extends BaseVerifyBean {
         return isSelf;
     }
 
+    public int getIsSelfRealValue() {
+        // 私有值与数据库反向
+        return isSelf > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES;
+    }
+
     public void setIsSelf(int isSelf) {
         this.isSelf = isSelf;
     }
@@ -94,7 +99,7 @@ public class CreateNoteBean extends BaseVerifyBean {
         if (getContent().isEmpty()) {
             return new VerifyResult("请输入树洞内容");
         }
-        if (getIsSelf() == BiuHoleNoteEntity.PRIVATE_YES && getNick() == BiuHoleNoteEntity.NICK_YES) {
+        if (getIsSelfRealValue() == BiuHoleNoteEntity.PRIVATE_YES && getNick() == BiuHoleNoteEntity.NICK_YES) {
             return new VerifyResult("私有内容不可设置昵称显示");
         }
         return new VerifyResult();
