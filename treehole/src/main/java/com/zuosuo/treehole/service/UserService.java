@@ -909,4 +909,12 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
         return true;
     }
+
+    public boolean isFavored(long userId, long noteId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("note_id", noteId);
+        BiuUserFavorEntity entity = biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().single(option);
+        return entity != null ? true : false;
+    }
 }
