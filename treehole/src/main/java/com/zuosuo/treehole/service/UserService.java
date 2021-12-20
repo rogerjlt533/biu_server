@@ -917,4 +917,12 @@ public class UserService {
         BiuUserFavorEntity entity = biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().single(option);
         return entity != null ? true : false;
     }
+
+    public boolean isCommented(long userId, long noteId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("note_id", noteId);
+        BiuHoleNoteCommentEntity entity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().single(option);
+        return entity != null ? true : false;
+    }
 }

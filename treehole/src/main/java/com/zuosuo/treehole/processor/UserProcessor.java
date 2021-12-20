@@ -1010,6 +1010,7 @@ public class UserProcessor {
                 unit.put("comment_num", item.getCommentNum());
                 unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
                 unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
+                unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
                 unit.put("is_collect", 0);
                 unit.put("allow_report", 0);
                 unit.put("allow_remove", 0);
