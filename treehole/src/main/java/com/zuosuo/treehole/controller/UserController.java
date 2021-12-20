@@ -39,6 +39,17 @@ public class UserController {
     }
 
     /**
+     * 用户注销
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/cancel")
+    @Login
+    public JsonResult cancelUser(HttpServletRequest request) {
+        return new CancelUserAction(request, userProcessor).run();
+    }
+
+    /**
      * 用户列表
      * @param request
      * @param bean

@@ -1008,7 +1008,7 @@ public class UserProcessor {
                 unit.put("content", item.getContent());
                 unit.put("favor_num", item.getFavorNum());
                 unit.put("comment_num", item.getCommentNum());
-                unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
+                unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "MM/dd"));
                 unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
                 unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
                 unit.put("is_collect", 0);
@@ -1277,5 +1277,15 @@ public class UserProcessor {
             list.add(unit);
         });
         return list;
+    }
+
+    public FuncResult cancelUser(long userId) {
+        BiuUserEntity user = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(userId);
+        if (user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
+            return new FuncResult(false, "用户状态异常");
+        }
+        user.setUseStatus(BiuUserEntity.USER_INVAIL_STATUS);
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        return new FuncResult(true, "");
     }
 }
