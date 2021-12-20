@@ -39,7 +39,7 @@ public class NoteListBean extends BaseVerifyBean {
         if (!Arrays.asList(INDEX, MINE, FRIEND).contains(getMethod())) {
             return new VerifyResult("请选择正确的查询类型");
         }
-        if (getMethod().equals(FRIEND) && !getFriend().isEmpty()) {
+        if (getMethod().equals(FRIEND) && getFriend().isEmpty()) {
             return new VerifyResult("请选择笔友");
         }
         return new VerifyResult();
