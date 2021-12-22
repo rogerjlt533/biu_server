@@ -1115,8 +1115,8 @@ public class UserProcessor {
         JsonDataResult<Map> result;
         if (bean.getMethod().equals(OperateLabelBean.ADD)) {
             result = userService.addLabel(userId, bean.getTag());
-        } else if(!bean.getId().isEmpty()) {
-            result = userService.removeLabel(userId, decodeHash(bean.getId()));
+        } else if(bean.getId() > 0) {
+            result = userService.removeLabel(userId, bean.getId());
         } else {
             result = new JsonDataResult<>("操作错误");
         }

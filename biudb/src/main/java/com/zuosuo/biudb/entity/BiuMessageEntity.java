@@ -157,8 +157,20 @@ public class BiuMessageEntity extends BaseEntity {
             return "笔友";
         } else if (messageType == NOTICE_SEND) {
             return "寄信";
-        } else if (messageType == NOTICE_SEND) {
+        } else if (messageType == NOTICE_RECEIVE) {
             return "收信";
+        } else if (messageType == PUBLIC_NOTICE) {
+            return "公告";
+        } else if (messageType == PUBLIC_ACTIVE) {
+            return "活动";
+        } else if (messageType == PUBLIC_UPDATE) {
+            return "更新";
+        } else if (messageType == MESSAGE_COMMENT) {
+            return "评论";
+        } else if (messageType == MESSAGE_FAVOR) {
+            return "点赞";
+        } else if (messageType == MESSAGE_REPLY) {
+            return "回复";
         }
         return "";
     }

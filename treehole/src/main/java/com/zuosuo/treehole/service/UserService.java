@@ -781,7 +781,8 @@ public class UserService {
         entity.setUseTime(new Date());
         biuDbFactory.getHoleDbFactory().getLabelImpl().insert(entity);
         Map<String, Object> result = new HashMap<>();
-        result.put("id", encodeHash(entity.getId()));
+        result.put("id", entity.getId());
+        result.put("tag", entity.getTag());
         return JsonDataResult.success(result);
     }
 

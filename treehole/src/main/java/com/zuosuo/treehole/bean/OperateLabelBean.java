@@ -9,7 +9,8 @@ public class OperateLabelBean extends BaseVerifyBean {
     public static final String ADD = "add";
     public static final String REMOVE = "remove";
 
-    private String method, id, tag;
+    private String method, tag;
+    private long id;
 
     public String getMethod() {
         return method != null ? method.trim() : "";
@@ -19,11 +20,11 @@ public class OperateLabelBean extends BaseVerifyBean {
         this.method = method;
     }
 
-    public String getId() {
-        return id != null ? id.trim() : "";
+    public long getId() {
+        return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -43,7 +44,7 @@ public class OperateLabelBean extends BaseVerifyBean {
         if (getMethod().equals(ADD) && getTag().isEmpty()) {
             return new VerifyResult("标签名不能为空");
         }
-        if (getMethod().equals(REMOVE) && getId().isEmpty()) {
+        if (getMethod().equals(REMOVE) && getId() <= 0) {
             return new VerifyResult("标签不能为空");
         }
         return new VerifyResult();
