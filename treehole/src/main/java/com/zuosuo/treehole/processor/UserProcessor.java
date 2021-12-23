@@ -1011,7 +1011,8 @@ public class UserProcessor {
                 unit.put("content", item.getContent());
                 unit.put("favor_num", item.getFavorNum());
                 unit.put("comment_num", item.getCommentNum());
-                unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt(), "MM/dd"));
+                unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
+                unit.put("list_time", TimeTool.formatDate(item.getCreatedAt(), "MM/dd"));
                 if (user != null) {
                     unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
                     unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
