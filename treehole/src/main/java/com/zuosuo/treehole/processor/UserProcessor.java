@@ -187,6 +187,10 @@ public class UserProcessor {
             }
             if (user != null) {
                 unit.setIsCollect(userCollectService.isCollected(user.getId(), item.getId()) ? 1 : 0);
+                if (user.getId() != item.getId()) {
+                    BiuUserReadLogEntity readLog = userService.getUserReadLog(user.getId(), item.getId());
+                    unit.setIsRead(readLog != null ? 1 : 0);
+                }
             }
             result.add(unit);
         });
@@ -1299,6 +1303,27 @@ public class UserProcessor {
 //        }
 //        user.setUseStatus(BiuUserEntity.USER_INVAIL_STATUS);
 //        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        return new FuncResult(true, "");
+    }
+
+    /**
+     * 用户关联阅读
+     * @param userId
+     * @param relateId
+     * @return
+     */
+    public FuncResult readUser(long userId, long relateId) {
+        if (userId == relateId) {
+            return new FuncResult(false, "不能是同一用户哟");
+        }
+        BiuUserReadLogEntity entity = userService.getUserReadLog(userId, relateId);
+        if (entity != null) {
+            return new FuncResult(false, "该用户已看过");
+        }
+        entity = new BiuUserReadLogEntity();
+        entity.setUserId(userId);
+        entity.setRelateId(relateId);
+        biuDbFactory.getUserDbFactory().getBiuUserReadLogImpl().insert(entity);
         return new FuncResult(true, "");
     }
 }

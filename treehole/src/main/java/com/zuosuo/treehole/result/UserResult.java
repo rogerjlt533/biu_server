@@ -5,7 +5,7 @@ import java.util.List;
 
 public class UserResult {
     private String id = "", name = "", image = "", title = "", introduce = "", desc = "", sortTime = "";
-    private int isCollect = 0, communicate;
+    private int isCollect = 0, communicate, isRead;
     private List<String> images;
     private List<UserInterestResult> interests;
 
@@ -104,5 +104,13 @@ public class UserResult {
 
     public void addImage(String file) {
         images.add(file);
+    }
+
+    public int getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(int isRead) {
+        this.isRead = isRead;
     }
 }

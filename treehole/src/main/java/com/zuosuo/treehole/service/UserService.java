@@ -926,4 +926,11 @@ public class UserService {
         BiuHoleNoteCommentEntity entity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().single(option);
         return entity != null ? true : false;
     }
+
+    public BiuUserReadLogEntity getUserReadLog(long userId, long relateId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.addCondition("relate_id", relateId);
+        return biuDbFactory.getUserDbFactory().getBiuUserReadLogImpl().single(option);
+    }
 }
