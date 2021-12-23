@@ -931,6 +931,9 @@ public class UserProcessor {
         result.put("page", PageTool.parsePage(bean.getPage()));
         result.put("size", bean.getSize());
         result.put("more", 0);
+        if (!bean.getMethod().equals(NoteListBean.INDEX) && userId <= 0) {
+            return new FuncResult(false, "无对应记录", result);
+        }
         ProviderOption option = new ProviderOption();
         if (bean.getMethod().equals(NoteListBean.INDEX)) {
             option.addCondition("is_private", BiuHoleNoteEntity.PRIVATE_NO);
@@ -993,7 +996,7 @@ public class UserProcessor {
                 Map<String, Object> unit = new HashMap<>();
                 unit.put("id", encodeHash(item.getId()));
                 unit.put("user", encodeHash(noteUser.getId()));
-                if (user.getId() != noteUser.getId() && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+                if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
                     unit.put("name", "匿名");
                     unit.put("image", "");
                 } else {
@@ -1008,9 +1011,14 @@ public class UserProcessor {
                 unit.put("content", item.getContent());
                 unit.put("favor_num", item.getFavorNum());
                 unit.put("comment_num", item.getCommentNum());
-                unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "MM/dd"));
-                unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
-                unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
+                unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt(), "MM/dd"));
+                if (user != null) {
+                    unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
+                    unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
+                } else {
+                    unit.put("is_favor", 0);
+                    unit.put("is_commented", 0);
+                }
                 unit.put("is_collect", 0);
                 unit.put("allow_report", 0);
                 unit.put("allow_remove", 0);
@@ -1020,7 +1028,7 @@ public class UserProcessor {
                 } else {
                     unit.put("allow_comment", 0);
                 }
-                if (user.getId() != noteUser.getId()) {
+                if (user != null && user.getId() != noteUser.getId()) {
                     unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
                     unit.put("allow_report", 1);
                 } else {

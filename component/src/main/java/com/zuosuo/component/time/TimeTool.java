@@ -49,6 +49,10 @@ public class TimeTool {
     }
 
     public static final String friendlyTime(Date date) {
+        return friendlyTime(date, null);
+    }
+
+    public static final String friendlyTime(Date date, String format) {
         if (date == null) {
             return "";
         }
@@ -68,6 +72,9 @@ public class TimeTool {
             return discHours + "小时前";
         } else if(discDays < 7) {
             return discDays + "天前";
+        }
+        if (format != null && !format.isEmpty()) {
+            return formatDate(date, format);
         }
         return formatDate(date);
     }
