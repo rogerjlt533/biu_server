@@ -157,6 +157,22 @@ public class UserController {
     }
 
     /**
+     * 用户拉黑
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/black")
+    @Login
+    public JsonResult black(HttpServletRequest request, @RequestBody UserBlackBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonResult(verify.getMessage());
+        }
+        return new UserBlackAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 用户取消拉黑
      * @param request
      * @param bean

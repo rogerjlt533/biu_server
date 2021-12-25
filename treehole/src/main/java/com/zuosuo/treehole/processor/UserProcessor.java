@@ -476,9 +476,9 @@ public class UserProcessor {
         entity.setRelateId(relateId);
         entity.setContent(content);
         biuDbFactory.getUserDbFactory().getBiuUserReportImpl().insert(entity);
-        if (type == BiuUserReportEntity.REPORT_TYPE_REPORT) {
-            blackUser(userId, relateId);
-        }
+//        if (type == BiuUserReportEntity.REPORT_TYPE_REPORT) {
+//            blackUser(userId, relateId);
+//        }
         if (images != null && !images.isEmpty()) {
             int imageType = 0;
             if (type == BiuUserReportEntity.REPORT_TYPE_TOUSU) {
@@ -487,6 +487,8 @@ public class UserProcessor {
                 imageType = BiuUserImageEntity.USE_TYPE_RECOMMEND;
             } else if (type == BiuUserReportEntity.REPORT_TYPE_OTHER) {
                 imageType = BiuUserImageEntity.USE_TYPE_REPORT_OTHER;
+            } else if (type == BiuUserReportEntity.REPORT_TYPE_REPORT) {
+                imageType = BiuUserImageEntity.USE_TYPE_REPORT;
             }
             if (imageType > 0) {
                 userService.setUserImage(userId, imageType, entity.getId(), images);
