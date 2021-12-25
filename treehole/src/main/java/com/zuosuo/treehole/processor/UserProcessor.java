@@ -933,6 +933,7 @@ public class UserProcessor {
     }
 
     public FuncResult getNoteList(long userId, NoteListBean bean) {
+        BiuUserViewEntity user = userService.getUserView(userId);
         Map<String, Object> result = new HashMap<>();
         result.put("page", PageTool.parsePage(bean.getPage()));
         result.put("size", bean.getSize());
@@ -959,6 +960,10 @@ public class UserProcessor {
             long last = decodeHash(bean.getLast());
             option.addCondition("id<" + last);
         }
+        if (user != null && user.getProtectedUser() != null && !user.getProtectedUser().isEmpty()) {
+            option.addCondition("user_id not in (" + user.getProtectedUser().replaceAll("'", "") + ")");
+        }
+
         option.setUsePager(true);
         option.addOrderby("id desc");
         option.setOffset(bean.getPage(), bean.getSize());
