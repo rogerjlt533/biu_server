@@ -1035,6 +1035,7 @@ public class UserProcessor {
                 unit.put("allow_report", 0);
                 unit.put("allow_remove", 0);
                 unit.put("is_private", item.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
+                unit.put("nick_show", item.getNickShow());
                 if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
                     unit.put("allow_comment", 1);
                 } else {
