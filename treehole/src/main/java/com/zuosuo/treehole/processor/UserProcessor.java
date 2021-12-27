@@ -14,6 +14,7 @@ import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.*;
+import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.result.*;
 import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.UserCollectService;
@@ -397,7 +398,8 @@ public class UserProcessor {
             user.setNick(bean.getNick());
         }
         if (bean.getMethod().contains("image")) {
-            BiuUserImageEntity image = userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_AVATOR, 0, bean.getImage(), 0);
+            String imageUrl = bean.getImage().isEmpty() ? SystemOption.USER_IMAGE.getValue() : bean.getImage();
+            BiuUserImageEntity image = userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_AVATOR, 0, imageUrl, 0);
             user.setImage(image.getFile());
         }
         if (bean.getMethod().contains("pen_name")) {
