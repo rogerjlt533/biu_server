@@ -97,7 +97,7 @@ public class UserProcessor {
             }
         }
         if(user != null) {
-            option.addCondition("id!=" + user.getId());
+//            option.addCondition("id!=" + user.getId());
             int self_age = user.getAge();
             if (self_age > 0) {
                 option.addCondition("match_start_age<=" + self_age + " and match_end_age>=" + self_age);
