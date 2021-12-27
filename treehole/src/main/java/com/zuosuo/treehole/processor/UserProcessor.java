@@ -406,7 +406,7 @@ public class UserProcessor {
             user.setPenName(bean.getPenName().trim());
         }
         if (bean.getMethod().contains("sex")) {
-            user.setSex(bean.getSex());
+            user.setSex(bean.getSex() > 2 ? 0 : bean.getSex());
         }
         if (bean.getMethod().contains("birthday_year")) {
             user.setBirthdayYear(bean.getBirthdayYear());
