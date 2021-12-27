@@ -5,6 +5,7 @@ import java.util.Arrays;
 public class NoteCommentListBean extends BaseVerifyBean {
 
     private String note, last, orderby;
+    private int mine;
 
     public String getNote() {
         return note != null ? note.trim() : "";
@@ -12,6 +13,14 @@ public class NoteCommentListBean extends BaseVerifyBean {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public int getMine() {
+        return mine;
+    }
+
+    public void setMine(int mine) {
+        this.mine = mine;
     }
 
     public String getLast() {

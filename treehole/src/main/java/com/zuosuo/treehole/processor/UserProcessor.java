@@ -1254,6 +1254,10 @@ public class UserProcessor {
         }
         ProviderOption option = new ProviderOption();
         option.addCondition("note_id", noteId);
+        if (bean.getMine() > 0) {
+            // 我的评论
+            option.addCondition("user_id", userId);
+        }
         if (last > 0) {
             if (bean.getOrderby().equals("desc")) {
                 option.addCondition("id<" + last);
