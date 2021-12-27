@@ -7,7 +7,6 @@ import com.zuosuo.biudb.impl.BiuHoleNoteMoodImpl;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeTool;
-import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.result.*;
@@ -182,6 +181,7 @@ public class UserService {
 
     public BiuUserImageEntity setUserImage(long userId, int type, long relateId, String file, int sort) {
         boolean isQiniu = false;
+        String originUrl = file;
         if (file.contains("/upload")) {
             file = file.substring(file.indexOf("/upload") + 1);
             isQiniu = true;
@@ -198,20 +198,26 @@ public class UserService {
         }
         if (isQiniu) {
             BiuUserImageEntity relate = getUserImage(userId, file);
-            image.setFile(relate.getFile());
-            image.setUseType(type);
-            image.setHashCode(relate.getHashCode());
-            image.setSortIndex(sort);
-            biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
-            return image;
-        } else {
-            image.setFile(file);
-            image.setUseType(type);
-            image.setHashCode("");
-            image.setSortIndex(sort);
-            biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
-            return image;
+            if (relate == null) {
+                relate = getUserImage(0, file);
+            }
+            if (relate != null) {
+                image.setFile(relate.getFile());
+                image.setUseType(type);
+                image.setHashCode(relate.getHashCode());
+                image.setSortIndex(sort);
+                biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
+                return image;
+            } else {
+                file = originUrl;
+            }
         }
+        image.setFile(file);
+        image.setUseType(type);
+        image.setHashCode("");
+        image.setSortIndex(sort);
+        biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
+        return image;
     }
 
     public long clearUserCommunicate(long userId, int type) {
