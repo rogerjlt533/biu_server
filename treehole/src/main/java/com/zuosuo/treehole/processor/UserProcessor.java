@@ -70,6 +70,13 @@ public class UserProcessor {
      * @return
      */
     public FuncResult getList(long id, UserListBean bean) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+//        result.put("count", impl.count(option));
+        result.put("more", 0);
+        List<UserResult> userList = new ArrayList<>();
+        result.put("list", userList);
         BiuUserViewEntity user = userService.getUserView(id);
         ProviderOption option = new ProviderOption();
         option.setUsePager(true);
@@ -135,11 +142,6 @@ public class UserProcessor {
         option.setLimit(bean.getSize() + 1);
         BiuUserViewImpl impl = biuDbFactory.getUserDbFactory().getBiuUserViewImpl();
         List<BiuUserViewEntity> list = impl.list(option);
-        Map<String, Object> result = new HashMap<>();
-        result.put("page", PageTool.parsePage(bean.getPage()));
-        result.put("size", bean.getSize());
-//        result.put("count", impl.count(option));
-        result.put("more", 0);
         if (list.size() > bean.getSize()) {
             list.remove(list.size() - 1);
             result.put("more", 1);
@@ -147,7 +149,7 @@ public class UserProcessor {
         if (list.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
-        List<UserResult> userList = processList(list, user);
+        userList = processList(list, user);
         result.put("list", userList);
         return new FuncResult(true, "", result);
     }
@@ -592,14 +594,14 @@ public class UserProcessor {
      * @return
      */
     public FuncResult getCollectList(long userId) {
+        List<CollectUserResult> list = new ArrayList<>();
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addOrderby("created_at desc");
         List<BiuUserCollectEntity> rows = biuDbFactory.getUserDbFactory().getBiuUserCollectImpl().list(option);
         if (rows == null) {
-            return new FuncResult(false, "无对应记录");
+            return new FuncResult(false, "无对应记录", list);
         }
-        List<CollectUserResult> list = new ArrayList<>();
         rows.forEach(item -> {
             BiuUserViewEntity entity = userService.getUserView(item.getRelateId());
             int search = entity.getSearchStatus();
@@ -633,10 +635,10 @@ public class UserProcessor {
         option.addCondition("user_id", userId);
         option.addOrderby("created_at desc");
         List<BiuUserBlacklistEntity> rows = biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().list(option);
-        if (rows == null) {
-            return new FuncResult(false, "无对应记录");
-        }
         List<BlackUserResult> list = new ArrayList<>();
+        if (rows == null) {
+            return new FuncResult(false, "无对应记录", list);
+        }
         rows.forEach(item -> {
             BiuUserViewEntity entity = userService.getUserView(item.getBlackId());
             int search = entity.getSearchStatus();
@@ -666,15 +668,16 @@ public class UserProcessor {
      * @return
      */
     public FuncResult getUserFriendList(long userId) {
+        List<UserFriendResult> list = new ArrayList<>();
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("confirm_status", BiuUserFriendMemberEntity.PASS_STATUS);
         List<BiuUserFriendMemberEntity> members = biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().list(option);
         if (members == null) {
-            return new FuncResult(false, "无对应记录");
+            return new FuncResult(false, "无对应记录", list);
         }
         if (members.isEmpty()) {
-            return new FuncResult(false, "无对应记录");
+            return new FuncResult(false, "无对应记录", list);
         }
         String friendIdList = members.stream().map(item -> String.valueOf(item.getFriendId())).collect(Collectors.joining(","));
         option = new ProviderOption();
@@ -682,9 +685,9 @@ public class UserProcessor {
         option.addCondition("confirm_status", BiuUserFriendEntity.PASS_STATUS);
         List<BiuUserFriendEntity> friends = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().list(option);
         if (friends.isEmpty()) {
-            return new FuncResult(false, "无对应记录");
+            return new FuncResult(false, "无对应记录", new ArrayList<UserFriendResult>());
         }
-        List<UserFriendResult> list = userService.processFriendList(friends, userId);
+        list = userService.processFriendList(friends, userId);
         return new FuncResult(true, "", list);
     }
 
@@ -759,6 +762,12 @@ public class UserProcessor {
      * @return
      */
     public FuncResult messageList(long userId, UserMessageListBean bean) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+        result.put("more", 0);
+        List<UserMessageResult> messageList = new ArrayList<>();
+        result.put("list", messageList);
         ProviderOption option = new ProviderOption();
         option.addCondition("dest_id", userId);
         if (bean.getRead() < 2) {
@@ -775,13 +784,9 @@ public class UserProcessor {
         option.setLimit(bean.getSize() + 1);
         List<BiuMessageEntity> rows = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(option);
         if (rows == null) {
-            return new FuncResult(false, "无对应记录");
+            return new FuncResult(false, "无对应记录", result);
         }
         BiuUserViewEntity user = userService.getUserView(userId);
-        Map<String, Object> result = new HashMap<>();
-        result.put("page", PageTool.parsePage(bean.getPage()));
-        result.put("size", bean.getSize());
-        result.put("more", 0);
         if (rows.size() > bean.getSize()) {
             rows.remove(rows.size() - 1);
             result.put("more", 1);
@@ -789,7 +794,7 @@ public class UserProcessor {
         if (rows.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
-        List<UserMessageResult> messageList = processMessageList(rows, user);
+        messageList = processMessageList(rows, user);
         result.put("list", messageList);
         return new FuncResult(true, "", result);
     }
@@ -941,6 +946,7 @@ public class UserProcessor {
         result.put("page", PageTool.parsePage(bean.getPage()));
         result.put("size", bean.getSize());
         result.put("more", 0);
+        result.put("list", new ArrayList<Map>());
         if (!bean.getMethod().equals(NoteListBean.INDEX) && userId <= 0) {
             return new FuncResult(false, "无对应记录", result);
         }
@@ -1250,6 +1256,7 @@ public class UserProcessor {
         result.put("page", PageTool.parsePage(bean.getPage()));
         result.put("size", bean.getSize());
         result.put("more", 0);
+        result.put("list", new ArrayList<Map>());
         long noteId = decodeHash(bean.getNote());
         if (noteId <= 0) {
             result.put("list", new ArrayList<>());
@@ -1296,17 +1303,19 @@ public class UserProcessor {
         rows.forEach(item -> {
             BiuUserEntity commentUser = userImpl.find(item.getCommentUserid());
             BiuUserEntity user = userImpl.find(item.getUserId());
-            Map<String, Object> unit = new HashMap<>();
-            unit.put("comment_id", encodeHash(item.getId()));
-            unit.put("note_id", encodeHash(item.getNoteId()));
-            if (item.getCommentId() > 0) {
-                unit.put("title", "@" + commentUser.getPenName());
-            } else {
-                unit.put("title", user.getPenName());
+            if (user != null && ((item.getCommentId() > 0 && commentUser != null) || item.getCommentId() == 0)) {
+                Map<String, Object> unit = new HashMap<>();
+                unit.put("comment_id", encodeHash(item.getId()));
+                unit.put("note_id", encodeHash(item.getNoteId()));
+                if (item.getCommentId() > 0) {
+                    unit.put("title", "@" + commentUser.getPenName());
+                } else {
+                    unit.put("title", user.getPenName());
+                }
+                unit.put("content", item.getContent());
+                unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
+                list.add(unit);
             }
-            unit.put("content", item.getContent());
-            unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
-            list.add(unit);
         });
         return list;
     }

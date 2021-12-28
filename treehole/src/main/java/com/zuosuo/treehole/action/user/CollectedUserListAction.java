@@ -21,9 +21,9 @@ public class CollectedUserListAction extends BaseAction {
     @Override
     public JsonDataResult<List<CollectUserResult>> run() {
         FuncResult getResult = userProcessor.getCollectList(getLoginInfoBean().getUserId());
-        if (!getResult.isStatus()) {
-            return new JsonDataResult<>(getResult.getMessage());
-        }
+//        if (!getResult.isStatus()) {
+//            return new JsonDataResult<>(getResult.getMessage());
+//        }
         return JsonDataResult.success((List<CollectUserResult>) getResult.getResult());
     }
 }

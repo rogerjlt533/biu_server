@@ -23,9 +23,9 @@ public class NoteCommentListAction extends BaseAction {
     @Override
     public JsonDataResult<Map> run() {
         FuncResult getResult = userProcessor.getCommentList(getLoginInfoBean().getUserId(), bean);
-        if (!getResult.isStatus()) {
-            return new JsonDataResult<>(getResult.getMessage());
-        }
+//        if (!getResult.isStatus()) {
+//            return new JsonDataResult<>(getResult.getMessage());
+//        }
         return JsonDataResult.success((Map) getResult.getResult());
     }
 }

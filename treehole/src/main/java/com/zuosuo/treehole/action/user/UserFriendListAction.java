@@ -22,9 +22,9 @@ public class UserFriendListAction extends BaseAction {
     @Override
     public JsonDataResult<List<UserFriendResult>> run() {
         FuncResult getResult = userProcessor.getUserFriendList(getLoginInfoBean().getUserId());
-        if (!getResult.isStatus()) {
-            return new JsonDataResult<>(getResult.getMessage());
-        }
+//        if (!getResult.isStatus()) {
+//            return new JsonDataResult<>(getResult.getMessage());
+//        }
         return JsonDataResult.success((List<UserFriendResult>) getResult.getResult());
     }
 }

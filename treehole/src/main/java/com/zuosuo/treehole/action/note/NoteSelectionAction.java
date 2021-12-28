@@ -20,9 +20,9 @@ public class NoteSelectionAction extends BaseAction {
     @Override
     public JsonDataResult<Map> run() {
         FuncResult processResult = userProcessor.getNoteInitSelection(getLoginInfoBean().getUserId());
-        if (!processResult.isStatus()) {
-            return new JsonDataResult<>(processResult.getMessage());
-        }
+//        if (!processResult.isStatus()) {
+//            return new JsonDataResult<>(processResult.getMessage());
+//        }
         return JsonDataResult.success((Map) processResult.getResult());
     }
 }

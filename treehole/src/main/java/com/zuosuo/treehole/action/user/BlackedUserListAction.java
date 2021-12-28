@@ -22,9 +22,9 @@ public class BlackedUserListAction extends BaseAction {
     @Override
     public JsonDataResult<List<BlackUserResult>> run() {
         FuncResult getResult = userProcessor.getBlackList(getLoginInfoBean().getUserId());
-        if (!getResult.isStatus()) {
-            return new JsonDataResult<>(getResult.getMessage());
-        }
+//        if (!getResult.isStatus()) {
+//            return new JsonDataResult<>(getResult.getMessage());
+//        }
         return JsonDataResult.success((List<BlackUserResult>) getResult.getResult());
     }
 }

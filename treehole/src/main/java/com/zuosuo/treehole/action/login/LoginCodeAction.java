@@ -32,14 +32,14 @@ public class LoginCodeAction extends BaseAction {
     public JsonDataResult<Map> run() {
         SessionInfo session = WechatMiniTool.code2Session(bean.getCode(), miniWechatConfig);
         if (session == null) {
-            return new JsonDataResult<>("授权失败");
+            return new JsonDataResult<>(501, "授权失败");
         }
         if (session.getOpenid() == null) {
             return new JsonDataResult<>("授权失败!");
         }
         FuncResult loginResult = wechatProcessor.loginCode(request, session);
         if (!loginResult.isStatus()) {
-            return new JsonDataResult<>("登录失败");
+            return new JsonDataResult<>(501, "登录失败");
         }
         Map<String, String> data = (Map<String, String>) loginResult.getResult();
         return JsonDataResult.success(data);
