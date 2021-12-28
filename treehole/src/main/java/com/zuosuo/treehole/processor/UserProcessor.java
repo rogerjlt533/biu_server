@@ -212,6 +212,7 @@ public class UserProcessor {
             return new FuncResult(false, "");
         }
         MyInfoResult result = new MyInfoResult();
+        result.setId(encodeHash(user.getId()));
         result.setNick(user.getNick());
         result.setCardno(user.getUserCardno());
         result.setUsername(user.getUsername());
@@ -1033,7 +1034,7 @@ public class UserProcessor {
                 unit.put("user", encodeHash(noteUser.getId()));
                 if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
                     unit.put("name", "匿名");
-                    unit.put("image", "");
+                    unit.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
                 } else {
                     unit.put("name", noteUser.getPenName());
                     unit.put("image", userService.parseImage(noteUser.getImage()));
