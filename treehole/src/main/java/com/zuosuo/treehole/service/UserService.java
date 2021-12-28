@@ -331,6 +331,9 @@ public class UserService {
             }
             return sex;
         }).collect(Collectors.toList());
+        if (sexes.size() == 2) {
+            return "不限";
+        }
         return String.join("/", sexes);
     }
 
@@ -346,6 +349,9 @@ public class UserService {
             }
             return name;
         }).collect(Collectors.toList());
+        if (communicates.size() == 2) {
+            return "不限";
+        }
         return String.join("/", communicates);
     }
 
