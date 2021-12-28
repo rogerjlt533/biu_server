@@ -5,11 +5,11 @@ import java.util.List;
 
 public class UserHomeResult {
 
-    private String id, name, desc, image, title, introduce, province, sex, age, collectTag, friendTag;
+    private String id, name, desc, image, title, introduce, province, sex, age, friendHash, collectTag, friendTag;
     private List<String> images;
     private MyInfoSingleResult<Integer> communicate;
     private List<UserInterestResult> interests;
-    private int self, collect, black, friend, allowCollect, allowFriend, cancelFriend;
+    private int self, collect, black, friend, allowCollect, allowFriend, cancelFriend, allowOperateApply;
 
     public UserHomeResult() {
         images = new ArrayList<>();
@@ -113,6 +113,14 @@ public class UserHomeResult {
         this.age = age;
     }
 
+    public String getFriendHash() {
+        return friendHash;
+    }
+
+    public void setFriendHash(String friendHash) {
+        this.friendHash = friendHash;
+    }
+
     public MyInfoSingleResult<Integer> getCommunicate() {
         return communicate;
     }
@@ -183,5 +191,13 @@ public class UserHomeResult {
 
     public void setCancelFriend(int cancelFriend) {
         this.cancelFriend = cancelFriend;
+    }
+
+    public int getAllowOperateApply() {
+        return allowOperateApply;
+    }
+
+    public void setAllowOperateApply(int allowOperateApply) {
+        this.allowOperateApply = allowOperateApply;
     }
 }

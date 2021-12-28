@@ -538,6 +538,21 @@ public class UserService {
         return friendId;
     }
 
+    public boolean allowAuthFriend(BiuUserFriendEntity friend, long userId) {
+        if (friend == null) {
+            return false;
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("friend_id", friend.getId());
+        option.addCondition("user_id", userId);
+        option.addCondition("confirm_status", BiuUserFriendMemberEntity.WAITING_STATUS);
+        BiuUserFriendMemberEntity entity = biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().single(option);
+        if (entity != null) {
+            return true;
+        }
+        return false;
+    }
+
     public String getUserAddress(long userId) {
         BiuUserViewEntity user = getUserView(userId);
         List<String> address = new ArrayList<>();

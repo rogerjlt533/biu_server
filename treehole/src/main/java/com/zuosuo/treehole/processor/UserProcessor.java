@@ -306,6 +306,9 @@ public class UserProcessor {
                 if (waiting != null) {
                     result.setFriend(2);
                     result.setFriendTag("申请中");
+                    // 是否允许进行好友审核操作
+                    result.setFriendHash(encodeHash(guestId));
+                    result.setAllowOperateApply(userService.allowAuthFriend(waiting, userId) ? 1 : 0);
                     hide = 0;
                 } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {
                     result.setAllowFriend(1);
