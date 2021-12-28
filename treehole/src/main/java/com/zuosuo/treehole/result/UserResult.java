@@ -5,7 +5,7 @@ import java.util.List;
 
 public class UserResult {
     private String id = "", name = "", image = "", title = "", introduce = "", desc = "", sortTime = "";
-    private int isCollect = 0, communicate, isRead;
+    private int isCollect = 0, communicate, isRead, self;
     private List<String> images;
     private List<UserInterestResult> interests;
 
@@ -112,5 +112,13 @@ public class UserResult {
 
     public void setIsRead(int isRead) {
         this.isRead = isRead;
+    }
+
+    public int getSelf() {
+        return self;
+    }
+
+    public void setSelf(int self) {
+        this.self = self;
     }
 }

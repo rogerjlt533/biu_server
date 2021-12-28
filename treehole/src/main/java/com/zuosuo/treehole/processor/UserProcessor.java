@@ -167,6 +167,7 @@ public class UserProcessor {
         list.forEach(item -> {
             UserResult unit = new UserResult();
             unit.setId(encodeHash(item.getId()));
+            unit.setSelf(user != null && user.getId() == item.getId() ? 1 : 0);
             unit.setImage(userService.parseImage(item.getImage()));
             unit.setTitle(item.getTitle());
             unit.setIntroduce(item.getIntroduce());
