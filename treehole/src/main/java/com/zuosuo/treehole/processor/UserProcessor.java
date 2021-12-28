@@ -77,6 +77,7 @@ public class UserProcessor {
         result.put("more", 0);
         List<UserResult> userList = new ArrayList<>();
         result.put("list", userList);
+        result.put("last", "");
         BiuUserViewEntity user = userService.getUserView(id);
         ProviderOption option = new ProviderOption();
         option.setUsePager(true);
@@ -149,6 +150,7 @@ public class UserProcessor {
         if (list.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
+        result.put("last", encodeHash(list.get(list.size() - 1).getId()));
         userList = processList(list, user);
         result.put("list", userList);
         return new FuncResult(true, "", result);
@@ -768,6 +770,7 @@ public class UserProcessor {
         result.put("more", 0);
         List<UserMessageResult> messageList = new ArrayList<>();
         result.put("list", messageList);
+        result.put("last", "");
         ProviderOption option = new ProviderOption();
         option.addCondition("dest_id", userId);
         if (bean.getRead() < 2) {
@@ -794,6 +797,7 @@ public class UserProcessor {
         if (rows.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
+        result.put("last", encodeHash(rows.get(rows.size() - 1).getId()));
         messageList = processMessageList(rows, user);
         result.put("list", messageList);
         return new FuncResult(true, "", result);
@@ -821,21 +825,25 @@ public class UserProcessor {
                 if (friendEntity != null) {
                     long friendId = userService.getFriendId(friendEntity, user.getId());
                     BiuUserViewEntity friendUser = userService.getUserView(friendId);
-                    unit.getFriendApply().setId(encodeHash(friendEntity.getId()));
-                    unit.getFriendApply().setUser(encodeHash(user.getId()));
-                    unit.getFriendApply().setFriend(encodeHash(friendId));
-                    unit.getFriendApply().setName(friendUser.getPenName());
-                    unit.getFriendApply().setImage(userService.parseImage(friendUser.getImage()));
-                    unit.getFriendApply().setDesc(userService.getUserDesc(friendUser));
-                    if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
-                        unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
-                    }
-                    if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
-                        unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
+                    if (friendUser != null) {
+                        unit.getFriendApply().setId(encodeHash(friendEntity.getId()));
+                        unit.getFriendApply().setUser(encodeHash(user.getId()));
+                        unit.getFriendApply().setFriend(encodeHash(friendId));
+                        unit.getFriendApply().setName(friendUser.getPenName());
+                        unit.getFriendApply().setImage(userService.parseImage(friendUser.getImage()));
+                        unit.getFriendApply().setDesc(userService.getUserDesc(friendUser));
+                        if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
+                            unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
+                        }
+                        if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
+                            unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
+                        }
+                        list.add(unit);
                     }
                 }
+            } else {
+                list.add(unit);
             }
-            list.add(unit);
         });
         return list;
     }
@@ -947,6 +955,7 @@ public class UserProcessor {
         result.put("size", bean.getSize());
         result.put("more", 0);
         result.put("list", new ArrayList<Map>());
+        result.put("last", "");
         if (!bean.getMethod().equals(NoteListBean.INDEX) && userId <= 0) {
             return new FuncResult(false, "无对应记录", result);
         }
@@ -986,6 +995,7 @@ public class UserProcessor {
         if (rows.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
+        result.put("last", encodeHash(rows.get(rows.size() - 1).getId()));
         List<Map> list = processNoteList(rows, userId);
         result.put("list", list);
         return new FuncResult(true, "", result);
