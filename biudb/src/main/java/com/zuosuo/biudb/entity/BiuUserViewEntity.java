@@ -451,7 +451,7 @@ public class BiuUserViewEntity extends BaseEntity {
                 tag = BiuUserEntity.LABEL_USER_SEX_WOMEN;
                 break;
             default:
-                tag = "";
+                tag = "保密";
         }
         return tag;
     }

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class UserHomeResult {
 
-    private String id, name, desc, title, introduce, province, sex, age, collectTag, friendTag;
+    private String id, name, desc, image, title, introduce, province, sex, age, collectTag, friendTag;
     private List<String> images;
     private MyInfoSingleResult<Integer> communicate;
     private List<UserInterestResult> interests;
@@ -39,6 +39,14 @@ public class UserHomeResult {
 
     public void setDesc(String desc) {
         this.desc = desc;
+    }
+
+    public String getImage() {
+        return image != null ? image.trim() : "";
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getTitle() {

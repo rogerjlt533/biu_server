@@ -271,6 +271,7 @@ public class UserProcessor {
         if (guestId > 0 && guestId == userId) {
             result.setSelf(1);
         }
+        result.setImage(userService.parseImage(user.getImage()));
         if (guestId > 0 && result.getSelf() == 0) {
             ProviderOption option = new ProviderOption();
             option.addCondition("user_id", guestId);
