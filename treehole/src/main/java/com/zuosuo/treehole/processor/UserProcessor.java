@@ -606,23 +606,25 @@ public class UserProcessor {
         }
         rows.forEach(item -> {
             BiuUserViewEntity entity = userService.getUserView(item.getRelateId());
-            int search = entity.getSearchStatus();
-            CollectUserResult unit = new CollectUserResult();
-            unit.setId(encodeHash(entity.getId()));
-            unit.setImage(userService.parseImage(entity.getImage()));
-            if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
-                unit.setName("匿名");
-                unit.setDesc("隐藏");
-            } else {
-                int communicate = 0;
-                if (entity.getSelfCommunicate() != null && !entity.getSelfCommunicate().isEmpty()) {
-                    communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
+            if (entity != null) {
+                int search = entity.getSearchStatus();
+                CollectUserResult unit = new CollectUserResult();
+                unit.setId(encodeHash(entity.getId()));
+                unit.setImage(userService.parseImage(entity.getImage()));
+                if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
+                    unit.setName("匿名");
+                    unit.setDesc("隐藏");
+                } else {
+                    int communicate = 0;
+                    if (entity.getSelfCommunicate() != null && !entity.getSelfCommunicate().isEmpty()) {
+                        communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
+                    }
+                    unit.setName(entity.getPenName());
+                    unit.setDesc(userService.getUserDesc(entity));
+                    unit.setCommunicate(communicate);
                 }
-                unit.setName(entity.getPenName());
-                unit.setDesc(userService.getUserDesc(entity));
-                unit.setCommunicate(communicate);
+                list.add(unit);
             }
-            list.add(unit);
         });
         return new FuncResult(true, "", list);
     }
@@ -643,23 +645,25 @@ public class UserProcessor {
         }
         rows.forEach(item -> {
             BiuUserViewEntity entity = userService.getUserView(item.getBlackId());
-            int search = entity.getSearchStatus();
-            BlackUserResult unit = new BlackUserResult();
-            unit.setId(encodeHash(entity.getId()));
-            unit.setImage(userService.parseImage(entity.getImage()));
-            if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
-                unit.setName("匿名");
-                unit.setDesc("隐藏");
-            } else {
-                int communicate = 0;
-                if (entity.getSelfCommunicate() != null && !entity.getSelfCommunicate().isEmpty()) {
-                    communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
+            if (entity != null) {
+                int search = entity.getSearchStatus();
+                BlackUserResult unit = new BlackUserResult();
+                unit.setId(encodeHash(entity.getId()));
+                unit.setImage(userService.parseImage(entity.getImage()));
+                if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
+                    unit.setName("匿名");
+                    unit.setDesc("隐藏");
+                } else {
+                    int communicate = 0;
+                    if (entity.getSelfCommunicate() != null && !entity.getSelfCommunicate().isEmpty()) {
+                        communicate = Arrays.asList(entity.getSelfCommunicate().trim().replaceAll("'", "").split(",")).stream().map(value -> Integer.parseInt(value)).reduce(Integer::sum).orElse(0);
+                    }
+                    unit.setName(entity.getPenName());
+                    unit.setDesc(userService.getUserDesc(entity));
+                    unit.setCommunicate(communicate);
                 }
-                unit.setName(entity.getPenName());
-                unit.setDesc(userService.getUserDesc(entity));
-                unit.setCommunicate(communicate);
+                list.add(unit);
             }
-            list.add(unit);
         });
         return new FuncResult(true, "", list);
     }
