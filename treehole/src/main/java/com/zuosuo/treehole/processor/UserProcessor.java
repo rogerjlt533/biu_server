@@ -1293,8 +1293,8 @@ public class UserProcessor {
         option.addOrderby("id " + bean.getOrderby());
         option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
-        BiuHoleNoteCommentImpl commentImpl = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl();
-        List<BiuHoleNoteCommentEntity> rows = commentImpl.list(option);
+        BiuHoleNoteCommentViewImpl commentImpl = biuDbFactory.getHoleDbFactory().getHoleNoteCommentViewImpl();
+        List<BiuHoleNoteCommentViewEntity> rows = commentImpl.list(option);
         if (rows.size() > bean.getSize()) {
             rows.remove(rows.size() - 1);
             result.put("more", 1);
@@ -1307,25 +1307,23 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    public List<Map> processCommentList(List<BiuHoleNoteCommentEntity> rows) {
+    public List<Map> processCommentList(List<BiuHoleNoteCommentViewEntity> rows) {
         List<Map> list = new ArrayList<>();
         BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
         rows.forEach(item -> {
             BiuUserEntity commentUser = userImpl.find(item.getCommentUserid());
             BiuUserEntity user = userImpl.find(item.getUserId());
-            if (user != null && ((item.getCommentId() > 0 && commentUser != null) || item.getCommentId() == 0)) {
-                Map<String, Object> unit = new HashMap<>();
-                unit.put("comment_id", encodeHash(item.getId()));
-                unit.put("note_id", encodeHash(item.getNoteId()));
-                if (item.getCommentId() > 0) {
-                    unit.put("title", "@" + commentUser.getPenName());
-                } else {
-                    unit.put("title", user.getPenName());
-                }
-                unit.put("content", item.getContent());
-                unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
-                list.add(unit);
+            Map<String, Object> unit = new HashMap<>();
+            unit.put("comment_id", encodeHash(item.getId()));
+            unit.put("note_id", encodeHash(item.getNoteId()));
+            if (item.getCommentId() > 0) {
+                unit.put("title", "@" + commentUser.getPenName());
+            } else {
+                unit.put("title", user.getPenName());
             }
+            unit.put("content", item.getContent());
+            unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
+            list.add(unit);
         });
         return list;
     }
