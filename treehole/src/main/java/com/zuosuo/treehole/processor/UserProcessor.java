@@ -848,6 +848,15 @@ public class UserProcessor {
                         if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
                             unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
                         }
+                        if (friendEntity.getCommunicateType() == BiuUserCommunicateEntity.COM_METHOD_LETTER) {
+                            unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "通信方式"); put("value", BiuUserCommunicateEntity.LABEL_COM_METHOD_LETTER); }});
+                            unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "收件人"); put("value", friendUser.getUsername()); }});
+                            unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "电话"); put("value", friendUser.getPhone()); }});
+                            unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "通信地址"); put("value", userService.getUserAddress(friendId)); }});
+                        } else {
+                            unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "通信方式"); put("value", BiuUserCommunicateEntity.LABEL_COM_METHOD_EMAIL); }});
+                            unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "E-mail"); put("value", friendUser.getEmail()); }});
+                        }
                         list.add(unit);
                     }
                 }

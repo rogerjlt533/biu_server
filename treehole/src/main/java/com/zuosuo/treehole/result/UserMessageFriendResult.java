@@ -1,5 +1,9 @@
 package com.zuosuo.treehole.result;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class UserMessageFriendResult {
 
     public static final int ALLOW_AUTH = 1;
@@ -9,6 +13,11 @@ public class UserMessageFriendResult {
 
     private String id, user, friend, name, image, desc;
     private int allowAuth, status;
+    private List<Map<String, Object>> info;
+
+    public UserMessageFriendResult() {
+        info = new ArrayList<>();
+    }
 
     public String getId() {
         return id != null ? id.trim() : "";
@@ -72,5 +81,13 @@ public class UserMessageFriendResult {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public List<Map<String, Object>> getInfo() {
+        return info;
+    }
+
+    public void setInfo(List<Map<String, Object>> info) {
+        this.info = info;
     }
 }
