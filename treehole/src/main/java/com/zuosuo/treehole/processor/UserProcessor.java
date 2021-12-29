@@ -1107,8 +1107,8 @@ public class UserProcessor {
         }
         BiuUserViewEntity user = userService.getUserView(userId);
         BiuUserViewEntity noteUser = userService.getUserView(note.getUserId());
-        if (note.getUserId() != userId) {
-            return new FuncResult(false, "非本人记录不可操作");
+        if (noteUser == null) {
+            return new FuncResult(false, "树洞信已丢失");
         }
         BiuMoodEntity moodEntity = null;
         BiuLabelEntity labelEntity = null;
