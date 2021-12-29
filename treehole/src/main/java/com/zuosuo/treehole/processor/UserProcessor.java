@@ -1032,69 +1032,67 @@ public class UserProcessor {
             } else {
                 noteUser = userImpl.find(item.getUserId());
             }
-            if (noteUser != null) {
-                BiuMoodEntity moodEntity = null;
-                BiuLabelEntity labelEntity = null;
-                if (!item.getMoodCode().isEmpty()) {
-                    ProviderOption option = new ProviderOption();
-                    option.addCondition("code", item.getMoodCode());
-                    moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().single(option);
-                }
-                if (item.getLabelId() > 0) {
-                    labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(item.getLabelId());
-                }
-                Map<String, Object> unit = new HashMap<>();
-                unit.put("id", encodeHash(item.getId()));
-                unit.put("user", encodeHash(noteUser.getId()));
-                if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
-                    unit.put("name", "匿名");
-                    unit.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
-                } else {
-                    unit.put("name", noteUser.getPenName());
-                    unit.put("image", userService.parseImage(noteUser.getImage()));
-                }
-                unit.put("mood_code", item.getMoodCode());
-                unit.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
-                unit.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
-                unit.put("label", labelEntity != null ? labelEntity.getId() : 0);
-                unit.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
-                unit.put("content", item.getContent());
-                unit.put("favor_num", item.getFavorNum());
-                unit.put("comment_num", item.getCommentNum());
-                unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
-                unit.put("list_time", TimeTool.formatDate(item.getCreatedAt(), "MM/dd"));
-                if (user != null) {
-                    unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
-                    unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
-                } else {
-                    unit.put("is_favor", 0);
-                    unit.put("is_commented", 0);
-                }
-                unit.put("is_collect", 0);
-                unit.put("allow_report", 0);
-                unit.put("allow_remove", 0);
-                unit.put("is_private", item.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
-                unit.put("nick_show", item.getNickShow());
-                if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
-                    if (user != null && user.getId() != noteUser.getId()) {
-                        unit.put("allow_comment", 1);
-                    }
-                } else {
-                    unit.put("allow_comment", 0);
-                }
-                if (user != null) {
-                    if (user.getId() != noteUser.getId()) {
-                        unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
-                        unit.put("allow_report", 1);
-                    } else {
-                        unit.put("allow_remove", 1);
-                    }
-                }
-                Map favorResult = userService.getNoteFavorCondition(item.getId());
-                unit.put("favor_images", favorResult.get("images"));
-                unit.put("images", userService.getNoteImages(item.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 3));
-                list.add(unit);
+            BiuMoodEntity moodEntity = null;
+            BiuLabelEntity labelEntity = null;
+            if (!item.getMoodCode().isEmpty()) {
+                ProviderOption option = new ProviderOption();
+                option.addCondition("code", item.getMoodCode());
+                moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().single(option);
             }
+            if (item.getLabelId() > 0) {
+                labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(item.getLabelId());
+            }
+            Map<String, Object> unit = new HashMap<>();
+            unit.put("id", encodeHash(item.getId()));
+            unit.put("user", encodeHash(noteUser.getId()));
+            if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+                unit.put("name", "匿名");
+                unit.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
+            } else {
+                unit.put("name", noteUser.getPenName());
+                unit.put("image", userService.parseImage(noteUser.getImage()));
+            }
+            unit.put("mood_code", item.getMoodCode());
+            unit.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
+            unit.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
+            unit.put("label", labelEntity != null ? labelEntity.getId() : 0);
+            unit.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
+            unit.put("content", item.getContent());
+            unit.put("favor_num", item.getFavorNum());
+            unit.put("comment_num", item.getCommentNum());
+            unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
+            unit.put("list_time", TimeTool.formatDate(item.getCreatedAt(), "MM/dd"));
+            if (user != null) {
+                unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
+                unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
+            } else {
+                unit.put("is_favor", 0);
+                unit.put("is_commented", 0);
+            }
+            unit.put("is_collect", 0);
+            unit.put("allow_report", 0);
+            unit.put("allow_remove", 0);
+            unit.put("is_private", item.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
+            unit.put("nick_show", item.getNickShow());
+            if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
+                if (user != null && user.getId() != noteUser.getId()) {
+                    unit.put("allow_comment", 1);
+                }
+            } else {
+                unit.put("allow_comment", 0);
+            }
+            if (user != null) {
+                if (user.getId() != noteUser.getId()) {
+                    unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
+                    unit.put("allow_report", 1);
+                } else {
+                    unit.put("allow_remove", 1);
+                }
+            }
+            Map favorResult = userService.getNoteFavorCondition(item.getId());
+            unit.put("favor_images", favorResult.get("images"));
+            unit.put("images", userService.getNoteImages(item.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 3));
+            list.add(unit);
         });
         return list;
     }
