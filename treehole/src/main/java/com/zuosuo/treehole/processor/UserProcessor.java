@@ -252,17 +252,7 @@ public class UserProcessor {
         result.setCommentStatus(user.getCommentStatus());
         result.setIsPenuser(user.getIsPenuser());
         result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
-        List<String> desc = new ArrayList<>();
-        if (!areaService.getArea(user.getProvince()).isEmpty()) {
-            desc.add(areaService.getArea(user.getProvince()));
-        }
-        if (!user.getSexTag().isEmpty()) {
-            desc.add(user.getSexTag());
-        }
-        if (user.getAge() > 0) {
-            desc.add(String.valueOf(user.getAge()));
-        }
-        result.setDesc(String.join("/", desc));
+        result.setDesc(userService.getUserDesc(user));
         return new FuncResult(true, "", result);
     }
 
@@ -1133,6 +1123,8 @@ public class UserProcessor {
         result.put("id", encodeHash(note.getId()));
         result.put("user", encodeHash(note.getUserId()));
         result.put("self", note.getUserId() == userId ? 1 : 0);
+        result.put("image", userService.parseImage(noteUser.getImage()));
+        result.put("name", noteUser.getPenName());
         result.put("mood_code", note.getMoodCode());
         result.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
         result.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
