@@ -844,7 +844,6 @@ public class UserService {
         if (favorList.size() == 0) {
             return result;
         }
-        result.put("number", favorList.size());
         String users = favorList.stream().map(item -> item.getUserId()).map(value -> String.valueOf(value)).collect(Collectors.joining(","));
         ProviderOption userOption = new ProviderOption();
         userOption.setColumns("id,image");
@@ -853,6 +852,7 @@ public class UserService {
         userList.forEach(item -> {
             images.add(parseImage(item.getImage()));
         });
+        result.put("number", images.size());
         return result;
     }
 
