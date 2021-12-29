@@ -861,6 +861,17 @@ public class UserProcessor {
                         list.add(unit);
                     }
                 }
+            } else if(item.getMessageType() == BiuMessageEntity.MESSAGE_FAVOR || item.getMessageType() == BiuMessageEntity.MESSAGE_COMMENT || item.getMessageType() == BiuMessageEntity.MESSAGE_REPLY) {
+                if (item.getRelateType() == BiuMessageEntity.RELATE_NOTE_TYPE) {
+                    unit.setNote(encodeHash(item.getRelateId()));
+                    list.add(unit);
+                } else {
+                    BiuHoleNoteCommentViewEntity comment = biuDbFactory.getHoleDbFactory().getHoleNoteCommentViewImpl().find(item.getRelateId());
+                    if (comment != null) {
+                        unit.setNote(encodeHash(comment.getNoteId()));
+                        list.add(unit);
+                    }
+                }
             } else {
                 list.add(unit);
             }

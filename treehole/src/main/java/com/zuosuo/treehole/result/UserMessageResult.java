@@ -2,7 +2,7 @@ package com.zuosuo.treehole.result;
 
 public class UserMessageResult {
     private int messageType, readStatus, useFriendApply;
-    private String id, messageTag, title, content, showTime;
+    private String id, note, messageTag, title, content, showTime;
     private UserMessageFriendResult friendApply;
 
     public UserMessageResult() {
@@ -39,6 +39,14 @@ public class UserMessageResult {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getNote() {
+        return note != null ? note.trim() : "";
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public String getMessageTag() {
