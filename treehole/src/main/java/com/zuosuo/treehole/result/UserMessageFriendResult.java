@@ -12,7 +12,7 @@ public class UserMessageFriendResult {
     public static final int UNENABLE = 0;
 
     private String id, user, friend, name, image, desc;
-    private int allowAuth, status;
+    private int allowAuth, status, isCancel;
     private List<Map<String, Object>> info;
 
     public UserMessageFriendResult() {
@@ -81,6 +81,14 @@ public class UserMessageFriendResult {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public int getIsCancel() {
+        return isCancel;
+    }
+
+    public void setIsCancel(int isCancel) {
+        this.isCancel = isCancel;
     }
 
     public List<Map<String, Object>> getInfo() {

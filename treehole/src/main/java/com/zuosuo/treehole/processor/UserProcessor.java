@@ -831,7 +831,12 @@ public class UserProcessor {
                     destId = item.getRelateId();
                 }
                 unit.setUseFriendApply(1);
+                boolean canceled = false;
                 BiuUserFriendEntity friendEntity = userService.getUserFriend(sourceId, destId);
+                if (friendEntity == null) {
+                    friendEntity = userService.getUserFriendCanceled(sourceId, destId);
+                    canceled = true;
+                }
                 if (friendEntity != null) {
                     long friendId = userService.getFriendId(friendEntity, user.getId());
                     BiuUserViewEntity friendUser = userService.getUserView(friendId);
@@ -842,11 +847,16 @@ public class UserProcessor {
                         unit.getFriendApply().setName(friendUser.getPenName());
                         unit.getFriendApply().setImage(userService.parseImage(friendUser.getImage()));
                         unit.getFriendApply().setDesc(userService.getUserDesc(friendUser));
-                        if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
-                            unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
-                        }
-                        if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
-                            unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
+                        unit.getFriendApply().setIsCancel(canceled ? 1 : 0);
+                        if (canceled) {
+                            unit.getFriendApply().setStatus(UserMessageFriendResult.UNENABLE);
+                        } else {
+                            if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
+                                unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
+                            }
+                            if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
+                                unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
+                            }
                         }
                         if (friendEntity.getCommunicateType() == BiuUserCommunicateEntity.COM_METHOD_LETTER) {
                             unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "通信方式"); put("value", BiuUserCommunicateEntity.LABEL_COM_METHOD_LETTER); }});

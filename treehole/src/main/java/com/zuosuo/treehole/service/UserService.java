@@ -396,6 +396,15 @@ public class UserService {
         return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().single(option);
     }
 
+    public BiuUserFriendEntity getUserFriendCanceled(long userId, long friendId) {
+        String users = formatUserFriendMembers(userId, friendId);
+        ProviderOption option = new ProviderOption();
+        option.addCondition("users", users);
+        option.setStatus(CheckStatusEnum.DELETED.getValue());
+//        option.addCondition("confirm_status<>2");
+        return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().single(option);
+    }
+
     /**
      * 生成用户好友记录
      * @param userId
@@ -655,6 +664,8 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(friend);
         BiuUserViewEntity sender = getUserView(sendUser);
         addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), "笔友@" + sender.getPenName() + "信件已发出", "");
+        result.put("allow_receive", 0);
+        result.put("label", "笔友已寄出邮件");
         result.put("log", encodeHash(log.getId()));
         result.put("time", TimeTool.formatDate(new Date(), "yyyy/MM/dd"));
         return result;
@@ -667,6 +678,8 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().update(log);
         BiuUserViewEntity receiver = getUserView(log.getReceiveUser());
         addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), "笔友@" + receiver.getPenName() + "已收到信件", "");
+        result.put("allow_receive", 0);
+        result.put("label", "笔友已收到邮件");
         result.put("log", encodeHash(log.getId()));
         result.put("time", TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
         return result;
