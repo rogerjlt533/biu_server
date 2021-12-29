@@ -1115,6 +1115,8 @@ public class UserProcessor {
         if (note == null) {
             return new FuncResult(false, "无对应记录");
         }
+        BiuUserViewEntity user = userService.getUserView(userId);
+        BiuUserViewEntity noteUser = userService.getUserView(note.getUserId());
         if (note.getUserId() != userId) {
             return new FuncResult(false, "非本人记录不可操作");
         }
@@ -1129,15 +1131,47 @@ public class UserProcessor {
             labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(note.getLabelId());
         }
         result.put("id", encodeHash(note.getId()));
+        result.put("user", encodeHash(note.getUserId()));
+        result.put("self", note.getUserId() == userId ? 1 : 0);
         result.put("mood_code", note.getMoodCode());
         result.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
         result.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
         result.put("label", labelEntity != null ? labelEntity.getId() : 0);
         result.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
         result.put("content", note.getContent());
-        result.put("images", userService.getNoteImages(note.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
+        result.put("favor_num", note.getFavorNum());
+        result.put("comment_num", note.getCommentNum());
+        result.put("create_time", TimeTool.friendlyTime(note.getCreatedAt()));
+        if (userId > 0 && note.getUserId() != userId) {
+            result.put("is_favor", userService.isFavored(userId, note.getId()) ? 1 : 0);
+            result.put("is_commented", userService.isCommented(userId, note.getId()) ? 1 : 0);
+        } else {
+            result.put("is_favor", 0);
+            result.put("is_commented", 0);
+        }
+        result.put("is_collect", 0);
+        result.put("allow_report", 0);
+        result.put("allow_remove", 0);
         result.put("is_private", note.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
         result.put("nick_show", note.getNickShow());
+        if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
+            if (user != null && user.getId() != noteUser.getId()) {
+                result.put("allow_comment", 1);
+            }
+        } else {
+            result.put("allow_comment", 0);
+        }
+        if (user != null) {
+            if (user.getId() != noteUser.getId()) {
+                result.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
+                result.put("allow_report", 1);
+            } else {
+                result.put("allow_remove", 1);
+            }
+        }
+        Map favorResult = userService.getNoteFavorCondition(note.getId());
+        result.put("favor_images", favorResult.get("images"));
+        result.put("images", userService.getNoteImages(note.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
         return new FuncResult(true, "", result);
     }
 
