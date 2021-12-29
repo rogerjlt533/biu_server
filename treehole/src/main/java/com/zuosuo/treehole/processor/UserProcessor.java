@@ -252,6 +252,17 @@ public class UserProcessor {
         result.setCommentStatus(user.getCommentStatus());
         result.setIsPenuser(user.getIsPenuser());
         result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
+        List<String> desc = new ArrayList<>();
+        if (!areaService.getArea(user.getProvince()).isEmpty()) {
+            desc.add(areaService.getArea(user.getProvince()));
+        }
+        if (!user.getSexTag().isEmpty()) {
+            desc.add(user.getSexTag());
+        }
+        if (user.getAge() > 0) {
+            desc.add(String.valueOf(user.getAge()));
+        }
+        result.setDesc(String.join("/", desc));
         return new FuncResult(true, "", result);
     }
 
