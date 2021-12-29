@@ -1139,7 +1139,7 @@ public class UserProcessor {
         result.put("favor_num", note.getFavorNum());
         result.put("comment_num", note.getCommentNum());
         result.put("create_time", TimeTool.friendlyTime(note.getCreatedAt()));
-        if (userId > 0 && note.getUserId() != userId) {
+        if (userId > 0) {
             result.put("is_favor", userService.isFavored(userId, note.getId()) ? 1 : 0);
             result.put("is_commented", userService.isCommented(userId, note.getId()) ? 1 : 0);
         } else {
