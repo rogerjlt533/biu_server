@@ -1123,8 +1123,13 @@ public class UserProcessor {
         result.put("id", encodeHash(note.getId()));
         result.put("user", encodeHash(note.getUserId()));
         result.put("self", note.getUserId() == userId ? 1 : 0);
-        result.put("image", userService.parseImage(noteUser.getImage()));
-        result.put("name", noteUser.getPenName());
+        if (((user != null && user.getId() != noteUser.getId()) || user == null) && note.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+            result.put("name", "匿名");
+            result.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
+        } else {
+            result.put("name", noteUser.getPenName());
+            result.put("image", userService.parseImage(noteUser.getImage()));
+        }
         result.put("mood_code", note.getMoodCode());
         result.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
         result.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
