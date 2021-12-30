@@ -852,7 +852,7 @@ public class UserProcessor {
                         if (canceled) {
                             unit.getFriendApply().setStatus(UserMessageFriendResult.UNENABLE);
                         } else {
-                            if (friendId != user.getId() && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
+                            if (userService.allowAuthFriend(friendEntity, user.getId()) && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
                                 unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
                             }
                             if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
