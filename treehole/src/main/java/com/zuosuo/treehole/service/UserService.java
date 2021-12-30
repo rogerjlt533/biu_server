@@ -653,7 +653,6 @@ public class UserService {
 
     public List<Map> processFriendCommunicateLogs(BiuUserFriendEntity friend, List<BiuUserFriendCommunicateLogEntity> logs, long userId) {
         List<Map> list = new ArrayList<>();
-        BiuUserViewEntity user = getUserView(userId);
         logs.forEach(item -> {
             Map<String, Object> unit = new HashMap<>();
             unit.put("logId", encodeHash(item.getId()));
