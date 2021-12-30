@@ -406,6 +406,7 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "用户信息不存在");
         }
+        user.setSearchStatus(BiuUserEntity.SEARCH_OPEN_STATUS);
         if (bean.getMethod().contains("nick")) {
             user.setNick(bean.getNick());
         }
@@ -1112,7 +1113,7 @@ public class UserProcessor {
             }
             Map favorResult = userService.getNoteFavorCondition(item.getId());
             unit.put("favor_images", favorResult.get("images"));
-            unit.put("images", userService.getNoteImages(item.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 3));
+            unit.put("images", userService.getNoteImages(item.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
             list.add(unit);
         });
         return list;
