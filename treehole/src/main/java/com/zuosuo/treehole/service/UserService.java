@@ -651,6 +651,26 @@ public class UserService {
         return list;
     }
 
+    public List<Map> processFriendCommunicateLogs(BiuUserFriendEntity friend, List<BiuUserFriendCommunicateLogEntity> logs, long userId) {
+        List<Map> list = new ArrayList<>();
+        BiuUserViewEntity user = getUserView(userId);
+        logs.forEach(item -> {
+            Map<String, Object> unit = new HashMap<>();
+            unit.put("logId", encodeHash(item.getId()));
+            unit.put("friendId", encodeHash(friend.getId()));
+            unit.put("label", encodeHash(friend.getId()));
+            if (item.getReceiveStatus() == 0 && item.getReceiveUser() == userId) {
+                unit.put("allowAuth", 1);
+            } else {
+                unit.put("allowAuth", 0);
+            }
+            unit.put("sendTag", item.getReceiveStatus() == 0? "笔友已寄出邮件": "笔友已收到邮件");
+            unit.put("receiveTag", "邮件已接收");
+            list.add(unit);
+        });
+        return list;
+    }
+
     public Map sendFriendCommunicate(BiuUserFriendEntity friend, long sendUser) {
         Map<String, Object> result = new HashMap<>();
         long receiveUser = getFriendId(friend, sendUser);

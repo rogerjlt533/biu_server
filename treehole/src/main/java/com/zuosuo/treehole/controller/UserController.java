@@ -254,6 +254,17 @@ public class UserController {
     }
 
     /**
+     * 用户笔友通讯历史
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/friend/communicate/logs")
+    @Login
+    public JsonDataResult<List<Map>> friendUserList(HttpServletRequest request, UserFriendCommunicateLogBean bean) {
+        return new UserFriendCommunicateLogsAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 用户消息列表
      * @param request
      * @param bean

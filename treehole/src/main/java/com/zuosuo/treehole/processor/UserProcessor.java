@@ -706,6 +706,26 @@ public class UserProcessor {
     }
 
     /**
+     * 获取好友邮寄历史列表
+     * @param id
+     * @param userId
+     * @return
+     */
+    public FuncResult getUserFriendCommunicateLogList(long id, long userId) {
+        List<Map> list = new ArrayList<>();
+        BiuUserFriendEntity friend = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().find(id);
+        if (friend == null) {
+            return new FuncResult(false, "无对应记录", list);
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("friend_id", friend.getId());
+        option.addOrderby("id asc");
+        List<BiuUserFriendCommunicateLogEntity> logs = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().list(option);
+        list = userService.processFriendCommunicateLogs(friend, logs, userId);
+        return new FuncResult(true, "", list);
+    }
+
+    /**
      * 处理邮件发收
      * @param userId
      * @param bean
