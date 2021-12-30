@@ -104,7 +104,7 @@ public class UserProcessor {
                 lastUser = userService.getUserView(lastId);
             }
         }
-        if(user != null) {
+        if(user != null && bean.getMethod() == UserListBean.RECOMMEND) {
 //            option.addCondition("id!=" + user.getId());
             int self_age = user.getAge();
             if (self_age > 0) {
@@ -128,9 +128,10 @@ public class UserProcessor {
                 }
             }
             option.addCondition("(!FIND_IN_SET(\"'" + user.getId() + "'\", protected_user) or ISNULL(protected_user))");
-        } else if(bean.getMethod() == UserListBean.RECOMMEND) {
+        }
+        if(user == null && bean.getMethod() == UserListBean.RECOMMEND) {
             // 非登录下系统推荐无数据
-            option.addCondition("1=0");
+            return new FuncResult(false, "无对应记录", result);
         }
         // 两个月内登录的
         option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setMonth(-2))) + "'");
