@@ -727,7 +727,7 @@ public class UserProcessor {
                 return new FuncResult(false, "无对应记录");
             }
             if (log.getReceiveStatus() == BiuUserFriendCommunicateLogEntity.RECEIVED) {
-                return new FuncResult(false, "邮件已接收");
+                return new FuncResult(false, "邮件已接收，请勿重复点击");
             }
             if (log.getReceiveUser() != userId) {
                 return new FuncResult(false, "您不是收件人，请等待笔友确认哟");
