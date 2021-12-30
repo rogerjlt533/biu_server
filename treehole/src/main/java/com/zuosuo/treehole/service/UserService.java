@@ -642,10 +642,10 @@ public class UserService {
                 unit.getCommunicateInfo().setLogId(encodeHash(log.getId()));
                 unit.getCommunicateInfo().setReceived(log.getReceiveStatus());
                 unit.getCommunicateInfo().setLabel(log.getReceiveStatus() == 0? "笔友已寄出邮件": "笔友已收到邮件");
-                unit.getCommunicateInfo().setSendTag("邮件已寄出");
-                unit.getCommunicateInfo().setReceiveTag("邮件已接收");
                 unit.getCommunicateInfo().setLogTime(TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
             }
+            unit.getCommunicateInfo().setSendTag("邮件已寄出");
+            unit.getCommunicateInfo().setReceiveTag("邮件已接收");
             list.add(unit);
         });
         return list;
