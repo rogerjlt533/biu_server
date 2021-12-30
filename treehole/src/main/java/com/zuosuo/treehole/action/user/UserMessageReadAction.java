@@ -1,12 +1,14 @@
 package com.zuosuo.treehole.action.user;
 
 import com.zuosuo.component.response.FuncResult;
+import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.BaseAction;
 import com.zuosuo.treehole.bean.UserMessageReadBean;
 import com.zuosuo.treehole.processor.UserProcessor;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public class UserMessageReadAction extends BaseAction {
 
@@ -20,12 +22,12 @@ public class UserMessageReadAction extends BaseAction {
     }
 
     @Override
-    public JsonResult run() {
+    public JsonDataResult<Map> run() {
         long messageId = userProcessor.decodeHash(bean.getId());
         FuncResult processResult = userProcessor.readMessage(getLoginInfoBean().getUserId(), messageId);
         if (!processResult.isStatus()) {
-            return new JsonResult(processResult.getMessage());
+            return new JsonDataResult<>(processResult.getMessage());
         }
-        return JsonResult.success();
+        return JsonDataResult.success((Map) userProcessor.readingMessageCount(getLoginInfoBean().getUserId()));
     }
 }

@@ -803,6 +803,7 @@ public class UserProcessor {
         List<UserMessageResult> messageList = new ArrayList<>();
         result.put("list", messageList);
         result.put("last", "");
+        result.put("tip", readingMessageCount(userId));
         ProviderOption option = new ProviderOption();
         option.addCondition("dest_id", userId);
         if (bean.getRead() < 2) {
