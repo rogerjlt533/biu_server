@@ -355,7 +355,7 @@ public class UserProcessor {
         List<Integer> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
         result.getCommunicate().setValue(communicates.stream().reduce(Integer::sum).orElse(0));
         result.getCommunicate().setTag(userService.parseCommunicates(communicates));
-        result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE, 6));
+        result.setImages(userService.getUserImageList(user.getId(), BiuUserImageEntity.USE_TYPE_INTRODUCE, 0));
         return new FuncResult(true, "", result);
     }
 
