@@ -847,6 +847,13 @@ public class UserProcessor {
             unit.setTitle(item.getTitle());
             unit.setContent(item.getContent());
             unit.setShowTime(TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
+            ProviderOption option = new ProviderOption();
+            option.addCondition("use_type", BiuUserImageEntity.USE_TYPE_MESSAGE);
+            option.addCondition("relate_id", item.getId());
+            option.addOrderby("sort_index asc");
+            List<String> images = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().list(option).
+                    stream().map(imageItem -> userService.parseImage(imageItem.getFile())).collect(Collectors.toList());
+            unit.setImages(images);
             if (item.getMessageType() == BiuMessageEntity.NOTICE_APPLY || item.getMessageType() == BiuMessageEntity.NOTICE_FRIEND) {
                 long sourceId = item.getSourceId();
                 long destId = item.getDestId();

@@ -23,6 +23,7 @@ public class BiuUserImageEntity extends BaseEntity {
     public static final int USE_TYPE_TOUSU = 6;
     public static final int USE_TYPE_RECOMMEND = 7;
     public static final int USE_TYPE_REPORT_OTHER = 8;
+    public static final int USE_TYPE_MESSAGE = 9;
 
     private long id;
     @EntityProperty(comment = "用户ID")

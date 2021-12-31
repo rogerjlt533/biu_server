@@ -1,12 +1,17 @@
 package com.zuosuo.treehole.result;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserMessageResult {
     private int messageType, readStatus, useFriendApply;
     private String id, note, messageTag, title, content, showTime;
     private UserMessageFriendResult friendApply;
+    private List<String> images;
 
     public UserMessageResult() {
         friendApply = new UserMessageFriendResult();
+        images = new ArrayList<>();
     }
 
     public int getMessageType() {
@@ -87,5 +92,13 @@ public class UserMessageResult {
 
     public void setFriendApply(UserMessageFriendResult friendApply) {
         this.friendApply = friendApply;
+    }
+
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 }
