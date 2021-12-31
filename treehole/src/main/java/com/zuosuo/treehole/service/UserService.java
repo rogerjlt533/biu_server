@@ -630,23 +630,25 @@ public class UserService {
             long friendId = getFriendId(friend, userId);
             unit.setFriend(encodeHash(friendId));
             BiuUserViewEntity member = getUserView(friendId);
-            unit.setName(member.getPenName());
-            unit.setImage(parseImage(member.getImage()));
-            unit.setDesc(getUserDesc(member));
-            initFriendCommunicate(friend, member, unit.getCommunicateInfo());
-            if (friend.getLastLog() > 0) {
-                BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
-                if (log.getReceiveStatus() == 0 && log.getReceiveUser() == userId) {
-                    unit.getCommunicateInfo().setAllowReceive(1);
+            if (member != null) {
+                unit.setName(member.getPenName());
+                unit.setImage(parseImage(member.getImage()));
+                unit.setDesc(getUserDesc(member));
+                initFriendCommunicate(friend, member, unit.getCommunicateInfo());
+                if (friend.getLastLog() > 0) {
+                    BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
+                    if (log.getReceiveStatus() == 0 && log.getReceiveUser() == userId) {
+                        unit.getCommunicateInfo().setAllowReceive(1);
+                    }
+                    unit.getCommunicateInfo().setLogId(encodeHash(log.getId()));
+                    unit.getCommunicateInfo().setReceived(log.getReceiveStatus());
+                    unit.getCommunicateInfo().setLabel(log.getReceiveStatus() == 0? "笔友已寄出邮件": "笔友已收到邮件");
+                    unit.getCommunicateInfo().setLogTime(TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
                 }
-                unit.getCommunicateInfo().setLogId(encodeHash(log.getId()));
-                unit.getCommunicateInfo().setReceived(log.getReceiveStatus());
-                unit.getCommunicateInfo().setLabel(log.getReceiveStatus() == 0? "笔友已寄出邮件": "笔友已收到邮件");
-                unit.getCommunicateInfo().setLogTime(TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
+                unit.getCommunicateInfo().setSendTag("邮件已寄出");
+                unit.getCommunicateInfo().setReceiveTag("邮件已接收");
+                list.add(unit);
             }
-            unit.getCommunicateInfo().setSendTag("邮件已寄出");
-            unit.getCommunicateInfo().setReceiveTag("邮件已接收");
-            list.add(unit);
         });
         return list;
     }
