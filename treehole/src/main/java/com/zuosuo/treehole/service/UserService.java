@@ -668,6 +668,7 @@ public class UserService {
             }
             unit.put("sendTag", "邮件已寄出");
             unit.put("receiveTag", "邮件已接收");
+            unit.put("logTime", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd"));
             list.add(unit);
         });
         return list;
