@@ -260,7 +260,7 @@ public class UserController {
      */
     @PostMapping("/api/user/friend/communicate/logs")
     @Login
-    public JsonDataResult<List<Map>> friendUserList(HttpServletRequest request, UserFriendCommunicateLogBean bean) {
+    public JsonDataResult<List<Map>> friendUserList(HttpServletRequest request, @RequestBody UserFriendCommunicateLogBean bean) {
         return new UserFriendCommunicateLogsAction(request, bean, userProcessor).run();
     }
 
