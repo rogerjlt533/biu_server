@@ -303,6 +303,17 @@ public class UserController {
     }
 
     /**
+     * 删除用户消息
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/message/remove")
+    @Login
+    public JsonResult removeMessage(HttpServletRequest request, @RequestBody UserMessageRemoveBean bean) {
+        return new UserMessageRemoveAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 用户已阅读
      * @param request
      * @return

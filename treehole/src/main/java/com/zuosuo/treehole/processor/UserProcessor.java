@@ -940,6 +940,24 @@ public class UserProcessor {
         return new FuncResult(true);
     }
 
+    /**
+     * 删除消息
+     * @param userId
+     * @param messageId
+     * @return
+     */
+    public FuncResult removeMessage(long userId, long messageId) {
+        BiuMessageEntity message = biuDbFactory.getUserDbFactory().getBiuMessageImpl().find(messageId);
+        if (message == null) {
+            return new FuncResult(false, "用户信息不存在");
+        }
+        if (message.getDestId() != userId) {
+            return new FuncResult(false, "非本用户消息");
+        }
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().delete(message);
+        return new FuncResult(true);
+    }
+
     public FuncResult getNoteInitSelection(long userId) {
         Map result = userService.getNoteInitSelection(userId);
         return new FuncResult(true, "", result);
