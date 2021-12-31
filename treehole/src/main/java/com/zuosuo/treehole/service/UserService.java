@@ -33,6 +33,7 @@ public class UserService {
     public BiuUserEntity getUserByOpenid(String openid) {
         ProviderOption option = new ProviderOption();
         option.addCondition("openid", openid);
+        option.addCondition("use_status", BiuUserEntity.USER_AVAIL_STATUS);
         return biuDbFactory.getUserDbFactory().getBiuUserImpl().single(option);
     }
 

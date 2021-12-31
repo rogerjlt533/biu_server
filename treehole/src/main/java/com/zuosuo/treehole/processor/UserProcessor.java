@@ -1435,12 +1435,12 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "用户状态异常");
         }
-        biuDbFactory.getUserDbFactory().getBiuUserImpl().delete(user);
-//        if (user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
-//            return new FuncResult(false, "用户状态异常");
-//        }
-//        user.setUseStatus(BiuUserEntity.USER_INVAIL_STATUS);
-//        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+//        biuDbFactory.getUserDbFactory().getBiuUserImpl().delete(user);
+        if (user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
+            return new FuncResult(false, "用户状态异常");
+        }
+        user.setUseStatus(BiuUserEntity.USER_INVAIL_STATUS);
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         return new FuncResult(true, "");
     }
 
