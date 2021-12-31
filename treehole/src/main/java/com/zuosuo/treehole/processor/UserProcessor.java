@@ -898,7 +898,7 @@ public class UserProcessor {
                     unit.setNote(encodeHash(item.getRelateId()));
                     list.add(unit);
                 } else {
-                    BiuHoleNoteCommentViewEntity comment = biuDbFactory.getHoleDbFactory().getHoleNoteCommentViewImpl().find(item.getRelateId());
+                    BiuHoleNoteCommentEntity comment = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().find(item.getRelateId());
                     if (comment != null) {
                         unit.setNote(encodeHash(comment.getNoteId()));
                         list.add(unit);
@@ -1395,8 +1395,8 @@ public class UserProcessor {
         option.addOrderby("id " + bean.getOrderby());
         option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
-        BiuHoleNoteCommentViewImpl commentImpl = biuDbFactory.getHoleDbFactory().getHoleNoteCommentViewImpl();
-        List<BiuHoleNoteCommentViewEntity> rows = commentImpl.list(option);
+        BiuHoleNoteCommentImpl commentImpl = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl();
+        List<BiuHoleNoteCommentEntity> rows = commentImpl.list(option);
         if (rows.size() > bean.getSize()) {
             rows.remove(rows.size() - 1);
             result.put("more", 1);
@@ -1409,7 +1409,7 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    public List<Map> processCommentList(List<BiuHoleNoteCommentViewEntity> rows) {
+    public List<Map> processCommentList(List<BiuHoleNoteCommentEntity> rows) {
         List<Map> list = new ArrayList<>();
         BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
         rows.forEach(item -> {
