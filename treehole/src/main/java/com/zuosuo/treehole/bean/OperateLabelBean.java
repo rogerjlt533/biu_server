@@ -1,7 +1,5 @@
 package com.zuosuo.treehole.bean;
 
-import com.sun.org.apache.regexp.internal.RE;
-
 import java.util.Arrays;
 
 public class OperateLabelBean extends BaseVerifyBean {
