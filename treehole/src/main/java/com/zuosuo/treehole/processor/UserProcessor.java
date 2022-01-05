@@ -154,6 +154,7 @@ public class UserProcessor {
         result.put("last", encodeHash(list.get(list.size() - 1).getId()));
         userList = processList(list, user);
         result.put("list", userList);
+        System.out.println(userList.size());
         return new FuncResult(true, "", result);
     }
 
@@ -474,6 +475,7 @@ public class UserProcessor {
         if (bean.getMethod().contains("communicate")) {
             userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SELF, bean.getCommunicates());
         }
+        userService.setUserSortTime(user.getId());
         if (bean.getMethod().contains("search_communicate")) {
             userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
         }

@@ -2,6 +2,7 @@ package com.zuosuo.treehole.config;
 
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.treehole.Handle.LoginInterceptor;
+import com.zuosuo.treehole.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -12,9 +13,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Autowired
     private BiuDbFactory biuDbFactory;
+    @Autowired
+    private UserService userService;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor(biuDbFactory)).addPathPatterns("/**");
+        registry.addInterceptor(new LoginInterceptor(biuDbFactory, userService)).addPathPatterns("/**");
     }
 }

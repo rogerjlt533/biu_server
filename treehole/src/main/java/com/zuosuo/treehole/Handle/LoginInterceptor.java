@@ -7,6 +7,7 @@ import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.LoginInfoBean;
+import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.tool.JwtTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
@@ -22,9 +23,11 @@ import java.util.Date;
 public class LoginInterceptor implements HandlerInterceptor {
 
     private BiuDbFactory biuDbFactory;
+    private UserService userService;
 
-    public LoginInterceptor(BiuDbFactory biuDbFactory) {
+    public LoginInterceptor(BiuDbFactory biuDbFactory, UserService userService) {
         this.biuDbFactory = biuDbFactory;
+        this.userService = userService;
     }
 
     @Override
@@ -51,6 +54,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             } else if(user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
                 return error(response, "用户状态异常");
             }
+            userService.setUserSortTime(user.getId());
             if (loginAnnotation.penuser() && user.getIsPenuser() == BiuUserEntity.USER_NOT_PEN) {
                 return error(response, 502, "您未注册为笔友，请先完成注册");
             }
