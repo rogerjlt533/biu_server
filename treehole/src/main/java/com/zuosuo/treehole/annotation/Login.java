@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Login {
     boolean open() default false;
+    boolean penuser() default false;
 }

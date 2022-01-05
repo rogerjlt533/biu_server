@@ -217,7 +217,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/api/user/friend/apply")
-    @Login
+    @Login(penuser = true)
     public JsonResult applyFriend(HttpServletRequest request, @RequestBody ApplyFriendBean bean) {
         VerifyResult verify = bean.verify();
         if (!verify.isStatus()) {

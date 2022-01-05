@@ -51,6 +51,9 @@ public class LoginInterceptor implements HandlerInterceptor {
             } else if(user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
                 return error(response, "用户状态异常");
             }
+            if (loginAnnotation.penuser() && user.getIsPenuser() == BiuUserEntity.USER_NOT_PEN) {
+                return error(response, 502, "您未注册为笔友，请先完成注册");
+            }
         }
         request.setAttribute("user_info", loginInfo);
         return true;
@@ -71,11 +74,15 @@ public class LoginInterceptor implements HandlerInterceptor {
     }
 
     private boolean error(HttpServletResponse response, String message) throws IOException {
+        return error(response, 501, message);
+    }
+
+    private boolean error(HttpServletResponse response, int code, String message) throws IOException {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/json;charset=utf-8");
         PrintWriter out = response.getWriter();
         out.flush();
-        out.println(JsonTool.toJson(new JsonResult(501, message)));
+        out.println(JsonTool.toJson(new JsonResult(code, message)));
         return false;
     }
 }
