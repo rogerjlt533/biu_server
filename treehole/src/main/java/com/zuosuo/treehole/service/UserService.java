@@ -882,7 +882,7 @@ public class UserService {
         }
         String users = favorList.stream().map(item -> item.getUserId()).map(value -> String.valueOf(value)).collect(Collectors.joining(","));
         ProviderOption userOption = new ProviderOption();
-        userOption.setColumns("id,image");
+        userOption.setColumns("id,image,use_status");
         userOption.addCondition("id in (" + users + ")");
         List<BiuUserEntity> userList = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(userOption);
         userList.forEach(item -> {
