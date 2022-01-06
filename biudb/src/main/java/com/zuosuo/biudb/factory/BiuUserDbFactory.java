@@ -37,6 +37,8 @@ public class BiuUserDbFactory {
     private BiuUserFriendCommunicateLogImpl biuUserFriendCommunicateLogImpl;
     @Autowired
     private BiuUserReadLogImpl biuUserReadLogImpl;
+    @Autowired
+    private BiuMessageViewImpl biuMessageViewImpl;
 
     public BiuUserImpl getBiuUserImpl() {
         return biuUserImpl;
@@ -96,5 +98,9 @@ public class BiuUserDbFactory {
 
     public BiuUserReadLogImpl getBiuUserReadLogImpl() {
         return biuUserReadLogImpl;
+    }
+
+    public BiuMessageViewImpl getBiuMessageViewImpl() {
+        return biuMessageViewImpl;
     }
 }

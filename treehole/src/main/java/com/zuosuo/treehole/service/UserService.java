@@ -631,7 +631,7 @@ public class UserService {
             long friendId = getFriendId(friend, userId);
             unit.setFriend(encodeHash(friendId));
             BiuUserViewEntity member = getUserView(friendId);
-            if (member != null) {
+            if (member != null && member.getUseStatus() == BiuUserEntity.USER_AVAIL_STATUS) {
                 unit.setName(member.getPenName());
                 unit.setImage(parseImage(member.getImage()));
                 unit.setDesc(getUserDesc(member));
@@ -886,7 +886,9 @@ public class UserService {
         userOption.addCondition("id in (" + users + ")");
         List<BiuUserEntity> userList = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(userOption);
         userList.forEach(item -> {
-            images.add(parseImage(item.getImage()));
+            if (item.getUseStatus() == BiuUserEntity.USER_AVAIL_STATUS) {
+                images.add(parseImage(item.getImage()));
+            }
         });
         result.put("number", images.size());
         return result;

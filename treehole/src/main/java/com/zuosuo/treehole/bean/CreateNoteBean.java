@@ -68,6 +68,10 @@ public class CreateNoteBean extends BaseVerifyBean {
         return nick;
     }
 
+    public int getNickRealValue() {
+        return getNick() > 0 ? BiuHoleNoteEntity.NICK_NO : BiuHoleNoteEntity.NICK_YES;
+    }
+
     public void setNick(int nick) {
         this.nick = nick;
     }

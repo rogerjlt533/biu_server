@@ -616,7 +616,7 @@ public class UserProcessor {
         }
         rows.forEach(item -> {
             BiuUserViewEntity entity = userService.getUserView(item.getRelateId());
-            if (entity != null) {
+            if (entity != null && entity.getUseStatus() == BiuUserViewEntity.USER_AVAIL_STATUS) {
                 int search = entity.getSearchStatus();
                 CollectUserResult unit = new CollectUserResult();
                 unit.setId(encodeHash(entity.getId()));
@@ -655,7 +655,7 @@ public class UserProcessor {
         }
         rows.forEach(item -> {
             BiuUserViewEntity entity = userService.getUserView(item.getBlackId());
-            if (entity != null) {
+            if (entity != null && entity.getUseStatus() == BiuUserViewEntity.USER_AVAIL_STATUS) {
                 int search = entity.getSearchStatus();
                 BlackUserResult unit = new BlackUserResult();
                 unit.setId(encodeHash(entity.getId()));
@@ -772,21 +772,21 @@ public class UserProcessor {
         String types = Arrays.asList(BiuMessageEntity.NOTICE_APPLY, BiuMessageEntity.NOTICE_FRIEND, BiuMessageEntity.NOTICE_SEND, BiuMessageEntity.NOTICE_RECEIVE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
         option.addCondition("message_type in (" + types + ")");
         option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
-        long notice_count = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(option);
+        long notice_count = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().count(option);
         result.put("notice", notice_count);
         option = new ProviderOption();
         option.addCondition("dest_id", userId);
         types = Arrays.asList(BiuMessageEntity.MESSAGE_COMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
         option.addCondition("message_type in (" + types + ")");
         option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
-        long message_count = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(option);
+        long message_count = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().count(option);
         result.put("message", message_count);
         option = new ProviderOption();
         option.addCondition("dest_id", userId);
         types = Arrays.asList(BiuMessageEntity.PUBLIC_NOTICE, BiuMessageEntity.PUBLIC_ACTIVE, BiuMessageEntity.PUBLIC_UPDATE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
         option.addCondition("message_type in (" + types + ")");
         option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
-        long public_count = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(option);
+        long public_count = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().count(option);
         result.put("public", public_count);
         return new FuncResult(true, "", result);
     }
@@ -820,7 +820,7 @@ public class UserProcessor {
         option.setUsePager(true);
         option.setOffset(bean.getOffset());
         option.setLimit(bean.getSize() + 1);
-        List<BiuMessageEntity> rows = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(option);
+        List<BiuMessageViewEntity> rows = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().list(option);
         if (rows == null) {
             return new FuncResult(false, "无对应记录", result);
         }
@@ -838,7 +838,7 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    public List<UserMessageResult> processMessageList(List<BiuMessageEntity> rows, BiuUserViewEntity user) {
+    public List<UserMessageResult> processMessageList(List<BiuMessageViewEntity> rows, BiuUserViewEntity user) {
         List<UserMessageResult> list = new ArrayList<>();
         rows.forEach(item -> {
             UserMessageResult unit = new UserMessageResult();
@@ -978,7 +978,7 @@ public class UserProcessor {
         note.setMoodCode(bean.getMood());
         note.setLabelId(bean.getLabel());
         note.setIsPrivate(bean.getIsSelfRealValue());
-        note.setNickShow(bean.getNick());
+        note.setNickShow(bean.getNickRealValue());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().insert(note);
         if (note.getId() > 0) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
@@ -1008,7 +1008,7 @@ public class UserProcessor {
         note.setMoodCode(bean.getMood());
         note.setLabelId(bean.getLabel());
         note.setIsPrivate(bean.getIsSelfRealValue());
-        note.setNickShow(bean.getNick());
+        note.setNickShow(bean.getNickRealValue());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().update(note);
         if (note.getId() > 0) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
@@ -1143,7 +1143,7 @@ public class UserProcessor {
             unit.put("allow_report", 0);
             unit.put("allow_remove", 0);
             unit.put("is_private", item.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
-            unit.put("nick_show", item.getNickShow());
+            unit.put("nick_show", item.getRealShow());
             if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
                 if (user != null && user.getId() != noteUser.getId()) {
                     unit.put("allow_comment", 1);
@@ -1219,7 +1219,7 @@ public class UserProcessor {
         result.put("allow_report", 0);
         result.put("allow_remove", 0);
         result.put("is_private", note.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
-        result.put("nick_show", note.getNickShow());
+        result.put("nick_show", note.getRealShow());
         if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
             if (user != null && user.getId() != noteUser.getId()) {
                 result.put("allow_comment", 1);
@@ -1422,8 +1422,8 @@ public class UserProcessor {
         option.addOrderby("id " + bean.getOrderby());
         option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
-        BiuHoleNoteCommentImpl commentImpl = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl();
-        List<BiuHoleNoteCommentEntity> rows = commentImpl.list(option);
+        BiuHoleNoteCommentViewImpl commentImpl = biuDbFactory.getHoleDbFactory().getHoleNoteCommentViewImpl();
+        List<BiuHoleNoteCommentViewEntity> rows = commentImpl.list(option);
         if (rows.size() > bean.getSize()) {
             rows.remove(rows.size() - 1);
             result.put("more", 1);
@@ -1436,7 +1436,7 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    public List<Map> processCommentList(List<BiuHoleNoteCommentEntity> rows) {
+    public List<Map> processCommentList(List<BiuHoleNoteCommentViewEntity> rows) {
         List<Map> list = new ArrayList<>();
         BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
         rows.forEach(item -> {

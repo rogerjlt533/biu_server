@@ -89,6 +89,10 @@ public class BiuHoleNoteViewEntity extends BaseEntity {
         return nickShow;
     }
 
+    public int getRealShow() {
+        return nickShow > 0 ? BiuHoleNoteEntity.NICK_NO : BiuHoleNoteEntity.NICK_YES;
+    }
+
     public void setNickShow(int nickShow) {
         this.nickShow = nickShow;
     }
