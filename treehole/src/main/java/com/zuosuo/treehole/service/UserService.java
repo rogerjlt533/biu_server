@@ -474,7 +474,7 @@ public class UserService {
      * @return
      */
     public JsonResult passFriend(long userId, long friendId) {
-        BiuUserViewEntity friendUser = getUserView(friendId);
+        BiuUserViewEntity authUser = getUserView(userId);
         BiuUserFriendEntity passed = getUserFriend(userId, friendId, BiuUserFriendEntity.PASS_STATUS);
         if (passed != null) {
             return new JsonResult("已通过申请");
@@ -483,7 +483,7 @@ public class UserService {
         if (waiting == null) {
             return new JsonResult("非有效好友申请");
         }
-        BiuUserFriendMemberEntity member = getUserFriendMember(waiting.getId(), friendId, BiuUserFriendMemberEntity.WAITING_STATUS);
+        BiuUserFriendMemberEntity member = getUserFriendMember(waiting.getId(), userId, BiuUserFriendMemberEntity.WAITING_STATUS);
         if (member == null) {
             return new JsonResult("无有效好友申请审核");
         }
@@ -492,12 +492,12 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.PASS_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(friendId, userId, BiuMessageEntity.NOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已同意添加您为笔友", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, "@" + authUser.getPenName() + "已同意添加您为笔友", "");
         return JsonResult.success();
     }
 
     public JsonResult refuseFriend(long userId, long friendId) {
-        BiuUserViewEntity friendUser = getUserView(friendId);
+        BiuUserViewEntity authUser = getUserView(userId);
         BiuUserFriendEntity refuseed = getUserFriend(userId, friendId, BiuUserFriendEntity.REFUSE_STATUS);
         if (refuseed != null) {
             return new JsonResult("已拒绝申请");
@@ -506,7 +506,7 @@ public class UserService {
         if (waiting == null) {
             return new JsonResult("非有效好友申请");
         }
-        BiuUserFriendMemberEntity member = getUserFriendMember(waiting.getId(), friendId, BiuUserFriendMemberEntity.WAITING_STATUS);
+        BiuUserFriendMemberEntity member = getUserFriendMember(waiting.getId(), userId, BiuUserFriendMemberEntity.WAITING_STATUS);
         if (member == null) {
             return new JsonResult("无有效好友申请审核");
         }
@@ -515,7 +515,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.REFUSE_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(friendId, userId, BiuMessageEntity.NOTICE_FRIEND, friendId, "@" + friendUser.getPenName() + "已拒绝添加您为笔友", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, "@" + authUser.getPenName() + "已拒绝添加您为笔友", "");
         return JsonResult.success();
     }
 

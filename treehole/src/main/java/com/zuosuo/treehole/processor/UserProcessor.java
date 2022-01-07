@@ -309,9 +309,9 @@ public class UserProcessor {
                 if (waiting != null) {
                     result.setFriend(2);
                     result.setFriendTag("申请中");
+                    result.setFriendHash(encodeHash(userId));
                     // 是否允许进行好友审核操作
-                    result.setFriendHash(encodeHash(guestId));
-                    result.setAllowOperateApply(userService.allowAuthFriend(waiting, userId) ? 1 : 0);
+                    result.setAllowOperateApply(userService.allowAuthFriend(waiting, guestId) ? 1 : 0);
                     hide = 0;
                 } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {
                     result.setAllowFriend(1);
@@ -581,19 +581,19 @@ public class UserProcessor {
             List<FriendCommunicateInfo> list = userService.getFriendCommunicateList(Arrays.asList(userId, friendId));
             return new FuncResult(true, "", list);
         } else if(method.equals(ApplyFriendBean.PASS)) {
-            JsonResult result = userService.passFriend(friendId, userId);
+            JsonResult result = userService.passFriend(userId, friendId);
             if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
                 return new FuncResult(true);
             }
             return new FuncResult(false, result.getMessage());
         } else if(method.equals(ApplyFriendBean.REFUSE)) {
-            JsonResult result = userService.refuseFriend(friendId, userId);
+            JsonResult result = userService.refuseFriend(userId, friendId);
             if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
                 return new FuncResult(true);
             }
             return new FuncResult(false, result.getMessage());
         } else if(method.equals(ApplyFriendBean.CANCEL)) {
-            JsonResult result = userService.removeFriend(friendId, userId);
+            JsonResult result = userService.removeFriend(userId, friendId);
             if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
                 return new FuncResult(true);
             }
