@@ -41,6 +41,8 @@ public class BiuMessageViewEntity extends BaseEntity {
     private long relateId = 0;
     @EntityProperty(comment = "关联类型 1-树洞信 2-树洞信评论")
     private int relateType = 0;
+    @EntityProperty(comment = "关联好友记录")
+    private long friendId = 0;
     @EntityProperty(comment = "标题")
     private String title = "";
     @EntityProperty(comment = "内容")
@@ -100,6 +102,14 @@ public class BiuMessageViewEntity extends BaseEntity {
 
     public void setRelateType(int relateType) {
         this.relateType = relateType;
+    }
+
+    public long getFriendId() {
+        return friendId;
+    }
+
+    public void setFriendId(long friendId) {
+        this.friendId = friendId;
     }
 
     public String getTitle() {

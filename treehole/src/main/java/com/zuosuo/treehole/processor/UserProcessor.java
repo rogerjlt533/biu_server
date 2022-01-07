@@ -865,12 +865,7 @@ public class UserProcessor {
                     destId = item.getRelateId();
                 }
                 unit.setUseFriendApply(1);
-                boolean canceled = false;
-                BiuUserFriendEntity friendEntity = userService.getUserFriend(sourceId, destId);
-                if (friendEntity == null) {
-                    friendEntity = userService.getUserFriendCanceled(sourceId, destId);
-                    canceled = true;
-                }
+                BiuUserFriendEntity friendEntity = userService.getUserFriend(item.getFriendId());
                 if (friendEntity != null) {
                     long friendId = userService.getFriendId(friendEntity, user.getId());
                     BiuUserViewEntity friendUser = userService.getUserView(friendId);
@@ -881,16 +876,11 @@ public class UserProcessor {
                         unit.getFriendApply().setName(friendUser.getPenName());
                         unit.getFriendApply().setImage(userService.parseImage(friendUser.getImage()));
                         unit.getFriendApply().setDesc(userService.getUserDesc(friendUser));
-                        unit.getFriendApply().setIsCancel(canceled ? 1 : 0);
-                        if (canceled) {
-                            unit.getFriendApply().setStatus(UserMessageFriendResult.UNENABLE);
-                        } else {
-                            if (userService.allowAuthFriend(friendEntity, user.getId()) && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
-                                unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
-                            }
-                            if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
-                                unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
-                            }
+                        if (userService.allowAuthFriend(friendEntity, user.getId()) && friendEntity.getConfirmStatus() == BiuUserFriendEntity.WAITING_STATUS) {
+                            unit.getFriendApply().setAllowAuth(UserMessageFriendResult.ALLOW_AUTH);
+                        }
+                        if (friendEntity.getConfirmStatus() != BiuUserFriendEntity.REFUSE_STATUS) {
+                            unit.getFriendApply().setStatus(UserMessageFriendResult.ENABLE);
                         }
                         if (friendEntity.getCommunicateType() == BiuUserCommunicateEntity.COM_METHOD_LETTER) {
                             unit.getFriendApply().getInfo().add(new HashMap<String, Object>(){{ put("name", "通信方式"); put("value", BiuUserCommunicateEntity.LABEL_COM_METHOD_LETTER); }});
@@ -903,6 +893,9 @@ public class UserProcessor {
                         }
                         list.add(unit);
                     }
+                } else {
+                    unit.getFriendApply().setIsCancel(1);
+                    unit.getFriendApply().setStatus(UserMessageFriendResult.UNENABLE);
                 }
             } else if(item.getMessageType() == BiuMessageEntity.MESSAGE_FAVOR || item.getMessageType() == BiuMessageEntity.MESSAGE_COMMENT || item.getMessageType() == BiuMessageEntity.MESSAGE_REPLY) {
                 if (item.getRelateType() == BiuMessageEntity.RELATE_NOTE_TYPE) {

@@ -389,6 +389,10 @@ public class UserService {
         return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().single(option);
     }
 
+    public BiuUserFriendEntity getUserFriend(long id) {
+        return biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().find(id);
+    }
+
     public BiuUserFriendEntity getUserFriend(long userId, long friendId) {
         String users = formatUserFriendMembers(userId, friendId);
         ProviderOption option = new ProviderOption();
@@ -444,8 +448,20 @@ public class UserService {
         memberFriend.setUserId(friendId);
         memberFriend.setConfirmStatus(BiuUserFriendMemberEntity.WAITING_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().insert(memberFriend);
-        addUserMessage(userId, userId, BiuMessageEntity.NOTICE_APPLY, friendId, "正在向@" + friendUser.getPenName() + "提交笔友申请", "");
-        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_APPLY, userId, "@" + user.getPenName() + "正在向您提交笔友申请", "");
+        addUserMessage(userId, userId, BiuMessageEntity.NOTICE_APPLY, friendId, friend.getId(), "正在向@" + friendUser.getPenName() + "提交笔友申请", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_APPLY, userId, friend.getId(), "@" + user.getPenName() + "正在向您提交笔友申请", "");
+    }
+
+    public void addUserMessage(long sourceId, long destId, int messageType, long relateId, long friendId, String title, String content) {
+        BiuMessageEntity message = new BiuMessageEntity();
+        message.setSourceId(sourceId);
+        message.setDestId(destId);
+        message.setMessageType(messageType);
+        message.setRelateId(relateId);
+        message.setFriendId(friendId);
+        message.setTitle(title);
+        message.setContent(content);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
     }
 
     public void addUserMessage(long sourceId, long destId, int messageType, long relateId, String title, String content) {
@@ -492,7 +508,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.PASS_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, "@" + authUser.getPenName() + "已同意添加您为笔友", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), "@" + authUser.getPenName() + "已同意添加您为笔友", "");
         return JsonResult.success();
     }
 
@@ -515,7 +531,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.REFUSE_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, "@" + authUser.getPenName() + "已拒绝添加您为笔友", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), "@" + authUser.getPenName() + "已拒绝添加您为笔友", "");
         return JsonResult.success();
     }
 
