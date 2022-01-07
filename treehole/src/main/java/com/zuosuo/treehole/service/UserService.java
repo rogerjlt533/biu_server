@@ -6,6 +6,7 @@ import com.zuosuo.biudb.impl.BiuHoleNoteLabelImpl;
 import com.zuosuo.biudb.impl.BiuHoleNoteMoodImpl;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
+import com.zuosuo.component.time.TimeFormat;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
@@ -660,7 +661,7 @@ public class UserService {
                     }
                     unit.getCommunicateInfo().setLogId(encodeHash(log.getId()));
                     unit.getCommunicateInfo().setReceived(log.getReceiveStatus());
-                    unit.getCommunicateInfo().setLabel(log.getReceiveStatus() == 0? "笔友已寄出邮件": "笔友已收到邮件");
+                    unit.getCommunicateInfo().setLabel(log.getReceiveStatus() == 0? (log.getSendUser() == userId ? "邮件已寄出" : "笔友已寄出邮件"): (log.getReceiveUser() == userId ? "邮件已接收" : "笔友已接收邮件"));
                     unit.getCommunicateInfo().setLogTime(TimeTool.formatDate(log.getCreatedAt(), "yyyy/MM/dd"));
                 }
                 unit.getCommunicateInfo().setSendTag("邮件已寄出");
@@ -677,7 +678,7 @@ public class UserService {
             Map<String, Object> unit = new HashMap<>();
             unit.put("logId", encodeHash(item.getId()));
             unit.put("friendId", encodeHash(friend.getId()));
-            unit.put("label", item.getReceiveStatus() == 0? "笔友已寄出邮件": "笔友已收到邮件");
+            unit.put("label", item.getReceiveStatus() == 0? (item.getSendUser() == userId ? "邮件已寄出" : "笔友已寄出邮件"): (item.getReceiveUser() == userId ? "邮件已接收" : "笔友已接收邮件"));
             if (item.getReceiveStatus() == 0 && item.getReceiveUser() == userId) {
                 unit.put("allowReceive", 1);
             } else {
@@ -705,7 +706,29 @@ public class UserService {
         BiuUserViewEntity sender = getUserView(sendUser);
         addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), SystemOption.SEND_MAIL_TITLE.getValue().replace("#NAME#", sender.getPenName()), "");
         result.put("allow_receive", 0);
-        result.put("label", "笔友已寄出邮件");
+        result.put("label", "邮件已寄出");
+        result.put("log", encodeHash(log.getId()));
+        result.put("time", TimeTool.formatDate(new Date(), "yyyy/MM/dd"));
+        return result;
+    }
+
+    public Map receiveFriendCommunicate(BiuUserFriendEntity friend, long receiveUser) {
+        Map<String, Object> result = new HashMap<>();
+        long sendUser = getFriendId(friend, receiveUser);
+        BiuUserFriendCommunicateLogEntity log = new BiuUserFriendCommunicateLogEntity();
+        log.setFriendId(friend.getId());
+        log.setCommunicateType(friend.getCommunicateType());
+        log.setSendUser(sendUser);
+        log.setReceiveUser(receiveUser);
+        log.setReceiveStatus(BiuUserFriendCommunicateLogEntity.RECEIVED);
+        log.setReceiveTime(new Date());
+        biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().insert(log);
+        friend.setLastLog(log.getId());
+        biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(friend);
+        BiuUserViewEntity receiver = getUserView(receiveUser);
+        addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), SystemOption.RECEIVE_MAIL_TITLE.getValue().replace("#NAME#", receiver.getPenName()), "");
+        result.put("allow_receive", 0);
+        result.put("label", "邮件已接收");
         result.put("log", encodeHash(log.getId()));
         result.put("time", TimeTool.formatDate(new Date(), "yyyy/MM/dd"));
         return result;

@@ -8,6 +8,7 @@ import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.response.ResponseConfig;
 import com.zuosuo.component.time.DiscTime;
+import com.zuosuo.component.time.TimeFormat;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.CommonTool;
 import com.zuosuo.component.tool.JsonTool;
@@ -737,27 +738,31 @@ public class UserProcessor {
      */
     public FuncResult processSignCommunicate(long userId, SignCommunicateBean bean) {
         Map result = null;
+        BiuUserFriendEntity friend = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().find(decodeHash(bean.getFriend()));
+        if (friend == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        if (friend.getConfirmStatus() != BiuUserFriendEntity.PASS_STATUS) {
+            return new FuncResult(false, "好友记录无效");
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("DATE_FORMAT(created_at,'%Y-%m-%d')='" + TimeTool.formatDate(new Date(), TimeFormat.DEFAULT_DATE.getValue()) + "'");
         if (bean.getMethod().equals(SignCommunicateBean.SEND)) {
-            BiuUserFriendEntity friend = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().find(decodeHash(bean.getFriend()));
-            if (friend == null) {
-                return new FuncResult(false, "无对应记录");
-            }
-            if (friend.getConfirmStatus() != BiuUserFriendEntity.PASS_STATUS) {
-                return new FuncResult(false, "好友记录无效");
+            option.addCondition("send_user", userId);
+            option.addCondition("receive_status", BiuUserFriendCommunicateLogEntity.RECEIVING);
+            BiuUserFriendCommunicateLogEntity todayLog = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().single(option);
+            if (todayLog != null) {
+                return new FuncResult(false, "今天您已寄出");
             }
             result = userService.sendFriendCommunicate(friend, userId);
         } else {
-            BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(decodeHash(bean.getLog()));
-            if (log == null) {
-                return new FuncResult(false, "无对应记录");
+            option.addCondition("receive_user", userId);
+            option.addCondition("receive_status", BiuUserFriendCommunicateLogEntity.RECEIVED);
+            BiuUserFriendCommunicateLogEntity todayLog = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().single(option);
+            if (todayLog != null) {
+                return new FuncResult(false, "今天您已接收");
             }
-            if (log.getReceiveStatus() == BiuUserFriendCommunicateLogEntity.RECEIVED) {
-                return new FuncResult(false, "邮件已接收，请勿重复点击");
-            }
-            if (log.getReceiveUser() != userId) {
-                return new FuncResult(false, "您不是收件人，请等待笔友确认哟");
-            }
-            result = userService.receiveFriendCommunicate(log);
+            result = userService.receiveFriendCommunicate(friend, userId);
         }
         return new FuncResult(true, "", result);
     }

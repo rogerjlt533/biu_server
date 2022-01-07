@@ -42,10 +42,7 @@ public class SignCommunicateBean extends BaseVerifyBean {
         if (!Arrays.asList(SignCommunicateBean.SEND, SignCommunicateBean.RECEIVE).contains(method)) {
             return new VerifyResult("操作类型不匹配");
         }
-        if (method.equals(SignCommunicateBean.RECEIVE) && getLog().isEmpty()) {
-            return new VerifyResult("通讯记录不能为空");
-        }
-        if (method.equals(SignCommunicateBean.SEND) && getFriend().isEmpty()) {
+        if (getFriend().isEmpty()) {
             return new VerifyResult("好友信息不能为空");
         }
         return new VerifyResult();

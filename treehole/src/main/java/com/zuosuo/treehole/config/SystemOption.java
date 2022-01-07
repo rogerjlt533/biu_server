@@ -22,15 +22,15 @@ public enum SystemOption {
             "3）黑丝，制服，萝莉风<br>" +
             "4）血腥，暴力，恐怖，色情等一系列令人不适的图片<br>" +
             "如发现以上严禁内容会视其严重程度，BIU平台将给予不同程度的禁言或冻结账号惩罚。"),
-    APPLY_TITLE("您正在向【#NAME#】提交笔友申请"),
-    FAVOR_TITLE("【#NAME#】点赞了你的树洞信笺，快去回赞。"),
+    APPLY_TITLE("您正在向笔友【#NAME#】提交笔友申请"),
+    FAVOR_TITLE("笔友【#NAME#】点赞了你的树洞信"),
     COMMENT_TITLE("笔友【#NAME#】评论了您的树洞信"),
-    COMMENT_REPLY_TITLE("笔友【#NAME#】回复了您的消息！"),
-    SEND_MAIL_TITLE("您的BIU信件已寄出，等待【#NAME#】的远方传送吧！"),
-    RECEIVE_MAIL_TITLE("您收到【#NAME#】的BIU密语，即刻回复开启书信之旅！"),
-    FRIEND_PASS_TITLE("您与【#NAME#】已成为BIU笔友，写信给Ta吧！"),
-    FRIEND_REFUSE_TITLE("【#NAME#】已谢绝您的好友申请！"),
-    RECEIVE_APPLY_TITLE("DING：远方的【#NAME#】申请与您成为BIU圈好友。");
+    COMMENT_REPLY_TITLE("笔友【#NAME#】回复了您的消息"),
+    SEND_MAIL_TITLE("笔友【#NAME#】已寄出邮件"),
+    RECEIVE_MAIL_TITLE("笔友【#NAME#】已接受信件"),
+    FRIEND_PASS_TITLE("您已与【#NAME#】成为笔友，快写信给Ta吧"),
+    FRIEND_REFUSE_TITLE("笔友【#NAME#】已谢绝您的好友申请"),
+    RECEIVE_APPLY_TITLE("笔友【#NAME#】申请与您成为笔友");
 
     private String value;
 
