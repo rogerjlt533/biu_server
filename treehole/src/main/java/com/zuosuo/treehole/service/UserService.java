@@ -9,6 +9,7 @@ import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.result.*;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
@@ -448,8 +449,8 @@ public class UserService {
         memberFriend.setUserId(friendId);
         memberFriend.setConfirmStatus(BiuUserFriendMemberEntity.WAITING_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().insert(memberFriend);
-        addUserMessage(userId, userId, BiuMessageEntity.NOTICE_APPLY, friendId, friend.getId(), "正在向@" + friendUser.getPenName() + "提交笔友申请", "");
-        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_APPLY, userId, friend.getId(), "@" + user.getPenName() + "正在向您提交笔友申请", "");
+        addUserMessage(userId, userId, BiuMessageEntity.NOTICE_APPLY, friendId, friend.getId(), SystemOption.APPLY_TITLE.getValue().replace("#NAME#", friendUser.getPenName()), "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_APPLY, userId, friend.getId(), SystemOption.RECEIVE_APPLY_TITLE.getValue().replace("#NAME#", user.getPenName()), "");
     }
 
     public void addUserMessage(long sourceId, long destId, int messageType, long relateId, long friendId, String title, String content) {
@@ -508,7 +509,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.PASS_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), "@" + authUser.getPenName() + "已同意添加您为笔友", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), SystemOption.FRIEND_PASS_TITLE.getValue().replace("#NAME#", authUser.getPenName()), "");
         return JsonResult.success();
     }
 
@@ -531,7 +532,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().update(member);
         waiting.setConfirmStatus(BiuUserFriendEntity.REFUSE_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
-        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), "@" + authUser.getPenName() + "已拒绝添加您为笔友", "");
+        addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), SystemOption.FRIEND_REFUSE_TITLE.getValue().replace("#NAME#", authUser.getPenName()), "");
         return JsonResult.success();
     }
 
@@ -702,7 +703,7 @@ public class UserService {
         friend.setLastLog(log.getId());
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(friend);
         BiuUserViewEntity sender = getUserView(sendUser);
-        addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), "笔友@" + sender.getPenName() + "信件已发出", "");
+        addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), SystemOption.SEND_MAIL_TITLE.getValue().replace("#NAME#", sender.getPenName()), "");
         result.put("allow_receive", 0);
         result.put("label", "笔友已寄出邮件");
         result.put("log", encodeHash(log.getId()));
@@ -716,7 +717,7 @@ public class UserService {
         log.setReceiveTime(new Date());
         biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().update(log);
         BiuUserViewEntity receiver = getUserView(log.getReceiveUser());
-        addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), "笔友@" + receiver.getPenName() + "已收到信件", "");
+        addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), SystemOption.RECEIVE_MAIL_TITLE.getValue().replace("#NAME#", receiver.getPenName()), "");
         result.put("allow_receive", 0);
         result.put("label", "笔友已收到邮件");
         result.put("log", encodeHash(log.getId()));
@@ -936,7 +937,7 @@ public class UserService {
             return false;
         }
         BiuUserViewEntity user = getUserView(sourceId);
-        String title = "笔友【" + user.getPenName() + "】点赞了您的树洞信";
+        String title = SystemOption.FAVOR_TITLE.getValue().replace("#NAME#", user.getPenName());
         ProviderOption option = new ProviderOption();
         option.addCondition("source_id", sourceId);
         option.addCondition("dest_id", destId);
@@ -963,7 +964,7 @@ public class UserService {
             return false;
         }
         BiuUserViewEntity user = getUserView(sourceId);
-        String title = "笔友【" + user.getPenName() + "】评论了您的树洞信";
+        String title = SystemOption.COMMENT_TITLE.getValue().replace("#NAME#", user.getPenName());
         BiuMessageEntity message = new BiuMessageEntity();
         message.setSourceId(sourceId);
         message.setDestId(destId);
@@ -980,7 +981,7 @@ public class UserService {
             return false;
         }
         BiuUserViewEntity user = getUserView(sourceId);
-        String title = "笔友【" + user.getPenName() + "】回复了您的评论";
+        String title = SystemOption.COMMENT_REPLY_TITLE.getValue().replace("#NAME#", user.getPenName());
         BiuMessageEntity message = new BiuMessageEntity();
         message.setSourceId(sourceId);
         message.setDestId(destId);
