@@ -748,7 +748,7 @@ public class UserProcessor {
         }
         ProviderOption option = new ProviderOption();
         option.addCondition("DATE_FORMAT(created_at,'%Y-%m-%d')='" + TimeTool.formatDate(new Date(), TimeFormat.DEFAULT_DATE.getValue()) + "'");
-        option.addCondition("friend_id" + friend.getId());
+        option.addCondition("friend_id", friend.getId());
         if (bean.getMethod().equals(SignCommunicateBean.SEND)) {
             option.addCondition("send_user", userId);
             option.addCondition("receive_status", BiuUserFriendCommunicateLogEntity.RECEIVING);

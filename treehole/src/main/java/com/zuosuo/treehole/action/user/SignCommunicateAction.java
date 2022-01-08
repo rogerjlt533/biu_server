@@ -28,10 +28,15 @@ public class SignCommunicateAction extends BaseAction {
 //        bean.setFriend(userProcessor.encodeHash(4));
 //        bean.setLog(userProcessor.encodeHash(2));
 //        getLoginInfoBean().setUserId(9);
-        FuncResult processResult = userProcessor.processSignCommunicate(getLoginInfoBean().getUserId(), bean);
-        if (!processResult.isStatus()) {
-            return new JsonDataResult<>(processResult.getMessage());
+        try {
+            FuncResult processResult = userProcessor.processSignCommunicate(getLoginInfoBean().getUserId(), bean);
+            if (!processResult.isStatus()) {
+                return new JsonDataResult<>(processResult.getMessage());
+            }
+            return JsonDataResult.success((Map) processResult.getResult());
+        } catch (Exception e) {
+            System.out.println(e.getCause());
+            return new JsonDataResult<>("操作失败");
         }
-        return JsonDataResult.success((Map) processResult.getResult());
     }
 }
