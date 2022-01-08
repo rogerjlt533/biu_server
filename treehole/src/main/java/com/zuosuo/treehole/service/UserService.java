@@ -731,7 +731,7 @@ public class UserService {
         addUserMessage(log.getReceiveUser(), log.getSendUser(), BiuMessageEntity.NOTICE_RECEIVE, log.getId(), SystemOption.RECEIVE_MAIL_TITLE.getValue().replace("#NAME#", receiver.getPenName()), "");
         result.put("allow_receive", 0);
         result.put("label", "邮件已接收");
-        result.put("logId", encodeHash(log.getId()));
+        result.put("log", encodeHash(log.getId()));
         result.put("time", TimeTool.formatDate(new Date(), "yyyy/MM/dd"));
         return result;
     }
