@@ -684,6 +684,8 @@ public class UserService {
             } else {
                 unit.put("allowReceive", 0);
             }
+            unit.put("communicate", item.getCommunicateType());
+            unit.put("received", item.getReceiveStatus());
             unit.put("sendTag", "邮件已寄出");
             unit.put("receiveTag", "邮件已接收");
             unit.put("logTime", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd"));
