@@ -408,6 +408,7 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "用户信息不存在");
         }
+        boolean sendNote = user.getIsPenuser() == BiuUserEntity.USER_NOT_PEN ? true : false;
         user.setSearchStatus(BiuUserEntity.SEARCH_OPEN_STATUS);
         if (bean.getMethod().contains("nick")) {
             user.setNick(bean.getNick());
@@ -480,8 +481,10 @@ public class UserProcessor {
         if (bean.getMethod().contains("search_communicate")) {
             userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
         }
-        userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", SystemOption.REGISTER_NOTICE.getValue());
-        userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", SystemOption.REGISTER_NOTICE_PLAT.getValue());
+        if (sendNote) {
+            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", SystemOption.REGISTER_NOTICE.getValue());
+            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", SystemOption.REGISTER_NOTICE_PLAT.getValue());
+        }
         return new FuncResult(true);
     }
 
