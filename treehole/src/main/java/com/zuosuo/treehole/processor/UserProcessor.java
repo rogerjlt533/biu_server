@@ -129,6 +129,10 @@ public class UserProcessor {
                 }
             }
             option.addCondition("(!FIND_IN_SET(\"'" + user.getId() + "'\", protected_user) or ISNULL(protected_user))");
+            System.out.println(user.getProtectedUser());
+            if (user.getProtectedUser() != null && !user.getProtectedUser().isEmpty()) {
+                option.addCondition("!FIND_IN_SET(concat(\"'\", id, \"'\"), \"" + user.getProtectedUser() +"\")");
+            }
         }
         if(user == null && bean.getMethod() == UserListBean.RECOMMEND) {
             // 非登录下系统推荐无数据
