@@ -1126,7 +1126,8 @@ public class UserProcessor {
             Map<String, Object> unit = new HashMap<>();
             unit.put("id", encodeHash(item.getId()));
             unit.put("user", encodeHash(noteUser.getId()));
-            if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+            if (item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+//            if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
                 unit.put("name", "匿名");
                 unit.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
             } else {
