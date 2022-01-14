@@ -100,7 +100,7 @@ public class CreateNoteBean extends BaseVerifyBean {
         if (getMethod().equals(EDIT) && getId().isEmpty()) {
             return new VerifyResult("请选择树洞信息");
         }
-        if (getContent().isEmpty()) {
+        if (getContent().isEmpty() && getImages().isEmpty()) {
             return new VerifyResult("请输入树洞内容");
         }
         if (getIsSelfRealValue() == BiuHoleNoteEntity.PRIVATE_YES && getNick() == BiuHoleNoteEntity.NICK_YES) {
