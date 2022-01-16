@@ -1069,6 +1069,7 @@ public class UserProcessor {
             long friend = decodeHash(bean.getFriend());
             option.addCondition("user_id", friend);
             if (userId != friend) {
+                option.addCondition("nick_show", BiuHoleNoteEntity.NICK_NO);
                 option.addCondition("is_private", BiuHoleNoteEntity.PRIVATE_NO);
             }
         } else {
