@@ -23,6 +23,9 @@ public class OperateLabelAction extends BaseAction {
 
     @Override
     public JsonDataResult<Map> run() {
+        if (!bean.getTag().isEmpty() && !userProcessor.getKeywordService().verifyKeyword(bean.getTag())) {
+            return new JsonDataResult<>("请查看是否有关键词");
+        }
         FuncResult processResult = userProcessor.processLabel(getLoginInfoBean().getUserId(), bean);
         if (!processResult.isStatus()) {
             return new JsonDataResult<>(processResult.getMessage());

@@ -24,6 +24,9 @@ public class EditNoteAction extends BaseAction {
         if (!bean.getMethod().equals(CreateNoteBean.EDIT)) {
             return new JsonResult("请选择正确的操作类型");
         }
+        if (!bean.getContent().isEmpty() && !userProcessor.getKeywordService().verifyKeyword(bean.getContent())) {
+            return new JsonResult("请查看是否有关键词");
+        }
         FuncResult processResult = userProcessor.editHoleNote(getLoginInfoBean().getUserId(), bean);
         if (!processResult.isStatus()) {
             return new JsonResult(processResult.getMessage());

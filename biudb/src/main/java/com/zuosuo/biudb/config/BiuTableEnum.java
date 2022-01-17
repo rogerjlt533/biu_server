@@ -8,7 +8,8 @@ public enum BiuTableEnum {
     USER_REPORT("biu_user_reports"), USER_FAVOR("biu_user_favors"), HOLE_NOTE_COMMENT("biu_hole_note_comments"), HOLE_NOTE_VIEW("biu_hole_note_views"),
     USER_BLACKLIST("biu_user_blacklist"), USER_FRIEND("biu_user_friends"), USER_FRIEND_MEMBER("biu_user_friend_members"),
     USER_FRIEND_COMMUNICATE("biu_user_friend_communicates"), USER_FRIEND_COMMUNICATE_LOG("biu_user_friend_communicate_logs"),
-    USER_READ_LOG("biu_user_read_logs"), HOLE_NOTE_COMMENT_VIEW("biu_hole_note_comment_views"), MESSAGE_VIEW("biu_message_views");
+    USER_READ_LOG("biu_user_read_logs"), HOLE_NOTE_COMMENT_VIEW("biu_hole_note_comment_views"), MESSAGE_VIEW("biu_message_views"),
+    KEYWORD("biu_keywords");
 
     private String value;
 

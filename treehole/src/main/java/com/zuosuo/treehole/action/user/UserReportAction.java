@@ -24,6 +24,9 @@ public class UserReportAction extends BaseAction {
 
     @Override
     public JsonResult run() {
+        if (!bean.getContent().isEmpty() && !userProcessor.getKeywordService().verifyKeyword(bean.getContent())) {
+            return new JsonResult("请查看是否有关键词");
+        }
         long relateId = bean.getRelate().isEmpty() ? 0 : userProcessor.decodeHash(bean.getRelate());
         FuncResult loginResult = userProcessor.submitReport(bean.getType(), getLoginInfoBean().getUserId(), relateId, bean.getContent(), bean.getImages());
         if (!loginResult.isStatus()) {

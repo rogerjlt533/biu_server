@@ -18,6 +18,7 @@ import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.result.*;
 import com.zuosuo.treehole.service.AreaService;
+import com.zuosuo.treehole.service.KeywordService;
 import com.zuosuo.treehole.service.UserCollectService;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.tool.HashTool;
@@ -40,9 +41,15 @@ public class UserProcessor {
     private HashTool hashTool;
     @Autowired
     private AreaService areaService;
+    @Autowired
+    private KeywordService keywordService;
 
     public UserService getUserService() {
         return userService;
+    }
+
+    public KeywordService getKeywordService() {
+        return keywordService;
     }
 
     /**
@@ -423,6 +430,9 @@ public class UserProcessor {
             user.setImage(image.getFile());
         }
         if (bean.getMethod().contains("pen_name")) {
+            if (!bean.getPenName().isEmpty() && !keywordService.verifyKeyword(bean.getPenName())) {
+                return new FuncResult(false, "请查看是否有关键词");
+            }
             user.setPenName(bean.getPenName().trim());
         }
         if (bean.getMethod().contains("sex")) {
@@ -435,6 +445,9 @@ public class UserProcessor {
             user.setProvince(bean.getProvince());
         }
         if (bean.getMethod().contains("username")) {
+            if (!bean.getUsername().isEmpty() && !keywordService.verifyKeyword(bean.getUsername())) {
+                return new FuncResult(false, "请查看是否有关键词");
+            }
             user.setUsername(bean.getUsername());
         }
         if (bean.getMethod().contains("phone")) {
@@ -456,9 +469,15 @@ public class UserProcessor {
             user.setZipcode(bean.getZipcode());
         }
         if (bean.getMethod().contains("title")) {
+            if (!bean.getTitle().isEmpty() && !keywordService.verifyKeyword(bean.getTitle())) {
+                return new FuncResult(false, "请查看是否有关键词");
+            }
             user.setTitle(bean.getTitle());
         }
         if (bean.getMethod().contains("introduce")) {
+            if (!bean.getIntroduce().isEmpty() && !keywordService.verifyKeyword(bean.getIntroduce())) {
+                return new FuncResult(false, "请查看是否有关键词");
+            }
             user.setIntroduce(bean.getIntroduce());
         }
         if (bean.getMethod().contains("match_start_age")) {

@@ -2,6 +2,7 @@ package com.zuosuo.treehole.action.note;
 
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
+import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.BaseAction;
 import com.zuosuo.treehole.bean.NoteCommentBean;
 import com.zuosuo.treehole.processor.UserProcessor;
@@ -22,6 +23,9 @@ public class NoteCommentAction extends BaseAction {
 
     @Override
     public JsonDataResult<Map> run() {
+        if (!bean.getContent().isEmpty() && !userProcessor.getKeywordService().verifyKeyword(bean.getContent())) {
+            return new JsonDataResult<>("请查看是否有关键词");
+        }
         FuncResult processResult = userProcessor.processNoteComment(getLoginInfoBean().getUserId(), bean);
         if (!processResult.isStatus()) {
             return new JsonDataResult<>(processResult.getMessage());
