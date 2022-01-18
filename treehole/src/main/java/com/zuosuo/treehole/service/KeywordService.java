@@ -16,7 +16,9 @@ public class KeywordService {
     private BiuDbFactory biuDbFactory;
 
     public List<String> getKeywordList() {
-        List<BiuKeywordEntity> list = biuDbFactory.getCommonDbFactory().getBiuKeywordImpl().list(new ProviderOption());
+        ProviderOption option = new ProviderOption();
+        option.setColumns("keyword");
+        List<BiuKeywordEntity> list = biuDbFactory.getCommonDbFactory().getBiuKeywordImpl().list(option);
         return list.stream().map(item -> item.getKeyword()).collect(Collectors.toList());
     }
 
