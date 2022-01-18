@@ -3,7 +3,7 @@ package com.zuosuo.treehole.config;
 public enum SystemOption {
     APP_KEY("base64:nOOymAy124XnwY74oG6MMs/cT98xeR7t5Z5P6PsQu0E="),
     TOKEN_DAYS("30"),
-    USER_IMAGE("http://devimage.fang-cun.net/upload/tou.png"),
+    USER_IMAGE("http://biuimage.juqihui.cn/upload/tou.png"),
     REGISTER_NOTICE("欢迎加入BIU笔友，记录生活，畅聊感悟，分享密语心情，搜寻您的云中笔友吧！"),
     REGISTER_NOTICE_PLAT("亲爱的笔友，您可在BIU笔友发布自己的任何想法和感受，但不包括以下内容:<br>" +
             "1）政治敏感<br>" +
