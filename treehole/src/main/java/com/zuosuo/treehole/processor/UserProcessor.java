@@ -335,7 +335,7 @@ public class UserProcessor {
         result.setTitle(user.getTitle());
         result.setIntroduce(user.getIntroduce());
         if (hide > 0) {
-            result.setName("匿名");
+            result.setName(userService.createRandomNickName());
             result.setDesc("保密");
             result.setProvince("保密");
             result.setSex("保密");
@@ -651,7 +651,7 @@ public class UserProcessor {
                 unit.setId(encodeHash(entity.getId()));
                 unit.setImage(userService.parseImage(entity.getImage()));
                 if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
-                    unit.setName("匿名");
+                    unit.setName(userService.createRandomNickName());
                     unit.setDesc("隐藏");
                 } else {
                     int communicate = 0;
@@ -690,7 +690,7 @@ public class UserProcessor {
                 unit.setId(encodeHash(entity.getId()));
                 unit.setImage(userService.parseImage(entity.getImage()));
                 if (search == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
-                    unit.setName("匿名");
+                    unit.setName(userService.createRandomNickName());
                     unit.setDesc("隐藏");
                 } else {
                     int communicate = 0;
@@ -1148,7 +1148,7 @@ public class UserProcessor {
             unit.put("user", encodeHash(noteUser.getId()));
             if (item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
 //            if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
-                unit.put("name", "匿名");
+                unit.put("name", userService.createRandomNickName());
                 unit.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
             } else {
                 unit.put("name", noteUser.getPenName());
@@ -1225,7 +1225,7 @@ public class UserProcessor {
         result.put("user", encodeHash(note.getUserId()));
         result.put("self", note.getUserId() == userId ? 1 : 0);
         if (((user != null && user.getId() != noteUser.getId()) || user == null) && note.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
-            result.put("name", "匿名");
+            result.put("name", userService.createRandomNickName());
             result.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
         } else {
             result.put("name", noteUser.getPenName());

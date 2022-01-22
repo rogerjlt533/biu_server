@@ -8,6 +8,7 @@ import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeFormat;
 import com.zuosuo.component.time.TimeTool;
+import com.zuosuo.component.tool.StringTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.config.SystemOption;
@@ -31,6 +32,10 @@ public class UserService {
     private AreaService areaService;
     @Autowired
     private HashTool hashTool;
+
+    public String createRandomNickName() {
+        return "BIU笔友" + StringTool.random(4);
+    }
 
     public BiuUserEntity getUserByOpenid(String openid) {
         ProviderOption option = new ProviderOption();
