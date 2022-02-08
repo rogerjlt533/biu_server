@@ -891,7 +891,12 @@ public class UserProcessor {
             List<String> images = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().list(option).
                     stream().map(imageItem -> userService.parseImage(imageItem.getFile())).collect(Collectors.toList());
             unit.setImages(images);
-            List<String> banners = Arrays.asList(item.getBanner()).stream().collect(Collectors.toList());
+            List<String> banners = null;
+            if (item.getMessageType() == BiuMessageEntity.PUBLIC_NOTICE || item.getMessageType() == BiuMessageEntity.PUBLIC_ACTIVE || item.getMessageType() == BiuMessageEntity.PUBLIC_UPDATE) {
+                banners = Arrays.asList(item.getBanner()).stream().collect(Collectors.toList());
+            } else {
+                banners = images;
+            }
             unit.setBanners(banners);
             if (item.getMessageType() == BiuMessageEntity.NOTICE_APPLY || item.getMessageType() == BiuMessageEntity.NOTICE_FRIEND) {
                 long sourceId = item.getSourceId();
