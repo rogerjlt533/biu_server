@@ -893,7 +893,11 @@ public class UserProcessor {
             unit.setImages(images);
             List<String> banners = null;
             if (item.getMessageType() == BiuMessageEntity.PUBLIC_NOTICE || item.getMessageType() == BiuMessageEntity.PUBLIC_ACTIVE || item.getMessageType() == BiuMessageEntity.PUBLIC_UPDATE) {
-                banners = Arrays.asList(item.getBanner()).stream().collect(Collectors.toList());
+                if (item.getBanner() != null && !item.getBanner().isEmpty()) {
+                    banners = Arrays.asList(item.getBanner()).stream().collect(Collectors.toList());
+                } else {
+                    banners = new ArrayList<>();
+                }
             } else {
                 banners = images;
             }
