@@ -1,5 +1,6 @@
 package com.zuosuo.treehole;
 
+import com.zuosuo.biudb.entity.BiuMessageEntity;
 import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.redis.BiuRedisFactory;
@@ -7,6 +8,7 @@ import com.zuosuo.cache.redis.ListOperator;
 import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.config.MiniWechatConfig;
+import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.processor.WechatProcessor;
 import com.zuosuo.treehole.service.UserService;
@@ -20,9 +22,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 class TreeholeApplicationTests {
@@ -46,6 +50,8 @@ class TreeholeApplicationTests {
     void contextLoads() {
         System.out.println(hashTool.getHashids(4).encode(9));
         System.out.println(userService.parseImage("upload/d842ee3d20d04288ac23de0a248ecf89.png"));
+//        userService.addUserMessage(0, 229, BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", "", SystemOption.REGISTER_NOTICE_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_IMAGE.getValue()).stream().collect(Collectors.toList()));
+//        userService.addUserMessage(0, 229, BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", "", SystemOption.REGISTER_NOTICE_PLAT_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_PLAT_IMAGE.getValue()).stream().collect(Collectors.toList()));
 //        try(BufferedReader reader = new BufferedReader(new FileReader("D:\\area.txt"))) {
 //            String line = reader.readLine();
 //            while (line != null) {

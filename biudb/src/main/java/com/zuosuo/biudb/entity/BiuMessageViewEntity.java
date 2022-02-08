@@ -45,6 +45,8 @@ public class BiuMessageViewEntity extends BaseEntity {
     private long friendId = 0;
     @EntityProperty(comment = "标题")
     private String title = "";
+    @EntityProperty(comment = "banner图")
+    private String banner = "";
     @EntityProperty(comment = "内容")
     private String content = "";
     @EntityProperty(comment = "阅读状态 0-未读 1-已读")
@@ -118,6 +120,14 @@ public class BiuMessageViewEntity extends BaseEntity {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getBanner() {
+        return banner;
+    }
+
+    public void setBanner(String banner) {
+        this.banner = banner;
     }
 
     public String getContent() {

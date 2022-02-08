@@ -7,10 +7,11 @@ public class UserMessageResult {
     private int messageType, readStatus, useFriendApply;
     private String id, note, messageTag, title, content, showTime;
     private UserMessageFriendResult friendApply;
-    private List<String> images;
+    private List<String> banners, images;
 
     public UserMessageResult() {
         friendApply = new UserMessageFriendResult();
+        banners = new ArrayList<>();
         images = new ArrayList<>();
     }
 
@@ -92,6 +93,14 @@ public class UserMessageResult {
 
     public void setFriendApply(UserMessageFriendResult friendApply) {
         this.friendApply = friendApply;
+    }
+
+    public List<String> getBanners() {
+        return banners;
+    }
+
+    public void setBanners(List<String> banners) {
+        this.banners = banners;
     }
 
     public List<String> getImages() {

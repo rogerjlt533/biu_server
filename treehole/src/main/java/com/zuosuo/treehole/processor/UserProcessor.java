@@ -505,8 +505,8 @@ public class UserProcessor {
             userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
         }
         if (sendNote) {
-            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", SystemOption.REGISTER_NOTICE.getValue());
-            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", SystemOption.REGISTER_NOTICE_PLAT.getValue());
+            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", "", SystemOption.REGISTER_NOTICE_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_IMAGE.getValue()).stream().collect(Collectors.toList()));
+            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", "", SystemOption.REGISTER_NOTICE_PLAT_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_PLAT_IMAGE.getValue()).stream().collect(Collectors.toList()));
         }
         return new FuncResult(true);
     }
@@ -891,6 +891,8 @@ public class UserProcessor {
             List<String> images = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().list(option).
                     stream().map(imageItem -> userService.parseImage(imageItem.getFile())).collect(Collectors.toList());
             unit.setImages(images);
+            List<String> banners = Arrays.asList(item.getBanner()).stream().collect(Collectors.toList());
+            unit.setBanners(banners);
             if (item.getMessageType() == BiuMessageEntity.NOTICE_APPLY || item.getMessageType() == BiuMessageEntity.NOTICE_FRIEND) {
                 long sourceId = item.getSourceId();
                 long destId = item.getDestId();

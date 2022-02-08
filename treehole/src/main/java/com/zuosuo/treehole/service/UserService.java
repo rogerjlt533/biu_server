@@ -482,6 +482,19 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
     }
 
+    public void addUserMessage(long sourceId, long destId, int messageType, long relateId, String title, String content, String banner, List<String> images) {
+        BiuMessageEntity message = new BiuMessageEntity();
+        message.setSourceId(sourceId);
+        message.setDestId(destId);
+        message.setMessageType(messageType);
+        message.setRelateId(relateId);
+        message.setTitle(title);
+        message.setBanner(banner);
+        message.setContent(content);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
+        setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
+    }
+
     public BiuUserFriendMemberEntity getUserFriendMember(long friendId, long userId, int status) {
         ProviderOption option = new ProviderOption();
         option.addCondition("friend_id", friendId);
