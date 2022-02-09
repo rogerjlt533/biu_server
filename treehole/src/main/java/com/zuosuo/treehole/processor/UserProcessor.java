@@ -431,7 +431,7 @@ public class UserProcessor {
         }
         if (bean.getMethod().contains("pen_name")) {
             if (!bean.getPenName().isEmpty() && !keywordService.verifyKeyword(bean.getPenName())) {
-                return new FuncResult(false, "请查看是否有关键词");
+                return new FuncResult(false, "请查看是否有敏感词");
             }
             user.setPenName(bean.getPenName().trim());
         }
@@ -446,7 +446,7 @@ public class UserProcessor {
         }
         if (bean.getMethod().contains("username")) {
             if (!bean.getUsername().isEmpty() && !keywordService.verifyKeyword(bean.getUsername())) {
-                return new FuncResult(false, "请查看是否有关键词");
+                return new FuncResult(false, "请查看是否有敏感词");
             }
             user.setUsername(bean.getUsername());
         }
@@ -470,13 +470,13 @@ public class UserProcessor {
         }
         if (bean.getMethod().contains("title")) {
             if (!bean.getTitle().isEmpty() && !keywordService.verifyKeyword(bean.getTitle())) {
-                return new FuncResult(false, "请查看是否有关键词");
+                return new FuncResult(false, "请查看是否有敏感词");
             }
             user.setTitle(bean.getTitle());
         }
         if (bean.getMethod().contains("introduce")) {
             if (!bean.getIntroduce().isEmpty() && !keywordService.verifyKeyword(bean.getIntroduce())) {
-                return new FuncResult(false, "请查看是否有关键词");
+                return new FuncResult(false, "请查看是否有敏感词");
             }
             user.setIntroduce(bean.getIntroduce());
         }

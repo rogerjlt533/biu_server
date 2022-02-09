@@ -28,15 +28,16 @@ public class KeywordService {
      * @return
      */
     public boolean verifyKeyword(String content) {
-        List<String> keywords = getKeywordList();
-        if (keywords.isEmpty()) {
-            return true;
-        }
-        for (String keyword: keywords) {
-            if (content.contains(keyword)) {
-                return false;
-            }
-        }
         return true;
+//        List<String> keywords = getKeywordList();
+//        if (keywords.isEmpty()) {
+//            return true;
+//        }
+//        for (String keyword: keywords) {
+//            if (content.contains(keyword)) {
+//                return false;
+//            }
+//        }
+//        return true;
     }
 }
