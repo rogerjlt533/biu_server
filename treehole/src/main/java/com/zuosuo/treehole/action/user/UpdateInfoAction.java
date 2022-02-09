@@ -24,6 +24,7 @@ public class UpdateInfoAction extends BaseAction {
 
     @Override
     public JsonResult run() {
+        System.out.println("update user:" + getLoginInfoBean().getUserId());
         FuncResult loginResult = userProcessor.updateInfo(getLoginInfoBean().getUserId(), bean);
         if (!loginResult.isStatus()) {
             return new JsonResult(loginResult.getMessage());
