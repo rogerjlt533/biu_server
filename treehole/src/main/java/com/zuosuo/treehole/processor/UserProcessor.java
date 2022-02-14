@@ -149,7 +149,7 @@ public class UserProcessor {
         option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setMonth(-2))) + "'");
         // 最后记录排重
         if (lastUser != null) {
-            option.addCondition("sort_time<'" + TimeTool.formatDate(lastUser.getSortTime()) + '"');
+            option.addCondition("sort_time<'" + TimeTool.formatDate(lastUser.getSortTime()) + "'");
         }
         option.addOrderby("sort_time desc");
         option.setOffset(PageTool.getOffset(bean.getPage(), bean.getSize()));

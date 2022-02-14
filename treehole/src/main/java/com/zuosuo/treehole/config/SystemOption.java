@@ -8,7 +8,7 @@ public enum SystemOption {
     REGISTER_NOTICE_BANNER("http://biuimage.juqihui.cn/banner_welcome.jpg"),
     REGISTER_NOTICE_IMAGE("http://biuimage.juqihui.cn/welcome.jpg"),
     REGISTER_NOTICE_PLAT_BANNER("http://biuimage.juqihui.cn/banner_notice.jpg"),
-    REGISTER_NOTICE_PLAT_IMAGE("http://biuimage.juqihui.cn/notice.jpg"),
+    REGISTER_NOTICE_PLAT_IMAGE("http://biuimage.juqihui.cn/noticenew.jpg"),
     REGISTER_NOTICE_PLAT("亲爱的笔友，您可在BIU笔友发布自己的任何想法和感受，但不包括以下内容:<br>" +
             "1）政治敏感<br>" +
             "2）涉黄<br>" +
