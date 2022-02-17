@@ -15,7 +15,7 @@ public class ProviderOption {
     private List<String> orderbys;
     private long offset;
     private int limit;
-    private boolean usePager;
+    private boolean usePager, writeLog;
 
     public ProviderOption() {
         options = new HashMap<>();
@@ -204,5 +204,13 @@ public class ProviderOption {
 
     public void setUsePager(boolean usePager) {
         this.usePager = usePager;
+    }
+
+    public boolean isWriteLog() {
+        return writeLog;
+    }
+
+    public void setWriteLog(boolean writeLog) {
+        this.writeLog = writeLog;
     }
 }

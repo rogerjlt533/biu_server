@@ -89,6 +89,7 @@ public class UserProcessor {
         BiuUserViewEntity user = userService.getUserView(id);
         ProviderOption option = new ProviderOption();
         option.setUsePager(true);
+//        option.setWriteLog(true);
         option.addCondition("use_status", BiuUserViewEntity.USER_AVAIL_STATUS);
         option.addCondition("search_status", BiuUserViewEntity.SEARCH_OPEN_STATUS);
         // 自定义
