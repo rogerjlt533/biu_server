@@ -51,9 +51,12 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
-        System.out.println(hashTool.getHashids(4).encode(9));
-        System.out.println(userService.parseImage("upload/d842ee3d20d04288ac23de0a248ecf89.png"));
-        System.out.println(JsonTool.toJson(keywordService.getKeywordList()));
+        String test = "笔友【heel中文】测试";
+        System.out.println(test);
+        System.out.println(test.replaceAll("【[^】]*】", "【测试】"));
+//        System.out.println(hashTool.getHashids(4).encode(9));
+//        System.out.println(userService.parseImage("upload/d842ee3d20d04288ac23de0a248ecf89.png"));
+//        System.out.println(JsonTool.toJson(keywordService.getKeywordList()));
 //        userService.addUserMessage(0, 229, BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", "", SystemOption.REGISTER_NOTICE_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_IMAGE.getValue()).stream().collect(Collectors.toList()));
 //        userService.addUserMessage(0, 229, BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", "", SystemOption.REGISTER_NOTICE_PLAT_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_PLAT_IMAGE.getValue()).stream().collect(Collectors.toList()));
 //        try(BufferedReader reader = new BufferedReader(new FileReader("D:\\area.txt"))) {

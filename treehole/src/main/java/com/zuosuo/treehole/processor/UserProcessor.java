@@ -947,10 +947,18 @@ public class UserProcessor {
             } else if(item.getMessageType() == BiuMessageEntity.MESSAGE_FAVOR || item.getMessageType() == BiuMessageEntity.MESSAGE_COMMENT || item.getMessageType() == BiuMessageEntity.MESSAGE_REPLY) {
                 if (item.getRelateType() == BiuMessageEntity.RELATE_NOTE_TYPE) {
                     unit.setNote(encodeHash(item.getRelateId()));
+                    BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(item.getRelateId());
+                    if (note.getNickShow() == BiuHoleNoteEntity.NICK_YES && item.getSourceId() != note.getUserId()) {
+                        unit.setTitle(unit.getTitle().replaceAll("【[^】]*】","【" + userService.createRandomNickName() + "】"));
+                    }
                     list.add(unit);
                 } else {
                     BiuHoleNoteCommentEntity comment = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().find(item.getRelateId());
                     if (comment != null) {
+                        BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(comment.getNoteId());
+                        if (note.getNickShow() == BiuHoleNoteEntity.NICK_YES && item.getSourceId() != note.getUserId()) {
+                            unit.setTitle(unit.getTitle().replaceAll("【[^】]*】","【" + userService.createRandomNickName() + "】"));
+                        }
                         unit.setNote(encodeHash(comment.getNoteId()));
                         list.add(unit);
                     }
@@ -1475,12 +1483,13 @@ public class UserProcessor {
         if (rows.isEmpty()) {
             return new FuncResult(false, "无对应记录", result);
         }
-        List<Map> list = processCommentList(rows);
+        BiuHoleNoteEntity noteEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
+        List<Map> list = processCommentList(rows, noteEntity);
         result.put("list", list);
         return new FuncResult(true, "", result);
     }
 
-    public List<Map> processCommentList(List<BiuHoleNoteCommentViewEntity> rows) {
+    public List<Map> processCommentList(List<BiuHoleNoteCommentViewEntity> rows, BiuHoleNoteEntity noteEntity) {
         List<Map> list = new ArrayList<>();
         BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
         rows.forEach(item -> {
@@ -1490,9 +1499,17 @@ public class UserProcessor {
             unit.put("comment_id", encodeHash(item.getId()));
             unit.put("note_id", encodeHash(item.getNoteId()));
             if (item.getCommentId() > 0) {
-                unit.put("title", "@" + commentUser.getPenName());
+                if (commentUser.getId() == noteEntity.getUserId() && noteEntity.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+                    unit.put("title", "@" + userService.createRandomNickName());
+                } else {
+                    unit.put("title", "@" + commentUser.getPenName());
+                }
             } else {
-                unit.put("title", user.getPenName());
+                if (item.getUserId() == noteEntity.getUserId() && noteEntity.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+                    unit.put("title", userService.createRandomNickName());
+                } else {
+                    unit.put("title", user.getPenName());
+                }
             }
             unit.put("content", item.getContent());
             unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
