@@ -1085,7 +1085,31 @@ public class UserProcessor {
             return new FuncResult(false, "非本人树洞消息，不可修改");
         }
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().delete(note);
+        removeHoleNoteMessage(noteId);
+        removeHoleNoteComment(noteId);
         return new FuncResult(true, "");
+    }
+
+    public void removeHoleNoteComment(long noteId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().destroy(option);
+    }
+
+    public void removeHoleNoteMessage(long noteId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("relate_id", noteId);
+        option.addCondition("relate_type", BiuMessageEntity.RELATE_NOTE_TYPE);
+        option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.MESSAGE_COMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        option = new ProviderOption();
+        option.addCondition("note_id", noteId);
+        List<BiuHoleNoteCommentEntity> comments = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().list(option);
+        option = new ProviderOption();
+        option.addCondition("relate_type", BiuMessageEntity.RELATE_NOTE_COMMENT_TYPE);
+        option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.MESSAGE_COMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+        option.addCondition("relate_id in (" + comments.stream().map(item -> String.valueOf(item.getId())).collect(Collectors.joining(",")) + ")");
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
     }
 
     public FuncResult getNoteList(long userId, NoteListBean bean) {
