@@ -567,7 +567,25 @@ public class UserService {
         } else {
             biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().delete(passed);
         }
+        removeFriendMessage(friendId);
         return JsonResult.success();
+    }
+
+    public void removeFriendMessage(long friendId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("friend_id", friendId);
+        option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.NOTICE_APPLY, BiuMessageEntity.NOTICE_FRIEND).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        option = new ProviderOption();
+        option.addCondition("friend_id", friendId);
+        option.setColumns("id");
+        List<BiuUserFriendCommunicateLogEntity> logs = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().list(option);
+        if (!logs.isEmpty()) {
+            option = new ProviderOption();
+            option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.NOTICE_SEND, BiuMessageEntity.NOTICE_RECEIVE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+            option.addCondition("relate_id in (" + logs.stream().map(item -> String.valueOf(item.getId())).collect(Collectors.joining(",")) + ")");
+            biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        }
     }
 
     public long getFriendId(BiuUserFriendEntity friend, long userId) {
