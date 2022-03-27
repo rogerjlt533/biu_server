@@ -1,15 +1,18 @@
 package com.zuosuo.treehole;
 
+import com.zuosuo.biudb.entity.BiuHoleNoteEntity;
 import com.zuosuo.biudb.entity.BiuMessageEntity;
 import com.zuosuo.biudb.entity.BiuUserViewEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.cache.redis.ListOperator;
 import com.zuosuo.component.tool.JsonTool;
+import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.config.MiniWechatConfig;
 import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.config.TaskOption;
+import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.processor.WechatProcessor;
 import com.zuosuo.treehole.service.KeywordService;
 import com.zuosuo.treehole.service.UserService;
@@ -48,9 +51,22 @@ class TreeholeApplicationTests {
     private HashTool hashTool;
     @Autowired
     private KeywordService keywordService;
+    @Autowired
+    private UserProcessor userProcessor;
 
     @Test
     void contextLoads() {
+        ProviderOption option = new ProviderOption();
+        option.setStatus(CheckStatusEnum.DELETED.getValue());
+        option.setColumns("id,deleted_at");
+        List<BiuHoleNoteEntity> notes = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().list(option);
+        notes.forEach(item -> {
+            System.out.println("note_id: " + item.getId());
+            System.out.println("deleted_at: " + item.getDeletedAt());
+            userProcessor.removeHoleNoteMessage(item.getId());
+            userProcessor.removeHoleNoteComment(item.getId());
+        });
+
         String test = "笔友【heel中文】测试";
         System.out.println(test);
         System.out.println(test.replaceAll("【[^】]*】", "【测试】"));

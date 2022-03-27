@@ -915,6 +915,7 @@ public class UserProcessor {
                     long friendId = userService.getFriendId(friendEntity, user.getId());
                     BiuUserViewEntity friendUser = userService.getUserView(friendId);
                     if (friendUser != null) {
+                        unit.setTitle(unit.getTitle().replaceAll("【[^】]*】","【" + friendUser.getPenName() + "】"));
                         unit.getFriendApply().setId(encodeHash(friendEntity.getId()));
                         unit.getFriendApply().setUser(encodeHash(user.getId()));
                         unit.getFriendApply().setFriend(encodeHash(friendId));
@@ -944,11 +945,17 @@ public class UserProcessor {
                     unit.getFriendApply().setIsCancel(1);
                     unit.getFriendApply().setStatus(UserMessageFriendResult.UNENABLE);
                 }
+            } else if (item.getMessageType() == BiuMessageEntity.NOTICE_SEND || item.getMessageType() == BiuMessageEntity.NOTICE_RECEIVE) {
+                BiuUserEntity sourceUser = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(item.getSourceId());
+                if (sourceUser != null) {
+                    unit.setTitle(unit.getTitle().replaceAll("【[^】]*】","【" + sourceUser.getPenName() + "】"));
+                    list.add(unit);
+                }
             } else if(item.getMessageType() == BiuMessageEntity.MESSAGE_FAVOR || item.getMessageType() == BiuMessageEntity.MESSAGE_COMMENT || item.getMessageType() == BiuMessageEntity.MESSAGE_REPLY) {
                 if (item.getRelateType() == BiuMessageEntity.RELATE_NOTE_TYPE) {
                     unit.setNote(encodeHash(item.getRelateId()));
                     BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(item.getRelateId());
-                    if (note.getNickShow() == BiuHoleNoteEntity.NICK_YES && item.getSourceId() != note.getUserId()) {
+                    if (note.getNickShow() == BiuHoleNoteEntity.NICK_YES && item.getSourceId() == note.getUserId()) {
                         unit.setTitle(unit.getTitle().replaceAll("【[^】]*】","【" + userService.createRandomNickName() + "】"));
                     }
                     list.add(unit);
@@ -956,7 +963,7 @@ public class UserProcessor {
                     BiuHoleNoteCommentEntity comment = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().find(item.getRelateId());
                     if (comment != null) {
                         BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(comment.getNoteId());
-                        if (note.getNickShow() == BiuHoleNoteEntity.NICK_YES && item.getSourceId() != note.getUserId()) {
+                        if (note.getNickShow() == BiuHoleNoteEntity.NICK_YES && item.getSourceId() == note.getUserId()) {
                             unit.setTitle(unit.getTitle().replaceAll("【[^】]*】","【" + userService.createRandomNickName() + "】"));
                         }
                         unit.setNote(encodeHash(comment.getNoteId()));
@@ -1104,12 +1111,15 @@ public class UserProcessor {
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
         option = new ProviderOption();
         option.addCondition("note_id", noteId);
+        option.setColumns("id");
         List<BiuHoleNoteCommentEntity> comments = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().list(option);
-        option = new ProviderOption();
-        option.addCondition("relate_type", BiuMessageEntity.RELATE_NOTE_COMMENT_TYPE);
-        option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.MESSAGE_COMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
-        option.addCondition("relate_id in (" + comments.stream().map(item -> String.valueOf(item.getId())).collect(Collectors.joining(",")) + ")");
-        biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        if (!comments.isEmpty()) {
+            option = new ProviderOption();
+            option.addCondition("relate_type", BiuMessageEntity.RELATE_NOTE_COMMENT_TYPE);
+            option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.MESSAGE_COMMENT, BiuMessageEntity.MESSAGE_FAVOR, BiuMessageEntity.MESSAGE_REPLY).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+            option.addCondition("relate_id in (" + comments.stream().map(item -> String.valueOf(item.getId())).collect(Collectors.joining(",")) + ")");
+            biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        }
     }
 
     public FuncResult getNoteList(long userId, NoteListBean bean) {
@@ -1268,7 +1278,7 @@ public class UserProcessor {
         result.put("id", encodeHash(note.getId()));
         result.put("user", encodeHash(note.getUserId()));
         result.put("self", note.getUserId() == userId ? 1 : 0);
-        if (((user != null && user.getId() != noteUser.getId()) || user == null) && note.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+        if (note.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
             result.put("name", userService.createRandomNickName());
             result.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
         } else {
