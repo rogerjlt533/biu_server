@@ -130,7 +130,7 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public String getStreet() {
-        return street;
+        return street == null ? "" : street.trim();
     }
 
     public void setStreet(String street) {

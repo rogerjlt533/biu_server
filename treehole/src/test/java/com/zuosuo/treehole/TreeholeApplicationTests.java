@@ -56,20 +56,21 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
-        ProviderOption option = new ProviderOption();
-        option.setStatus(CheckStatusEnum.DELETED.getValue());
-        option.setColumns("id,deleted_at");
-        List<BiuHoleNoteEntity> notes = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().list(option);
-        notes.forEach(item -> {
-            System.out.println("note_id: " + item.getId());
-            System.out.println("deleted_at: " + item.getDeletedAt());
-            userProcessor.removeHoleNoteMessage(item.getId());
-            userProcessor.removeHoleNoteComment(item.getId());
-        });
-
-        String test = "笔友【heel中文】测试";
-        System.out.println(test);
-        System.out.println(test.replaceAll("【[^】]*】", "【测试】"));
+//        userService.removeFriendMessage(884);
+//        ProviderOption option = new ProviderOption();
+//        option.setStatus(CheckStatusEnum.DELETED.getValue());
+//        option.setColumns("id,deleted_at");
+//        List<BiuHoleNoteEntity> notes = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().list(option);
+//        notes.forEach(item -> {
+//            System.out.println("note_id: " + item.getId());
+//            System.out.println("deleted_at: " + item.getDeletedAt());
+//            userProcessor.removeHoleNoteMessage(item.getId());
+//            userProcessor.removeHoleNoteComment(item.getId());
+//        });
+//
+//        String test = "笔友【heel中文】测试";
+//        System.out.println(test);
+//        System.out.println(test.replaceAll("【[^】]*】", "【测试】"));
 //        System.out.println(hashTool.getHashids(4).encode(9));
 //        System.out.println(userService.parseImage("upload/d842ee3d20d04288ac23de0a248ecf89.png"));
 //        System.out.println(JsonTool.toJson(keywordService.getKeywordList()));

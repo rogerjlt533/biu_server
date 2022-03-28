@@ -242,6 +242,7 @@ public class UserProcessor {
         result.getCity().setName(areaService.getArea(user.getCity()));
         result.getCountry().setCode(user.getCountry());
         result.getCountry().setName(areaService.getArea(user.getCountry()));
+        result.setStreet(user.getStreet());
         result.setAddress(user.getAddress());
         List<Integer> communicates = CommonTool.parseList(user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty() ? user.getSelfCommunicate().replace("'", "").split(",") : new String[]{}, item -> Integer.valueOf(item));
         result.getCommunicates().setValue(communicates.stream().reduce(Integer::sum).orElse(0));
@@ -459,6 +460,9 @@ public class UserProcessor {
         }
         if (bean.getMethod().contains("country")) {
             user.setCountry(bean.getCountry());
+        }
+        if (bean.getMethod().contains("street")) {
+            user.setStreet(bean.getStreet());
         }
         if (bean.getMethod().contains("address")) {
             user.setAddress(bean.getAddress());
