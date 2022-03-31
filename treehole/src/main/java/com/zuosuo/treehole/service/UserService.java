@@ -1136,8 +1136,6 @@ public class UserService {
         indexEntity.setAnonymous(user.getAnonymous());
         indexEntity.setLastLogin(user.getLastLogin());
         indexEntity.setSortTime(user.getSortTime());
-        indexEntity.setCreatedAt(user.getCreatedAt());
-        indexEntity.setUpdatedAt(user.getUpdatedAt());
         indexEntity.setBirthdayYear(user.getBirthdayYear());
         indexEntity.setIsPenuser(user.getIsPenuser());
         indexEntity.setAge(user.getAge());
@@ -1155,11 +1153,20 @@ public class UserService {
         } else {
             indexEntity.setSelfCommunicate(0);
         }
+        String search_sex = user.getSearchSex();
+        if (search_sex != null && !search_sex.isEmpty()) {
+            indexEntity.setSearchSex(Arrays.asList(search_sex.replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));
+        } else {
+            indexEntity.setSearchSex(0);
+        }
         indexEntity.setProtectedUser(user.getProtectedUser());
         if (isUpdate) {
+            indexEntity.setCreatedAt(user.getCreatedAt());
+            indexEntity.setUpdatedAt(user.getUpdatedAt());
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().update(indexEntity);
         } else {
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().insert(indexEntity);
+//            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().update(indexEntity);
         }
     }
 

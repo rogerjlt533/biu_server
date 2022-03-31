@@ -83,7 +83,7 @@ public class UserProcessor {
         BiuUserEntity user = userService.find(id);
         ProviderOption option = new ProviderOption();
         option.setUsePager(true);
-//        option.setWriteLog(true);
+        option.setWriteLog(true);
         option.addCondition("use_status", BiuUserViewEntity.USER_AVAIL_STATUS);
         option.addCondition("search_status", BiuUserViewEntity.SEARCH_OPEN_STATUS);
         // 自定义
@@ -114,7 +114,7 @@ public class UserProcessor {
             }
             int self_sex = user.getSex();
             if (self_sex > 0 && self_sex < 3) {
-                option.addCondition("(search_sex == 3 or search_sex=" + self_sex + ")");
+                option.addCondition("(search_sex=3 or search_sex=" + self_sex + ")");
             }
             ProviderOption blackOption = new ProviderOption();
             blackOption.setColumns("user_id");
@@ -130,8 +130,9 @@ public class UserProcessor {
             communicateOption.addCondition("user_id", user.getId());
             List<BiuUserCommunicateEntity> self_communicates = biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().list(communicateOption);
             int self_communicate = self_communicates.stream().mapToInt(BiuUserCommunicateEntity::getComMethod).reduce(Integer::sum).orElse(0);
+            System.out.println(self_communicate);
             if (self_communicate > 0 && self_communicate < 3) {
-                option.addCondition("(search_communicate == 3 or search_communicate=" + self_communicate + ")");
+                option.addCondition("(search_communicate=3 or search_communicate=" + self_communicate + ")");
             }
         }
         if (user == null && bean.getMethod() == UserListBean.RECOMMEND) {
@@ -203,6 +204,7 @@ public class UserProcessor {
             }
             result.add(unit);
         });
+//        System.out.println(result.size());
         return result;
     }
 

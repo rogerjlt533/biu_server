@@ -50,6 +50,7 @@ public class BiuUserIndexViewEntity extends BaseEntity {
     private int matchEndAge = 0;
     @EntityProperty(comment = "出生年份")
     private int birthdayYear = 0;
+    @EntityProperty(comment = "年龄")
     private int age = 0;
     @EntityProperty(comment = "联系电话")
     private String phone = "";
@@ -85,6 +86,7 @@ public class BiuUserIndexViewEntity extends BaseEntity {
     private int anonymous = 0;
     @EntityProperty(comment = "是否笔友 0-否 1-是")
     private int isPenuser = 0;
+    @EntityProperty(comment = "关注数")
     private int collectNum = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -92,13 +94,20 @@ public class BiuUserIndexViewEntity extends BaseEntity {
     @EntityProperty(comment = "排序时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date sortTime;
+    @EntityProperty(comment = "自身兴趣爱好")
     private String selfInterest = "";
+    @EntityProperty(comment = "自身邮寄方式")
     private int selfCommunicate = 0;
+    @EntityProperty(comment = "寻友兴趣爱好")
     private int searchCommunicate = 0;
+    @EntityProperty(comment = "寻友性别")
     private int searchSex = 0;
+    @EntityProperty(comment = "被保护用户")
     private String protectedUser = "";
+    @EntityProperty(comment = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
+    @EntityProperty(comment = "编辑时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updatedAt;
 

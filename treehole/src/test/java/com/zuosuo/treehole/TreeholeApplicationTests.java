@@ -146,7 +146,7 @@ class TreeholeApplicationTests {
 
     private void addIndexList(List<Long> list) {
         System.out.println(list.size());
-        list.forEach(item -> userService.syncUserIndex(item));
+        list.forEach(item -> userService.execSyncUserIndex(item));
     }
 
     private void removeIndexList(List<Long> list) {
