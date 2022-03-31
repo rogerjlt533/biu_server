@@ -4,15 +4,20 @@ import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.BiuHoleNoteLabelImpl;
 import com.zuosuo.biudb.impl.BiuHoleNoteMoodImpl;
+import com.zuosuo.biudb.redis.BiuRedisFactory;
+import com.zuosuo.cache.redis.ListOperator;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeFormat;
 import com.zuosuo.component.time.TimeTool;
+import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.component.tool.StringTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.config.SystemOption;
+import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.result.*;
+import com.zuosuo.treehole.task.UserCollectInput;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +37,8 @@ public class UserService {
     private AreaService areaService;
     @Autowired
     private HashTool hashTool;
+    @Autowired
+    private BiuRedisFactory biuRedisFactory;
 
     public String createRandomNickName() {
         return "BIU笔友" + StringTool.random(4);
@@ -1075,5 +1082,90 @@ public class UserService {
         option.addCondition("user_id", userId);
         option.addCondition("relate_id", relateId);
         return biuDbFactory.getUserDbFactory().getBiuUserReadLogImpl().single(option);
+    }
+
+    public void execSyncUserIndex(long userId) {
+        BiuUserViewEntity user = getUserView(userId);
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        if (user == null) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (new Date().getTime() - user.getSortTime().getTime() >= 86400 * 14 * 1000) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (user.getSearchStatus() != BiuUserViewEntity.SEARCH_OPEN_STATUS || user.getUseStatus() != BiuUserViewEntity.USER_AVAIL_STATUS) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        BiuUserIndexViewEntity indexEntity = biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().single(option);
+
+        boolean isUpdate = true;
+        if (indexEntity == null) {
+            indexEntity = new BiuUserIndexViewEntity();
+            isUpdate = false;
+        }
+        indexEntity.setUserId(user.getId());
+        indexEntity.setUserCardno(user.getUserCardno());
+        indexEntity.setUsername(user.getUsername());
+        indexEntity.setNick(user.getNick());
+        indexEntity.setImage(user.getImage());
+        indexEntity.setPenName(user.getPenName());
+        indexEntity.setOpenid(user.getOpenid());
+        indexEntity.setUnionid(user.getUnionid());
+        indexEntity.setSex(user.getSex());
+        indexEntity.setMatchStartAge(user.getMatchStartAge());
+        indexEntity.setMatchEndAge(user.getMatchEndAge());
+        indexEntity.setPhone(user.getPhone());
+        indexEntity.setEmail(user.getEmail());
+        indexEntity.setProvince(user.getProvince());
+        indexEntity.setCity(user.getCity());
+        indexEntity.setCountry(user.getCountry());
+        indexEntity.setStreet(user.getStreet());
+        indexEntity.setAddress(user.getAddress());
+        indexEntity.setZipcode(user.getZipcode());
+        indexEntity.setTitle(user.getTitle());
+        indexEntity.setIntroduce(user.getIntroduce());
+        indexEntity.setLastIp(user.getLastIp());
+        indexEntity.setRemark(user.getRemark());
+        indexEntity.setUseStatus(user.getUseStatus());
+        indexEntity.setCommentStatus(user.getCommentStatus());
+        indexEntity.setSearchStatus(user.getSearchStatus());
+        indexEntity.setAnonymous(user.getAnonymous());
+        indexEntity.setLastLogin(user.getLastLogin());
+        indexEntity.setSortTime(user.getSortTime());
+        indexEntity.setCreatedAt(user.getCreatedAt());
+        indexEntity.setUpdatedAt(user.getUpdatedAt());
+        indexEntity.setBirthdayYear(user.getBirthdayYear());
+        indexEntity.setIsPenuser(user.getIsPenuser());
+        indexEntity.setAge(user.getAge());
+        indexEntity.setCollectNum(user.getCollectNum());
+        indexEntity.setSelfInterest(user.getSelfInterest());
+        String search_communicate = user.getSearchCommunicate();
+        if (search_communicate != null && !search_communicate.isEmpty()) {
+            indexEntity.setSearchCommunicate(Arrays.asList(search_communicate.replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));
+        } else {
+            indexEntity.setSearchCommunicate(0);
+        }
+        String self_communicate = user.getSelfCommunicate();
+        if (self_communicate != null && !self_communicate.isEmpty()) {
+            indexEntity.setSelfCommunicate(Arrays.asList(self_communicate.replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));
+        } else {
+            indexEntity.setSelfCommunicate(0);
+        }
+        indexEntity.setProtectedUser(user.getProtectedUser());
+        if (isUpdate) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().update(indexEntity);
+        } else {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().insert(indexEntity);
+        }
+    }
+
+    public void syncUserIndex(long userId) {
+        String key = TaskOption.USER_INDEX_SYNC.getValue();
+        ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
+        operator.rightPush(key, String.valueOf(userId));
     }
 }

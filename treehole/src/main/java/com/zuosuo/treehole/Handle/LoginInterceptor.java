@@ -55,6 +55,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                 return error(response, "用户状态异常");
             }
             userService.setUserSortTime(user.getId());
+            userService.syncUserIndex(user.getId());
             if (loginAnnotation.penuser() && user.getIsPenuser() == BiuUserEntity.USER_NOT_PEN) {
                 return error(response, 502, "您未注册为笔友，请先完成注册");
             }

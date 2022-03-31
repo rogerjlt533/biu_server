@@ -13,6 +13,7 @@ import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.config.TaskOption;
+import com.zuosuo.treehole.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,8 @@ public class ProcessUserCollectTask {
     private BiuDbFactory biuDbFactory;
     @Autowired
     private BiuRedisFactory biuRedisFactory;
+    @Autowired
+    private UserService userService;
 
     @Scheduled(fixedDelay = 1000)
     public void execute() {
@@ -53,6 +56,7 @@ public class ProcessUserCollectTask {
             option.setAttribute("created_at", TimeTool.formatDate(input.getTime()));
             option.addCondition("id", collect.getId());
             impl.modify(option);
+            userService.syncUserIndex(input.getRelateId());
         } else if(collect.getDeletedAt() != null) {
             impl.restore(collect);
         }

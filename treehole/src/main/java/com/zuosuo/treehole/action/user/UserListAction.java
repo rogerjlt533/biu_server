@@ -22,7 +22,7 @@ public class UserListAction extends BaseAction {
 
     @Override
     public JsonDataResult<Map> run() {
-        FuncResult getResult = userProcessor.getList(getLoginInfoBean().getUserId(), bean);
+        FuncResult getResult = userProcessor.getIndexList(getLoginInfoBean().getUserId(), bean);
 //        if (!getResult.isStatus()) {
 //            return new JsonDataResult<>(getResult.getMessage());
 //        }

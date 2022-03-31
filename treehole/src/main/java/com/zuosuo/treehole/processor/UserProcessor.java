@@ -71,6 +71,141 @@ public class UserProcessor {
         return new FuncResult(true);
     }
 
+    public FuncResult getIndexList(long id, UserListBean bean) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+//        result.put("count", impl.count(option));
+        result.put("more", 0);
+        List<UserResult> userList = new ArrayList<>();
+        result.put("list", userList);
+        result.put("last", "");
+        BiuUserEntity user = userService.find(id);
+        ProviderOption option = new ProviderOption();
+        option.setUsePager(true);
+//        option.setWriteLog(true);
+        option.addCondition("use_status", BiuUserViewEntity.USER_AVAIL_STATUS);
+        option.addCondition("search_status", BiuUserViewEntity.SEARCH_OPEN_STATUS);
+        // 自定义
+        int sex = bean.getSex();
+        if (sex > 0) {
+            option.addCondition("sex", sex);
+        }
+        int com_method = bean.getCommunicate();
+        if (com_method > 0 && com_method < 3) {
+            option.addCondition("self_communicate", com_method);
+        }
+        int[] ages = bean.getAge();
+        if (ages != null) {
+            option.addCondition("age>=" + ages[0] + " and age<=" + ages[1]);
+        }
+        BiuUserEntity lastUser = null;
+        String last = bean.getLast();
+        if (!last.isEmpty()) {
+            long lastId = decodeHash(last);
+            if (lastId > 0) {
+                lastUser = userService.find(lastId);
+            }
+        }
+        if(user != null && bean.getMethod() == UserListBean.RECOMMEND) {
+            int self_age = user.getAge();
+            if (self_age > 0) {
+                option.addCondition("match_start_age<=" + self_age + " and match_end_age>=" + self_age);
+            }
+            int self_sex = user.getSex();
+            if (self_sex > 0 && self_sex < 3) {
+                option.addCondition("(search_sex == 3 or search_sex=" + self_sex + ")");
+            }
+            ProviderOption blackOption = new ProviderOption();
+            blackOption.setColumns("user_id");
+            blackOption.addCondition("black_id", user.getId());
+            List<BiuUserBlacklistEntity> blacklist = biuDbFactory.getUserDbFactory().getBiuUserBlacklistImpl().list(blackOption);
+            if (!blacklist.isEmpty()) {
+                String black_condition = blacklist.stream().map(item -> String.valueOf(item.getUserId())).collect(Collectors.joining(","));
+                option.addCondition("user_id not in (" + black_condition + ")");
+            }
+            ProviderOption communicateOption = new ProviderOption();
+            communicateOption.setColumns("com_method");
+            communicateOption.addCondition("use_type", BiuUserCommunicateEntity.USE_TYPE_SELF);
+            communicateOption.addCondition("user_id", user.getId());
+            List<BiuUserCommunicateEntity> self_communicates = biuDbFactory.getUserDbFactory().getBiuUserCommunicateImpl().list(communicateOption);
+            int self_communicate = self_communicates.stream().mapToInt(BiuUserCommunicateEntity::getComMethod).reduce(Integer::sum).orElse(0);
+            if (self_communicate > 0 && self_communicate < 3) {
+                option.addCondition("(search_communicate == 3 or search_communicate=" + self_communicate + ")");
+            }
+        }
+        if (user == null && bean.getMethod() == UserListBean.RECOMMEND) {
+            // 非登录下系统推荐无数据
+            return new FuncResult(false, "无对应记录", result);
+        }
+        // 两周内登录的
+//        option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setDay(-14))) + "'");
+        // 最后记录排重
+        if (lastUser != null) {
+            option.addCondition("sort_time<'" + TimeTool.formatDate(lastUser.getSortTime()) + "'");
+        }
+        option.addOrderby("sort_time desc");
+        option.setOffset(PageTool.getOffset(bean.getPage(), bean.getSize()));
+        option.setLimit(bean.getSize() + 1);
+        BiuUserIndexViewImpl impl = biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl();
+        List<BiuUserIndexViewEntity> list = impl.list(option);
+        if (list.size() > bean.getSize()) {
+            list.remove(list.size() - 1);
+            result.put("more", 1);
+        }
+        if (list.isEmpty()) {
+            return new FuncResult(false, "无对应记录", result);
+        }
+        result.put("last", encodeHash(list.get(list.size() - 1).getUserId()));
+        userList = processIndexList(list, user);
+        result.put("list", userList);
+        System.out.println(userList.size());
+        return new FuncResult(true, "", result);
+    }
+
+    /**
+     * 处理用户列表信息
+     * @param list
+     * @param user
+     * @return
+     */
+    private List<UserResult> processIndexList(List<BiuUserIndexViewEntity> list, BiuUserEntity user) {
+        List<UserResult> result = new ArrayList<>();
+        list.forEach(item -> {
+            UserResult unit = new UserResult();
+            unit.setId(encodeHash(item.getUserId()));
+            unit.setSelf(user != null && user.getId() == item.getUserId() ? 1 : 0);
+            unit.setImage(userService.parseImage(item.getImage()));
+            unit.setTitle(item.getTitle());
+            unit.setIntroduce(item.getIntroduce());
+            unit.setName(item.getPenName());
+            List<String> desc = new ArrayList<>();
+            if (!areaService.getArea(item.getProvince()).isEmpty()) {
+                desc.add(areaService.getArea(item.getProvince()));
+            }
+            if (!item.getSexTag().isEmpty()) {
+                desc.add(item.getSexTag());
+            }
+            if (item.getAge() > 0) {
+                desc.add(item.getAge() + "岁");
+            }
+            unit.setDesc(String.join("/", desc));
+            unit.setSortTime(TimeTool.friendlyTime(item.getSortTime()));
+            unit.setImages(userService.getUserImageList(item.getUserId(), BiuUserImageEntity.USE_TYPE_INTRODUCE));
+            unit.setInterests(userService.getUserInterests(item.getUserId()));
+            unit.setCommunicate(item.getSelfCommunicate());
+            if (user != null) {
+                unit.setIsCollect(userCollectService.isCollected(user.getId(), item.getUserId()) ? 1 : 0);
+                if (user.getId() != item.getId()) {
+                    BiuUserReadLogEntity readLog = userService.getUserReadLog(user.getId(), item.getUserId());
+                    unit.setIsRead(readLog != null ? 1 : 0);
+                }
+            }
+            result.add(unit);
+        });
+        return result;
+    }
+
     /**
      * 获取用户信息列表
      * @param id
@@ -513,6 +648,7 @@ public class UserProcessor {
             userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", "", SystemOption.REGISTER_NOTICE_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_IMAGE.getValue()).stream().collect(Collectors.toList()));
             userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", "", SystemOption.REGISTER_NOTICE_PLAT_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_PLAT_IMAGE.getValue()).stream().collect(Collectors.toList()));
         }
+        userService.syncUserIndex(user.getId());
         return new FuncResult(true);
     }
 
@@ -1567,6 +1703,7 @@ public class UserProcessor {
         }
         user.setUseStatus(BiuUserEntity.USER_INVAIL_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        userService.syncUserIndex(user.getId());
         return new FuncResult(true, "");
     }
 

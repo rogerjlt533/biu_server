@@ -71,6 +71,7 @@ public class WechatProcessor {
             result.put("token", "");
             result.put("need_info", "0");
         }
+        userService.syncUserIndex(user.getId());
         return new FuncResult(true, "", result);
     }
 }
