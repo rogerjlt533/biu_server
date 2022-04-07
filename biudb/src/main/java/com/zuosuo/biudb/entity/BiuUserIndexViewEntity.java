@@ -104,10 +104,8 @@ public class BiuUserIndexViewEntity extends BaseEntity {
     private int searchSex = 0;
     @EntityProperty(comment = "被保护用户")
     private String protectedUser = "";
-    @EntityProperty(comment = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
-    @EntityProperty(comment = "编辑时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updatedAt;
 

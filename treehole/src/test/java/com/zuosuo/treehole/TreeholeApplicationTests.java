@@ -1,12 +1,10 @@
 package com.zuosuo.treehole;
 
-import com.zuosuo.biudb.entity.BiuHoleNoteEntity;
-import com.zuosuo.biudb.entity.BiuMessageEntity;
-import com.zuosuo.biudb.entity.BiuUserIndexViewEntity;
-import com.zuosuo.biudb.entity.BiuUserViewEntity;
+import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.cache.redis.ListOperator;
+import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.JsonTool;
@@ -22,11 +20,13 @@ import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.task.UserCollectInput;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
+import net.coobird.thumbnailator.Thumbnails;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -56,6 +56,8 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+//        compressImage();
+//        processUserZipcode();
 //        processUserIndex();
         System.out.println(new Date().getTime());
 //        userService.syncUserIndex(232);
@@ -110,6 +112,37 @@ class TreeholeApplicationTests {
 //        } catch (IOException e) {
 //        }
 //        System.out.println(content);
+    }
+
+    private void compressImage() {
+        String uuid = "tifa";
+        String ext = "jpeg";
+        File dir = new File("upload");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        String dest = String.join(".", dir.getAbsolutePath() + "/" + uuid, ext);
+        try {
+            Thumbnails.of(dest).size(750, 1000).toFile(dest);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        File destFile = new File(dest);
+//        try {
+////            file.transferTo(destFile);
+//            Thumbnails.of(dest).size(750, 1000).toFile(dest);
+//        } catch (IOException e) {
+//            destFile.delete();
+//            return new JsonDataResult<>("上传失败");
+//        }
+    }
+
+    private void processUserZipcode() {
+        List<BiuUserEntity> list = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(new ProviderOption());
+        list.forEach(item -> {
+            item = userService.initUserZipcode(item);
+            biuDbFactory.getUserDbFactory().getBiuUserImpl().update(item);
+        });
     }
 
     private void processUserIndex() {

@@ -7,6 +7,7 @@ import com.zuosuo.qiniu.tool.QiniuResult;
 import com.zuosuo.treehole.action.BaseAction;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.tool.QiniuTool;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,11 @@ public class UploadAction extends BaseAction {
         } catch (IOException e) {
             destFile.delete();
             return new JsonDataResult<>("上传失败");
+        }
+        try {
+            Thumbnails.of(dest).size(750, 1000).toFile(dest);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
         String fileHash = FileTool.fileMD5(dest);
         Map<String, String> result = new HashMap<>();

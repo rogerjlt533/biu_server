@@ -678,6 +678,7 @@ public class UserService {
             info.getInfo().put("name", member.getUsername());
             info.getInfo().put("phone", member.getPhone());
             info.getInfo().put("address", getUserAddress(member.getId()));
+            info.getInfo().put("zipcode", member.getZipcode());
         } else if(friend.getCommunicateType() == BiuUserCommunicateEntity.COM_METHOD_EMAIL) {
             info.getInfo().put("email", member.getEmail());
         }
@@ -1161,8 +1162,8 @@ public class UserService {
         }
         indexEntity.setProtectedUser(user.getProtectedUser());
         if (isUpdate) {
-            indexEntity.setCreatedAt(user.getCreatedAt());
-            indexEntity.setUpdatedAt(user.getUpdatedAt());
+//            indexEntity.setCreatedAt(user.getCreatedAt());
+//            indexEntity.setUpdatedAt(user.getUpdatedAt());
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().update(indexEntity);
         } else {
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().insert(indexEntity);
@@ -1174,5 +1175,27 @@ public class UserService {
         String key = TaskOption.USER_INDEX_SYNC.getValue();
         ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
         operator.rightPush(key, String.valueOf(userId));
+    }
+
+    public BiuUserEntity initUserZipcode(BiuUserEntity user) {
+        String code = "";
+        if (!user.getCountry().isEmpty()) {
+            code = user.getCountry();
+        } else if(!user.getCity().isEmpty()) {
+            code = user.getCity();
+        } else if(!user.getProvince().isEmpty()) {
+            code = user.getProvince();
+        }
+        if (code.isEmpty()) {
+            return user;
+        }
+        System.out.println(code);
+        ProviderOption option = new ProviderOption();
+        option.addCondition("code", code);
+        BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+        if (area != null && !area.getZipcode().isEmpty()) {
+            user.setZipcode(area.getZipcode());
+        }
+        return user;
     }
 }

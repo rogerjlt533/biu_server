@@ -559,7 +559,9 @@ public class UserProcessor {
             return new FuncResult(false, "用户信息不存在");
         }
         boolean sendNote = user.getIsPenuser() == BiuUserEntity.USER_NOT_PEN ? true : false;
-        user.setSearchStatus(BiuUserEntity.SEARCH_OPEN_STATUS);
+        if (user.getIsPenuser() == BiuUserEntity.USER_NOT_PEN) {
+            user.setSearchStatus(BiuUserEntity.SEARCH_OPEN_STATUS);
+        }
         if (bean.getMethod().contains("nick")) {
             user.setNick(bean.getNick());
         }
@@ -629,6 +631,7 @@ public class UserProcessor {
             user.setMatchEndAge(bean.getEndAge());
         }
         user.setIsPenuser(BiuUserEntity.USER_IS_PEN);
+        user = userService.initUserZipcode(user);
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         if (bean.getMethod().contains("images")) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, 0, bean.getImages());
@@ -1018,6 +1021,12 @@ public class UserProcessor {
 
     public List<UserMessageResult> processMessageList(List<BiuMessageViewEntity> rows, BiuUserViewEntity user) {
         List<UserMessageResult> list = new ArrayList<>();
+        if (rows == null) {
+            return list;
+        }
+        if (rows.isEmpty()) {
+            return list;
+        }
         rows.forEach(item -> {
             UserMessageResult unit = new UserMessageResult();
             unit.setMessageType(item.getMessageType());

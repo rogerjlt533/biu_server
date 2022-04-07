@@ -21,6 +21,8 @@ public class BiuAreaEntity extends BaseEntity {
     private int areaType = 0;
     @EntityProperty(column = "parent_code", comment = "父级地区编号")
     private String parentCode = "";
+    @EntityProperty(column = "zipcode", comment = "邮编")
+    private String zipcode = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -64,6 +66,14 @@ public class BiuAreaEntity extends BaseEntity {
 
     public void setParentCode(String parentCode) {
         this.parentCode = parentCode;
+    }
+
+    public String getZipcode() {
+        return zipcode;
+    }
+
+    public void setZipcode(String zipcode) {
+        this.zipcode = zipcode;
     }
 
     public Date getCreatedAt() {
