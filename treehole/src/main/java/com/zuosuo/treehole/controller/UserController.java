@@ -323,4 +323,16 @@ public class UserController {
     public JsonResult readUser(HttpServletRequest request, @RequestBody UserReadBean bean) {
         return new UserReadAction(request, bean, userProcessor).run();
     }
+
+    /**
+     * 发送用户好友私信
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/friend/message/send")
+    @Login
+    public JsonResult sendUserFriendMessage(HttpServletRequest request, @RequestBody UserFriendMessageBean bean) {
+        return new UserFriendMessageAction(request, bean, userProcessor).run();
+    }
 }

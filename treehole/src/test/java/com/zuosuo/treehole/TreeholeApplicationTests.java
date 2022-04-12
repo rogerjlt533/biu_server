@@ -10,6 +10,7 @@ import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.treehole.bean.UserFriendMessageBean;
 import com.zuosuo.treehole.config.MiniWechatConfig;
 import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.config.TaskOption;
@@ -56,10 +57,20 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+//        UserFriendMessageBean bean = new UserFriendMessageBean();
+//        bean.setContent("ttttt");
+//        bean.setFriend("1234");
+//        bean.setImages("1234,33333");
+//        userProcessor.sendUserFriendMessage(232, 74, bean);
+//        String users = "123,234";
+//        long userId = 123;
+//        System.out.println(Arrays.asList(users.split(",")).stream().filter(item -> !item.equals(String.valueOf(userId))).findFirst().get());
+//        long friendMemberId = Arrays.asList(users.split(",")).stream().mapToLong(Long::getLong).filter(item -> item != userId).findFirst().getAsLong();
+//        System.out.println(friendMemberId);
 //        compressImage();
 //        processUserZipcode();
 //        processUserIndex();
-        System.out.println(new Date().getTime());
+//        System.out.println(new Date().getTime());
 //        userService.syncUserIndex(232);
 //        userService.removeFriendMessage(884);
 //        ProviderOption option = new ProviderOption();
@@ -165,6 +176,11 @@ class TreeholeApplicationTests {
         option.setColumns("id");
         option.addCondition("use_status", BiuUserViewEntity.USER_AVAIL_STATUS);
         option.addCondition("search_status", BiuUserViewEntity.SEARCH_OPEN_STATUS);
+        option.addCondition("LENGTH(title)");
+        option.addCondition("LENGTH(introduce)");
+        option.addCondition("LENGTH(self_communicate)");
+        option.addCondition("LENGTH(search_communicate)");
+        option.addCondition("LENGTH(search_sex)");
         option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setDay(-14))) + "'");
         List<BiuUserViewEntity> users = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().list(option);
         return users.stream().map(item -> item.getId()).collect(Collectors.toList());

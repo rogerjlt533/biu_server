@@ -11,6 +11,7 @@ public class UserMessageListBean extends BaseVerifyBean {
     public static final String NOTICE = "notice";
     public static final String PUBLIC = "public";
     public static final String MESSAGE = "message";
+    public static final String PRIVATE = "private";
 
     private String type;
     private int sub, read;
@@ -54,13 +55,15 @@ public class UserMessageListBean extends BaseVerifyBean {
             list.add(BiuMessageEntity.PUBLIC_NOTICE);
             list.add(BiuMessageEntity.PUBLIC_ACTIVE);
             list.add(BiuMessageEntity.PUBLIC_UPDATE);
+        } else if(getType().equals(PRIVATE)) {
+            list.add(BiuMessageEntity.PRIVATE_MESSAGE);
         }
         return list;
     }
 
     @Override
     public VerifyResult verify() {
-        if (!Arrays.asList(NOTICE, MESSAGE, PUBLIC).contains(getType())) {
+        if (!Arrays.asList(NOTICE, MESSAGE, PUBLIC, PRIVATE).contains(getType())) {
             return new VerifyResult("请选择类型");
         }
         if (getSub() > 0  && !subList().contains(getSub())) {

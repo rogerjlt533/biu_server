@@ -46,6 +46,11 @@ public class SyncUserIndexViewTask {
         option.setColumns("id");
         option.addCondition("use_status", BiuUserViewEntity.USER_AVAIL_STATUS);
         option.addCondition("search_status", BiuUserViewEntity.SEARCH_OPEN_STATUS);
+        option.addCondition("LENGTH(title)");
+        option.addCondition("LENGTH(introduce)");
+        option.addCondition("LENGTH(self_communicate)");
+        option.addCondition("LENGTH(search_communicate)");
+        option.addCondition("LENGTH(search_sex)");
         option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setDay(-14))) + "'");
         List<BiuUserViewEntity> users = biuDbFactory.getUserDbFactory().getBiuUserViewImpl().list(option);
         return users.stream().map(item -> item.getId()).collect(Collectors.toList());

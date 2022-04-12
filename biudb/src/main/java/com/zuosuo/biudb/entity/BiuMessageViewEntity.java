@@ -29,6 +29,7 @@ public class BiuMessageViewEntity extends BaseEntity {
     public static final int NOTICE_FRIEND= 3002;
     public static final int NOTICE_SEND= 3003;
     public static final int NOTICE_RECEIVE= 3004;
+    public static final int PRIVATE_MESSAGE= 4001;
 
     private long id;
     @EntityProperty(comment = "目标接收用户ID")
@@ -191,6 +192,8 @@ public class BiuMessageViewEntity extends BaseEntity {
             return "点赞";
         } else if (messageType == MESSAGE_REPLY) {
             return "回复";
+        } else if (messageType == PRIVATE_MESSAGE) {
+            return "私信";
         }
         return "";
     }

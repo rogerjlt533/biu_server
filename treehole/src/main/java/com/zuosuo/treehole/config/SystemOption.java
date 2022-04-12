@@ -34,7 +34,8 @@ public enum SystemOption {
     RECEIVE_MAIL_TITLE("笔友【#NAME#】已接受信件"),
     FRIEND_PASS_TITLE("您已与【#NAME#】成为笔友，快写信给Ta吧"),
     FRIEND_REFUSE_TITLE("笔友【#NAME#】已谢绝您的好友申请"),
-    RECEIVE_APPLY_TITLE("笔友【#NAME#】申请与您成为笔友");
+    RECEIVE_APPLY_TITLE("笔友【#NAME#】申请与您成为笔友"),
+    PRIVATE_MESSAGE_FRIEND_LIMIT("user:private:message:#DATE#:#USERID#:#FRIENDID#");
 
     private String value;
 

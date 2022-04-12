@@ -3,6 +3,7 @@ package com.zuosuo.treehole.processor;
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.*;
+import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
@@ -11,7 +12,6 @@ import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeFormat;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.CommonTool;
-import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.*;
@@ -43,6 +43,8 @@ public class UserProcessor {
     private AreaService areaService;
     @Autowired
     private KeywordService keywordService;
+    @Autowired
+    private BiuRedisFactory biuRedisFactory;
 
     public UserService getUserService() {
         return userService;
@@ -942,6 +944,40 @@ public class UserProcessor {
     }
 
     /**
+     * 发送好友私信
+     * @param userId
+     * @param friendId
+     * @param bean
+     * @return
+     */
+    public FuncResult sendUserFriendMessage(long userId, long friendId, UserFriendMessageBean bean) {
+        BiuUserFriendEntity friend = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().find(friendId);
+        if (friend == null) {
+            return new FuncResult(false, "无对应记录");
+        }
+        if (friend.getConfirmStatus() != BiuUserFriendEntity.PASS_STATUS) {
+            return new FuncResult(false, "好友记录无效");
+        }
+        Optional<String> optional = Arrays.asList(friend.getUsers().split(",")).stream().filter(item -> !item.equals(String.valueOf(userId))).findFirst();
+        if (!optional.isPresent()) {
+            return new FuncResult(false, "好友用户无效");
+        }
+        long memberId = Long.valueOf(optional.get());
+        String messageKey = SystemOption.PRIVATE_MESSAGE_FRIEND_LIMIT.getValue().replace("#DATE#", TimeTool.formatDate(new Date(), TimeFormat.DEFAULT_DATE.getValue()))
+                                .replace("#USERID#", String.valueOf(userId)).replace("#FRIENDID#", String.valueOf(memberId));
+        FuncResult redis_result = biuRedisFactory.getBiuRedisTool().getValueOperator().get(messageKey, Integer.class);
+        if (!redis_result.isStatus()) {
+            biuRedisFactory.getBiuRedisTool().getValueOperator().set(messageKey, 1, 3600);
+        } else if (((int) redis_result.getResult()) < 3) {
+            biuRedisFactory.getBiuRedisTool().getValueOperator().increment(messageKey, 1, 3600);
+        } else {
+            return new FuncResult(false, "已超过发送次数");
+        }
+        userService.addUserMessage(userId, memberId, BiuMessageEntity.PRIVATE_MESSAGE, userId, "", bean.getContent(), "", bean.getImages());
+        return new FuncResult(true);
+    }
+
+    /**
      * 待读用户消息数
      * @param userId
      * @return
@@ -969,6 +1005,13 @@ public class UserProcessor {
         option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
         long public_count = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().count(option);
         result.put("public", public_count);
+        option = new ProviderOption();
+        option.addCondition("dest_id", userId);
+        types = Arrays.asList(BiuMessageEntity.PRIVATE_MESSAGE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
+        option.addCondition("message_type in (" + types + ")");
+        option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
+        long private_count = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().count(option);
+        result.put("private", private_count);
         return new FuncResult(true, "", result);
     }
 

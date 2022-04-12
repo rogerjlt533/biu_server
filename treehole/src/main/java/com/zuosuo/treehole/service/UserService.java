@@ -1101,6 +1101,26 @@ public class UserService {
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
             return ;
         }
+        if (user.getTitle() == null || (user.getTitle() != null && user.getTitle().isEmpty())) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (user.getIntroduce() == null || (user.getIntroduce() != null && user.getIntroduce().isEmpty())) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (user.getSelfCommunicate() == null || (user.getSelfCommunicate() != null && user.getSelfCommunicate().isEmpty())) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (user.getSearchCommunicate() == null || (user.getSearchCommunicate() != null && user.getSearchCommunicate().isEmpty())) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (user.getSearchSex() == null || (user.getSearchSex() != null && user.getSearchSex().isEmpty())) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
         BiuUserIndexViewEntity indexEntity = biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().single(option);
 
         boolean isUpdate = true;
