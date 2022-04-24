@@ -52,6 +52,9 @@ public class UserFriendMessageBean extends BaseVerifyBean {
         if (getFriend().isEmpty()) {
             return new VerifyResult("好友关系为空");
         }
+        if (getContentType().isEmpty()) {
+            return new VerifyResult("消息内容类型不能为空");
+        }
         if (getContent().isEmpty() && images.isEmpty()) {
             return new VerifyResult("好友消息内容为空");
         }

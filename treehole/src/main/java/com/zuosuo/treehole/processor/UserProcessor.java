@@ -12,6 +12,7 @@ import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeFormat;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.CommonTool;
+import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.*;
@@ -990,13 +991,17 @@ public class UserProcessor {
      * @return
      */
     public FuncResult getFriendMessageUserList(long userId) {
-        List<Long> friendList = new ArrayList<>();
-        String sql = "select distinct source_id from biu_messages where message_type=" + BiuMessageEntity.PRIVATE_MESSAGE + " and dest_id=" + userId + " and ISNULL(deleted_at);";
-        List<Map<String, Object>> sourceList = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().executeList(sql);
-        sourceList.forEach(item -> friendList.add((Long) item.get("source_id")));
-        sql = "select distinct dest_id from biu_messages where message_type=" + BiuMessageEntity.PRIVATE_MESSAGE + " and source_id=" + userId + " and ISNULL(deleted_at);";
-        List<Map<String, Object>> destList = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().executeList(sql);
-        destList.forEach(item -> friendList.add((Long) item.get("dest_id")));
+        ProviderOption messageWhere = new ProviderOption();
+        messageWhere.setColumns("distinct source_id");
+        messageWhere.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
+        messageWhere.addCondition("dest_id", userId);
+        List<Long> friendList = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(messageWhere).stream().map(item -> item.getSourceId()).collect(Collectors.toList());
+        messageWhere = new ProviderOption();
+        messageWhere.setColumns("distinct dest_id");
+        messageWhere.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
+        messageWhere.addCondition("source_id", userId);
+        List<Long> destList = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(messageWhere).stream().map(item -> item.getDestId()).collect(Collectors.toList());
+        friendList.addAll(destList);
         if (friendList.isEmpty()) {
             return new FuncResult(true, "", new HashMap<String, Object>() {{
                 put("list", new ArrayList<>());
@@ -1039,11 +1044,13 @@ public class UserProcessor {
             ProviderOption where = new ProviderOption();
             where.addCondition("users", userService.formatUserFriendMembers(userId, user.getId()));
             where.addOrderby("created_at desc");
+            where.setWriteLog(true);
             BiuMessageEntity message = biuDbFactory.getUserDbFactory().getBiuMessageImpl().single(where);
             where.addCondition("read_status", BiuMessageEntity.READ_WAITING);
             long waiting_num = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(where);
             unit.put("waiting_num", waiting_num);
             unit.put("disc", Long.valueOf((new Date().getTime() - message.getCreatedAt().getTime()) / 1000));
+            System.out.println(JsonTool.toJson(message));
             unit.put("content_type", message.getContentType());
             if (message.getContentType().equals("image")) {
                 ProviderOption imageWhere = new ProviderOption();

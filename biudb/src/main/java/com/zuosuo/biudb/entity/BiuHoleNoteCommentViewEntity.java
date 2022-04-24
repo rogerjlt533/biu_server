@@ -26,6 +26,8 @@ public class BiuHoleNoteCommentViewEntity extends BaseEntity {
     private long commentId = 0;
     @EntityProperty(comment = "用户评论")
     private String content = "";
+    @EntityProperty(comment = "顶级评论")
+    private String topComment = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -79,6 +81,14 @@ public class BiuHoleNoteCommentViewEntity extends BaseEntity {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getTopComment() {
+        return topComment;
+    }
+
+    public void setTopComment(String topComment) {
+        this.topComment = topComment;
     }
 
     public Date getCreatedAt() {

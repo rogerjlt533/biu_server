@@ -239,6 +239,9 @@ public class CombineAccountProcessor {
             if (message.getRelateId() == source && (message.getMessageType() == BiuMessageEntity.NOTICE_APPLY || message.getMessageType() == BiuMessageEntity.NOTICE_FRIEND)) {
                 message.setRelateId(dest);
             }
+            if (message.getMessageType() == BiuMessageEntity.PRIVATE_MESSAGE) {
+                message.setUsers(userService.formatUserFriendMembers(message.getSourceId(), message.getDestId()));
+            }
             biuDbFactory.getUserDbFactory().getBiuMessageImpl().update(message);
         });
         option = new ProviderOption();
