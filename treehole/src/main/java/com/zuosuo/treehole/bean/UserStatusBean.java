@@ -5,7 +5,7 @@ import java.util.List;
 
 public class UserStatusBean extends BaseVerifyBean {
 
-    public static List<String> TYPE = new ArrayList<String>(){{ add("comment"); add("search"); }};
+    public static List<String> TYPE = new ArrayList<String>(){{ add("comment"); add("search"); add("private_msg"); }};
 
     private String type;
     private int status;

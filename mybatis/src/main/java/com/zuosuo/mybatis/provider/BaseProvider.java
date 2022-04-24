@@ -57,13 +57,17 @@ public interface BaseProvider<T extends BaseEntity> {
             options.getConditions().add(ProviderTool.normal());
         }
         String[] conditions = options.getConditions().toArray(new String[]{});
-        return new SQL() {{
+        String sql = new SQL() {{
             UPDATE(getTable());
             SET(attributes);
             if (conditions.length > 0) {
                 WHERE(conditions);
             }
         }}.toString();
+        if (options.isWriteLog()) {
+            System.out.println(sql);
+        }
+        return sql;
     }
 
     default String delete(T entity) {

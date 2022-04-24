@@ -335,4 +335,27 @@ public class UserController {
     public JsonResult sendUserFriendMessage(HttpServletRequest request, @RequestBody UserFriendMessageBean bean) {
         return new UserFriendMessageAction(request, bean, userProcessor).run();
     }
+
+    /**
+     * 用户好友私信列表
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/friend/message/list")
+    @Login
+    public JsonResult getUserFriendMessageList(HttpServletRequest request, @RequestBody UserFriendMessageListBean bean) {
+        return new UserFriendMessageListAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 私信笔友用户列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/friend/message/users")
+    @Login
+    public JsonResult getPrivateMessageUserList(HttpServletRequest request) {
+        return new PrivateMessageUserListAction(request, userProcessor).run();
+    }
 }

@@ -18,6 +18,7 @@ import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.result.*;
 import com.zuosuo.treehole.task.UserCollectInput;
+import com.zuosuo.treehole.tool.AddressTool;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +68,44 @@ public class UserService {
         option.addCondition("DATE_FORMAT(NOW(),'%Y-%m-%d')!=(IF(sort_time,DATE_FORMAT(sort_time,'%Y-%m-%d'),''))");
         option.setAttribute("sort_time", TimeTool.formatDate(new Date()));
         biuDbFactory.getUserDbFactory().getBiuUserImpl().modify(option);
+    }
+
+    public void initUserPenStatus(BiuUserEntity entity) {
+        BiuUserViewEntity user = getUserView(entity.getId());
+        int condition = 0;
+        if (user.getTitle() != null && !user.getTitle().isEmpty()) {
+            condition ++;
+        }
+        if (user.getIntroduce() != null && !user.getIntroduce().isEmpty()) {
+            condition ++;
+        }
+        if (user.getSelfInterest() != null && !user.getSelfInterest().isEmpty()) {
+            condition ++;
+        }
+        if (user.getSelfCommunicate() != null && !user.getSelfCommunicate().isEmpty()) {
+            condition ++;
+        }
+        if (condition < 4) {
+            entity.setIsPenuser(BiuUserEntity.USER_NOT_PEN);
+        } else {
+            boolean communicate_status = true;
+            if (user.getSelfCommunicate().contains("1") && (user.getAddress() == null || (user.getAddress() != null && user.getAddress().isEmpty()))) {
+                communicate_status = false;
+            }
+            if (communicate_status && user.getSelfCommunicate().contains("2") && (user.getEmail() == null || (user.getEmail() != null && user.getEmail().isEmpty()))) {
+                communicate_status = false;
+            }
+            if (communicate_status) {
+                entity.setIsPenuser(BiuUserEntity.USER_IS_PEN);
+                if (user.getPenPubMsg() != 1) {
+                    entity.setSearchStatus(BiuUserEntity.SEARCH_OPEN_STATUS);
+                }
+            } else {
+                entity.setIsPenuser(BiuUserEntity.USER_NOT_PEN);
+            }
+        }
+        entity.setPenPubMsg(1);
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().update(entity);
     }
 
     public List<String> getUserImageList(long userId, int type) {
@@ -502,6 +541,21 @@ public class UserService {
         setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
     }
 
+    public void addUserMessage(long sourceId, long destId, int messageType, long relateId, long friendId, String contentType, String title, String content, String banner, List<String> images) {
+        BiuMessageEntity message = new BiuMessageEntity();
+        message.setSourceId(sourceId);
+        message.setDestId(destId);
+        message.setMessageType(messageType);
+        message.setRelateId(relateId);
+        message.setFriendId(friendId);
+        message.setContentType(contentType);
+        message.setTitle(title);
+        message.setBanner(banner);
+        message.setContent(content);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
+        setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
+    }
+
     public BiuUserFriendMemberEntity getUserFriendMember(long friendId, long userId, int status) {
         ProviderOption option = new ProviderOption();
         option.addCondition("friend_id", friendId);
@@ -578,10 +632,22 @@ public class UserService {
         return JsonResult.success();
     }
 
+    public void removeUserFriend(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("user_id", userId);
+        option.setColumns("friend_id");
+        List<BiuUserFriendMemberEntity> members = biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().list(option);
+        List<Long> friendList = members.stream().map(item -> item.getFriendId()).distinct().collect(Collectors.toList());
+        friendList.forEach(item -> removeFriendMessage(item));
+        option = new ProviderOption();
+        option.addCondition("id in (" + friendList.stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+        biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().destroy(option);
+    }
+
     public void removeFriendMessage(long friendId) {
         ProviderOption option = new ProviderOption();
         option.addCondition("friend_id", friendId);
-        option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.NOTICE_APPLY, BiuMessageEntity.NOTICE_FRIEND).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+        option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.NOTICE_APPLY, BiuMessageEntity.NOTICE_FRIEND, BiuMessageEntity.PRIVATE_MESSAGE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
         option = new ProviderOption();
         option.addCondition("friend_id", friendId);
@@ -671,6 +737,17 @@ public class UserService {
             }
         });
         return communicates;
+    }
+
+    public void initFriendCommunicate(BiuUserFriendEntity friend, BiuUserEntity member, UserFriendCommunicateInfo info) {
+        if (friend.getCommunicateType() == BiuUserCommunicateEntity.COM_METHOD_LETTER) {
+            info.getInfo().put("name", member.getUsername());
+            info.getInfo().put("phone", member.getPhone());
+            info.getInfo().put("address", getUserAddress(member.getId()));
+            info.getInfo().put("zipcode", member.getZipcode());
+        } else if(friend.getCommunicateType() == BiuUserCommunicateEntity.COM_METHOD_EMAIL) {
+            info.getInfo().put("email", member.getEmail());
+        }
     }
 
     public void initFriendCommunicate(BiuUserFriendEntity friend, BiuUserViewEntity member, UserFriendCommunicateInfo info) {
@@ -1109,7 +1186,19 @@ public class UserService {
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
             return ;
         }
+        if (user.getSelfInterest() == null || (user.getSelfInterest() != null && user.getSelfInterest().isEmpty())) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
         if (user.getSelfCommunicate() == null || (user.getSelfCommunicate() != null && user.getSelfCommunicate().isEmpty())) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (user.getSelfCommunicate().contains("1") && (user.getAddress() == null || (user.getAddress() != null && user.getAddress().isEmpty()))) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
+        if (user.getSelfCommunicate().contains("2") && (user.getEmail() == null || (user.getEmail() != null && user.getEmail().isEmpty()))) {
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
             return ;
         }
@@ -1199,12 +1288,43 @@ public class UserService {
 
     public BiuUserEntity initUserZipcode(BiuUserEntity user) {
         String code = "";
-        if (!user.getCountry().isEmpty()) {
-            code = user.getCountry();
-        } else if(!user.getCity().isEmpty()) {
-            code = user.getCity();
-        } else if(!user.getProvince().isEmpty()) {
-            code = user.getProvince();
+        if (user.getAddress() != null && !user.getAddress().isEmpty()) {
+            ProviderOption option = new ProviderOption();
+            Map<String, String> areaInfo = AddressTool.addressResolution(user.getAddress());
+            if (areaInfo.containsKey("county") && !areaInfo.get("county").isEmpty()) {
+                option.addCondition("area_name", areaInfo.get("county"));
+                option.addCondition("area_type", 3);
+                BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+                if (area != null) {
+                    code = area.getCode();
+                }
+            } else if (areaInfo.containsKey("city") && !areaInfo.get("city").isEmpty()) {
+                option.addCondition("area_name", areaInfo.get("city"));
+                option.addCondition("area_type", 2);
+                BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+                if (area != null) {
+                    code = area.getCode();
+                }
+            } else if (areaInfo.containsKey("province") && !areaInfo.get("province").isEmpty()) {
+                option.addCondition("area_name", areaInfo.get("province"));
+                option.addCondition("area_type", 1);
+                BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+                if (area != null) {
+                    code = area.getCode();
+                }
+            }
+        }
+        if (code.isEmpty()) {
+            if (!user.getCountry().isEmpty()) {
+                code = user.getCountry();
+            } else if(!user.getCity().isEmpty()) {
+                code = user.getCity();
+            } else if(!user.getProvince().isEmpty()) {
+                code = user.getProvince();
+            }
+        } else {
+            user.setZipcode(code);
+            return user;
         }
         if (code.isEmpty()) {
             return user;

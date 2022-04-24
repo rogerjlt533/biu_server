@@ -52,6 +52,8 @@ public class BiuMessageEntity extends BaseEntity {
     private String content = "";
     @EntityProperty(comment = "阅读状态 0-未读 1-已读")
     private int readStatus = 0;
+    @EntityProperty(comment = "内容类型")
+    private String contentType = "";
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -145,6 +147,14 @@ public class BiuMessageEntity extends BaseEntity {
 
     public void setReadStatus(int readStatus) {
         this.readStatus = readStatus;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     public Date getCreatedAt() {

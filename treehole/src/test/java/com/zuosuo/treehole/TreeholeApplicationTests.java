@@ -1,9 +1,11 @@
 package com.zuosuo.treehole;
 
+import com.qiniu.util.Json;
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.cache.redis.ListOperator;
+import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.time.DiscTime;
 import com.zuosuo.component.time.TimeTool;
@@ -14,11 +16,13 @@ import com.zuosuo.treehole.bean.UserFriendMessageBean;
 import com.zuosuo.treehole.config.MiniWechatConfig;
 import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.config.TaskOption;
+import com.zuosuo.treehole.processor.CombineAccountProcessor;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.processor.WechatProcessor;
 import com.zuosuo.treehole.service.KeywordService;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.task.UserCollectInput;
+import com.zuosuo.treehole.tool.AddressTool;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
 import net.coobird.thumbnailator.Thumbnails;
@@ -54,9 +58,31 @@ class TreeholeApplicationTests {
     private KeywordService keywordService;
     @Autowired
     private UserProcessor userProcessor;
+    @Autowired
+    private CombineAccountProcessor combineAccountProcessor;
 
     @Test
     void contextLoads() {
+//        String users = JsonTool.toJson(userProcessor.getFriendMessageUserList(232));
+//        System.out.println(users);
+//        String sql = "select * from biu_users where use_status=1 and ISNULL(deleted_at) GROUP BY openid HAVING count(*)>1;";
+//        List<Map<String, Object>> list = biuDbFactory.getUserDbFactory().getBiuUserImpl().executeList(sql);
+//        if (list.isEmpty()) {
+//            return ;
+//        }
+////        System.out.println(JsonTool.toJson(list));
+//        list.forEach(item -> combineAccountProcessor.combineUserByOpenId((String) item.get("openid")));
+
+//        String users = "234,334";
+//        List<Long> userlist = Arrays.asList(users.split(",")).stream().map(value -> Long.valueOf(value)).collect(Collectors.toList());
+//        System.out.println(userlist);
+//        List<Map<String, Object>> list = biuDbFactory.getUserDbFactory().getBiuUserImpl().executeList("select * from biu_users where use_status=1 GROUP BY openid HAVING count(*) >1;");
+//        System.out.println(list);
+//        FuncResult result = userProcessor.getUserFriendMessageList(232, 324, 1, 20);
+//        System.out.println(result.getResult());
+//        userService.removeUserFriend(232);
+//        testAddress();
+//        processUserIndex();
 //        UserFriendMessageBean bean = new UserFriendMessageBean();
 //        bean.setContent("ttttt");
 //        bean.setFriend("1234");
@@ -125,6 +151,11 @@ class TreeholeApplicationTests {
 //        System.out.println(content);
     }
 
+    private void testAddress() {
+        String str1 = "山东省青岛市黄岛区长江路街道阿里山路103号益铭别墅7号别墅";
+        System.out.println(AddressTool.addressResolution(str1));
+    }
+
     private void compressImage() {
         String uuid = "tifa";
         String ext = "jpeg";
@@ -158,6 +189,11 @@ class TreeholeApplicationTests {
 
     private void processUserIndex() {
         System.out.println("start sync");
+        ProviderOption option = new ProviderOption();
+        option.addCondition("is_penuser", 1);
+        option.setAttribute("pen_pub_msg", 1);
+        option.setWriteLog(true);
+        biuDbFactory.getUserDbFactory().getBiuUserImpl().modify(option);
         List<Long> viewList = getViewList();
         Map<Long, Long> indexList = getIndexList();
         List<Long> delList = new ArrayList<>();

@@ -84,6 +84,9 @@ public class BiuUserViewEntity extends BaseEntity {
     private int anonymous = 0;
     @EntityProperty(comment = "是否笔友 0-否 1-是")
     private int isPenuser = 0;
+    private int priMsgStatus = 0;
+    @EntityProperty(comment = "是否发送笔友注册信息 0-否 1-是")
+    private int penPubMsg = 0;
     private int collectNum = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -438,6 +441,22 @@ public class BiuUserViewEntity extends BaseEntity {
 
     public void setIsPenuser(int isPenuser) {
         this.isPenuser = isPenuser;
+    }
+
+    public int getPriMsgStatus() {
+        return priMsgStatus;
+    }
+
+    public void setPriMsgStatus(int priMsgStatus) {
+        this.priMsgStatus = priMsgStatus;
+    }
+
+    public int getPenPubMsg() {
+        return penPubMsg;
+    }
+
+    public void setPenPubMsg(int penPubMsg) {
+        this.penPubMsg = penPubMsg;
     }
 
     // 性别标签

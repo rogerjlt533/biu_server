@@ -1,11 +1,14 @@
 package com.zuosuo.treehole.processor;
 
+import com.zuosuo.biudb.entity.BiuMessageEntity;
 import com.zuosuo.biudb.entity.BiuUserEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.HttpTool;
 import com.zuosuo.treehole.config.MiniWechatConfig;
+import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.JwtTool;
@@ -14,9 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class WechatProcessor {
@@ -29,6 +34,8 @@ public class WechatProcessor {
     private BiuDbFactory biuDbFactory;
     @Autowired
     private HashTool hashTool;
+    @Autowired
+    private BiuRedisFactory biuRedisFactory;
 
     public MiniWechatConfig getMiniWechatConfig() {
         return miniWechatConfig;
@@ -58,6 +65,8 @@ public class WechatProcessor {
             if (user.getId() > 0) {
                 result.put("need_info", "1");
             }
+            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", "", SystemOption.REGISTER_NOTICE_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_IMAGE.getValue()).stream().collect(Collectors.toList()));
+            userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", "", SystemOption.REGISTER_NOTICE_PLAT_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_PLAT_IMAGE.getValue()).stream().collect(Collectors.toList()));
         } else {
             result.put("is_penuser", user.getIsPenuser());
         }
@@ -66,7 +75,9 @@ public class WechatProcessor {
         if (user.getId() > 0) {
             Map<String, String> data = new HashMap<>();
             data.put("user_id", String.valueOf(user.getId()));
-            result.put("token", new JwtTool().createToken("biu", "tree", data));
+            String token = new JwtTool().createToken("biu", "tree", data);
+            biuRedisFactory.getBiuRedisTool().getValueOperator().set(token + ":" + user.getId(), token, 86400);
+            result.put("token", token);
         } else {
             result.put("token", "");
             result.put("need_info", "0");

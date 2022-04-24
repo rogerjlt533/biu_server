@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class UserFriendMessageBean extends BaseVerifyBean {
 
-    private String friend, images, content;
+    private String friend, contentType, images, content;
 
     public String getFriend() {
         return friend != null ? friend.trim() : "";
@@ -15,6 +15,14 @@ public class UserFriendMessageBean extends BaseVerifyBean {
 
     public void setFriend(String friend) {
         this.friend = friend;
+    }
+
+    public String getContentType() {
+        return contentType != null ? contentType.trim() : "";
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     public List<String> getImages() {

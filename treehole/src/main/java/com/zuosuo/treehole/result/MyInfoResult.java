@@ -6,7 +6,7 @@ import java.util.List;
 public class MyInfoResult {
     private String id = "", desc = "", nick = "", cardno = "", username = "", penName = "", sexTag = "", image = "", title = "", introduce = "", address = "", phone = "", email = "", zipcode = "", street = "";
     private AreaInfoResult province, city, country;
-    private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0;
+    private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0, priMsgStatus = 0;
     private List<String> images;
     private MyInfoSingleResult<Integer> communicates, searchCommunicates, searchSexes;
     private MyInfoComboxResult<UserInterestResult> interests;
@@ -268,5 +268,13 @@ public class MyInfoResult {
 
     public void setIsPenuser(int isPenuser) {
         this.isPenuser = isPenuser;
+    }
+
+    public int getPriMsgStatus() {
+        return priMsgStatus;
+    }
+
+    public void setPriMsgStatus(int priMsgStatus) {
+        this.priMsgStatus = priMsgStatus;
     }
 }

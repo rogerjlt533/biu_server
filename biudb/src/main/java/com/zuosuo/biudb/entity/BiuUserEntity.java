@@ -23,6 +23,8 @@ public class BiuUserEntity extends BaseEntity {
     public static final int SEARCH_CLOSE_STATUS = 0;
     public static final int ANONYMOUS_OPEN_STATUS = 1;
     public static final int ANONYMOUS_CLOSE_STATUS = 0;
+    public static final int PRIVATE_MSG_OPEN_STATUS = 1;
+    public static final int PRIVATE_MSG_CLOSE_STATUS = 0;
     public static final int USER_SEX_MAN = 1;
     public static final int USER_SEX_WOMEN = 2;
     public static final String LABEL_USER_SEX_MAN = "男";
@@ -85,6 +87,10 @@ public class BiuUserEntity extends BaseEntity {
     private int anonymous = 0;
     @EntityProperty(comment = "是否笔友 0-否 1-是")
     private int isPenuser = 0;
+    @EntityProperty(comment = "是否开启私信 0-否 1-是")
+    private int priMsgStatus = 0;
+    @EntityProperty(comment = "是否发送笔友注册信息 0-否 1-是")
+    private int penPubMsg = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
@@ -373,6 +379,22 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setIsPenuser(int isPenuser) {
         this.isPenuser = isPenuser;
+    }
+
+    public int getPriMsgStatus() {
+        return priMsgStatus;
+    }
+
+    public void setPriMsgStatus(int priMsgStatus) {
+        this.priMsgStatus = priMsgStatus;
+    }
+
+    public int getPenPubMsg() {
+        return penPubMsg;
+    }
+
+    public void setPenPubMsg(int penPubMsg) {
+        this.penPubMsg = penPubMsg;
     }
 
     // 性别标签
