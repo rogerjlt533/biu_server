@@ -14,6 +14,9 @@ public class UserFriendMessageListBean extends BaseVerifyBean {
 
     @Override
     public VerifyResult verify() {
+        if (getFriend().isEmpty()) {
+            return new VerifyResult("缺少用户信息");
+        }
         return new VerifyResult();
     }
 }

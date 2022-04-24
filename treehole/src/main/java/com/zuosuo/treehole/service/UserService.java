@@ -549,6 +549,7 @@ public class UserService {
         message.setRelateId(relateId);
         message.setFriendId(friendId);
         message.setContentType(contentType);
+        message.setUsers(formatUserFriendMembers(sourceId, destId));
         message.setTitle(title);
         message.setBanner(banner);
         message.setContent(content);

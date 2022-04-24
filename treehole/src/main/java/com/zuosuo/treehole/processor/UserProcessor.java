@@ -1037,9 +1037,12 @@ public class UserProcessor {
             }
             unit.put("communicateInfo", communicateInfo);
             ProviderOption where = new ProviderOption();
-            where.addCondition("((source_id=" + userId + " and dest_id=" + user.getId() + ") or (source_id=" + user.getId() + " and dest_id=" + userId + "))");
+            where.addCondition("users", userService.formatUserFriendMembers(userId, user.getId()));
             where.addOrderby("created_at desc");
             BiuMessageEntity message = biuDbFactory.getUserDbFactory().getBiuMessageImpl().single(where);
+            where.addCondition("read_status", BiuMessageEntity.READ_WAITING);
+            long waiting_num = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(where);
+            unit.put("waiting_num", waiting_num);
             unit.put("disc", Long.valueOf((new Date().getTime() - message.getCreatedAt().getTime()) / 1000));
             unit.put("content_type", message.getContentType());
             if (message.getContentType().equals("image")) {
@@ -1072,7 +1075,8 @@ public class UserProcessor {
         ProviderOption option = new ProviderOption();
         option.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
         if (friendId > 0) {
-            option.addCondition("((source_id=" + userId + " and dest_id=" + friendId + ") or (source_id=" + friendId + " and dest_id=" + userId + "))");
+            option.addCondition("users", userService.formatUserFriendMembers(userId, friendId));
+//            option.addCondition("((source_id=" + userId + " and dest_id=" + friendId + ") or (source_id=" + friendId + " and dest_id=" + userId + "))");
         } else {
             option.addCondition("(source_id=" + userId + " or dest_id=" + userId + ")");
         }
@@ -1101,6 +1105,7 @@ public class UserProcessor {
             unit.put("pen_name", user.getPenName());
             unit.put("disc", Long.valueOf((new Date().getTime() - item.getCreatedAt().getTime()) / 1000));
             unit.put("content_type", item.getContentType());
+            unit.put("read_status", BiuMessageEntity.READ_OK);
             if (userId == item.getSourceId()) {
                 unit.put("image", userService.parseImage(user.getImage()));
                 unit.put("is_self", 1);
@@ -1121,6 +1126,10 @@ public class UserProcessor {
                 unit.put("content", images.isEmpty() ? "" : images.get(0));
             } else {
                 unit.put("content", item.getContent());
+            }
+            if (item.getReadStatus() == BiuMessageEntity.READ_WAITING) {
+                item.setReadStatus(BiuMessageEntity.READ_OK);
+                biuDbFactory.getUserDbFactory().getBiuMessageImpl().update(item);
             }
             result.add(unit);
         });
