@@ -488,6 +488,28 @@ public class UserService {
         return friend;
     }
 
+    /**
+     * 取消好友申请
+     * @param userId
+     * @param friendId
+     * @return
+     */
+    public int rollFriend(long userId, long friendId) {
+        BiuUserFriendEntity waiting = getUserFriend(userId, friendId, BiuUserFriendEntity.WAITING_STATUS);
+        if (waiting == null) {
+            return 0;
+        }
+        long sourceUserId = getFriendSource(waiting);
+        if (userId != sourceUserId) {
+            return -1;
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("friend_id", waiting.getId());
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().delete(waiting);
+        return 1;
+    }
+
     public void createFriendMember(long userId, long friendId, BiuUserFriendEntity friend) {
         BiuUserViewEntity user = getUserView(userId);
         BiuUserViewEntity friendUser = getUserView(friendId);
@@ -541,7 +563,7 @@ public class UserService {
         setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
     }
 
-    public void addUserMessage(long sourceId, long destId, int messageType, long relateId, long friendId, String contentType, String title, String content, String banner, List<String> images) {
+    public void addUserMessage(long sourceId, long destId, int messageType, long relateId, long friendId, int isFriend, String contentType, String title, String content, String banner, List<String> images) {
         BiuMessageEntity message = new BiuMessageEntity();
         message.setSourceId(sourceId);
         message.setDestId(destId);
@@ -553,6 +575,7 @@ public class UserService {
         message.setTitle(title);
         message.setBanner(banner);
         message.setContent(content);
+        message.setIsFriend(isFriend);
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
         setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
     }
@@ -591,6 +614,13 @@ public class UserService {
         waiting.setConfirmStatus(BiuUserFriendEntity.PASS_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
         addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), SystemOption.FRIEND_PASS_TITLE.getValue().replace("#NAME#", authUser.getPenName()), "");
+        // 陌生私信转好友私信
+        ProviderOption option = new ProviderOption();
+        option.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
+        option.addCondition("users", formatUserFriendMembers(userId, friendId));
+        option.setAttribute("is_friend", 1);
+        option.setAttribute("friend_id", waiting.getId());
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().modify(option);
         return JsonResult.success();
     }
 
@@ -674,6 +704,28 @@ public class UserService {
             }
         }
         return friendId;
+    }
+
+    /**
+     * 获取好友关系发起人
+     * @param friend
+     * @return
+     */
+    public long getFriendSource(BiuUserFriendEntity friend) {
+        if (friend == null) {
+            return 0;
+        }
+        if (friend.getConfirmStatus() != BiuUserFriendMemberEntity.WAITING_STATUS) {
+            return 0;
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("confirm_status", BiuUserFriendMemberEntity.PASS_STATUS);
+        option.addCondition("friend_id", friend.getId());
+        BiuUserFriendMemberEntity sourceUser = biuDbFactory.getUserDbFactory().getBiuUserFriendMemberImpl().single(option);
+        if (sourceUser == null) {
+            return 0;
+        }
+        return sourceUser.getUserId();
     }
 
     public boolean allowAuthFriend(BiuUserFriendEntity friend, long userId) {
@@ -770,6 +822,8 @@ public class UserService {
             unit.getCommunicateInfo().setCommunicate(friend.getCommunicateType());
             long friendId = getFriendId(friend, userId);
             unit.setFriend(encodeHash(friendId));
+            BiuUserEntity friendUser = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(friendId);
+            unit.setPriMsgStatus(friendUser != null ? friendUser.getPriMsgStatus() : 0);
             BiuUserViewEntity member = getUserView(friendId);
             if (member != null && member.getUseStatus() == BiuUserEntity.USER_AVAIL_STATUS) {
                 unit.setName(member.getPenName());
@@ -1316,21 +1370,17 @@ public class UserService {
             }
         }
         if (code.isEmpty()) {
-            if (!user.getCountry().isEmpty()) {
+            if (user.getCountry() != null && !user.getCountry().isEmpty()) {
                 code = user.getCountry();
-            } else if(!user.getCity().isEmpty()) {
+            } else if(user.getCity() != null && !user.getCity().isEmpty()) {
                 code = user.getCity();
-            } else if(!user.getProvince().isEmpty()) {
+            } else if(user.getProvince() != null && !user.getProvince().isEmpty()) {
                 code = user.getProvince();
             }
-        } else {
-            user.setZipcode(code);
-            return user;
         }
         if (code.isEmpty()) {
             return user;
         }
-        System.out.println(code);
         ProviderOption option = new ProviderOption();
         option.addCondition("code", code);
         BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);

@@ -355,7 +355,7 @@ public class UserController {
      */
     @PostMapping("/api/user/friend/message/users")
     @Login
-    public JsonResult getPrivateMessageUserList(HttpServletRequest request) {
-        return new PrivateMessageUserListAction(request, userProcessor).run();
+    public JsonResult getPrivateMessageUserList(HttpServletRequest request, @RequestBody PrivateMessageUserListBean bean) {
+        return new PrivateMessageUserListAction(request, bean, userProcessor).run();
     }
 }

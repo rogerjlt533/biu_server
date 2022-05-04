@@ -10,7 +10,8 @@ import java.util.stream.Collectors;
 
 public class UserInfoBean extends BaseVerifyBean {
 
-    private String method, nick, image, penName, username, phone, email, zipcode, title, introduce, address, province, city, country, street, images, search_sexes, communicates, search_communicates, interests;
+    private String method, nick, image, penName, username, phone, email, zipcode, title, introduce, address, province, city,
+            country, street, images, search_sexes, communicates, search_communicates, interests, source;
     private int sex, birthdayYear, startAge, endAge;
 
     public List<String> getMethod() {
@@ -135,6 +136,14 @@ public class UserInfoBean extends BaseVerifyBean {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public List<String> getImages() {

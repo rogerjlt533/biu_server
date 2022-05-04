@@ -9,6 +9,7 @@ public class ApplyFriendBean extends BaseVerifyBean {
     public static final String PASS = "pass";
     public static final String REFUSE = "refuse";
     public static final String CANCEL = "cancel";
+    public static final String ROLL = "roll";
 
     private String method, friend;
     private int communicate = 0;
@@ -46,7 +47,7 @@ public class ApplyFriendBean extends BaseVerifyBean {
         if (method.equals(ApplyFriendBean.APPLY) && getCommunicate() == 0) {
             return new VerifyResult("通讯方式不能为空");
         }
-        if (!Arrays.asList(ApplyFriendBean.APPLY, ApplyFriendBean.PASS, ApplyFriendBean.REFUSE, ApplyFriendBean.COMMUNICATE, ApplyFriendBean.CANCEL).contains(method)) {
+        if (!Arrays.asList(ApplyFriendBean.APPLY, ApplyFriendBean.PASS, ApplyFriendBean.REFUSE, ApplyFriendBean.COMMUNICATE, ApplyFriendBean.CANCEL, ApplyFriendBean.ROLL).contains(method)) {
             return new VerifyResult("操作类型不匹配");
         }
         if (getFriend().isEmpty()) {

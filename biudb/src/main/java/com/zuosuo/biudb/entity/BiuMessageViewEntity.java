@@ -56,6 +56,8 @@ public class BiuMessageViewEntity extends BaseEntity {
     private String contentType = "";
     @EntityProperty(comment = "关联用户")
     private String users = "";
+    @EntityProperty(comment = "是否笔友关系 0-否 1-是")
+    private int isFriend = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -165,6 +167,14 @@ public class BiuMessageViewEntity extends BaseEntity {
 
     public void setUsers(String users) {
         this.users = users;
+    }
+
+    public int getIsFriend() {
+        return isFriend;
+    }
+
+    public void setIsFriend(int isFriend) {
+        this.isFriend = isFriend;
     }
 
     public Date getCreatedAt() {

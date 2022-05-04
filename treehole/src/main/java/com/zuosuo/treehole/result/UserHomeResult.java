@@ -9,7 +9,7 @@ public class UserHomeResult {
     private List<String> images;
     private MyInfoSingleResult<Integer> communicate;
     private List<UserInterestResult> interests;
-    private int self, collect, black, friend, allowCollect, allowFriend, cancelFriend, allowOperateApply, priMsgStatus;
+    private int self, collect, black, friend, allowCollect, allowFriend, cancelFriend, rollFriend, allowOperateApply, priMsgStatus;
 
     public UserHomeResult() {
         images = new ArrayList<>();
@@ -199,6 +199,14 @@ public class UserHomeResult {
 
     public void setCancelFriend(int cancelFriend) {
         this.cancelFriend = cancelFriend;
+    }
+
+    public int getRollFriend() {
+        return rollFriend;
+    }
+
+    public void setRollFriend(int rollFriend) {
+        this.rollFriend = rollFriend;
     }
 
     public int getAllowOperateApply() {

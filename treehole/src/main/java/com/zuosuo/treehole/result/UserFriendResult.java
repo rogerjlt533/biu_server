@@ -3,6 +3,7 @@ package com.zuosuo.treehole.result;
 public class UserFriendResult {
     private String id, friend, name, image, desc;
     private UserFriendCommunicateInfo communicateInfo;
+    private int priMsgStatus;
 
     public UserFriendResult() {
         communicateInfo = new UserFriendCommunicateInfo();
@@ -54,5 +55,13 @@ public class UserFriendResult {
 
     public void setCommunicateInfo(UserFriendCommunicateInfo communicateInfo) {
         this.communicateInfo = communicateInfo;
+    }
+
+    public int getPriMsgStatus() {
+        return priMsgStatus;
+    }
+
+    public void setPriMsgStatus(int priMsgStatus) {
+        this.priMsgStatus = priMsgStatus;
     }
 }

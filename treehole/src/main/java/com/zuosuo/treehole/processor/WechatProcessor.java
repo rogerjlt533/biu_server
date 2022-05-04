@@ -49,7 +49,17 @@ public class WechatProcessor {
         result.put("is_penuser", 0);
         String openid = session.getOpenid();
         String unionid = session.getUnionid();
-        BiuUserEntity user = userService.getUserByOpenid(openid);
+        String openidKey = SystemOption.USER_OPENID_KEY.getValue().replace("#OPENID#", openid);
+        FuncResult opencache = biuRedisFactory.getBiuRedisTool().getValueOperator().get(openidKey, Long.class);
+        BiuUserEntity user = null;
+        if (opencache.isStatus() && (long) opencache.getResult() > 0) {
+            user = userService.find((long) opencache.getResult());
+        } else {
+            user = userService.getUserByOpenid(openid);
+            if (user != null) {
+                biuRedisFactory.getBiuRedisTool().getValueOperator().set(openidKey, user.getId());
+            }
+        }
         if (user == null) {
             user = new BiuUserEntity();
             user.setUsername("");
@@ -65,6 +75,7 @@ public class WechatProcessor {
             if (user.getId() > 0) {
                 result.put("need_info", "1");
             }
+            biuRedisFactory.getBiuRedisTool().getValueOperator().set(openidKey, user.getId());
             userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "欢迎加入BIU笔友", "", SystemOption.REGISTER_NOTICE_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_IMAGE.getValue()).stream().collect(Collectors.toList()));
             userService.addUserMessage(0, user.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "平台注意事项", "", SystemOption.REGISTER_NOTICE_PLAT_BANNER.getValue(), Arrays.asList(SystemOption.REGISTER_NOTICE_PLAT_IMAGE.getValue()).stream().collect(Collectors.toList()));
         } else {

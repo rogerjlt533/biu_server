@@ -23,7 +23,7 @@ public class UserFriendMessageListAction extends BaseAction {
     @Override
     public JsonDataResult<Map> run() {
         long friendId = bean.getFriend().isEmpty() ? 0 : userProcessor.decodeHash(bean.getFriend());
-        FuncResult getResult = userProcessor.getUserFriendMessageList(getLoginInfoBean().getUserId(), friendId, bean.getPage(), bean.getSize());
+        FuncResult getResult = userProcessor.getUserFriendMessageList(getLoginInfoBean().getUserId(), friendId, bean.getIsFriend(), bean.getRead(), bean.getPage(), bean.getSize());
         return JsonDataResult.success((Map) getResult.getResult());
     }
 }

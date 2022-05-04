@@ -463,13 +463,22 @@ public class UserProcessor {
                 BiuUserFriendEntity waiting = userService.getUserFriend(guestId, userId, BiuUserFriendEntity.WAITING_STATUS);
                 if (waiting != null) {
                     result.setFriend(2);
-                    result.setFriendTag("申请中");
                     result.setFriendHash(encodeHash(userId));
-                    // 是否允许进行好友审核操作
-                    result.setAllowOperateApply(userService.allowAuthFriend(waiting, guestId) ? 1 : 0);
+                    long sourceUserId = userService.getFriendSource(waiting);
+                    if (sourceUserId == guestId) {
+                        result.setFriendTag("取消申请");
+                        // 允许取消好友申请
+                        result.setRollFriend(1);
+                    } else {
+                        result.setFriendTag("申请中");
+                        // 是否允许进行好友审核操作
+                        result.setAllowOperateApply(userService.allowAuthFriend(waiting, guestId) ? 1 : 0);
+                    }
                     hide = 0;
                 } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_OPEN_STATUS) {
                     result.setAllowFriend(1);
+                    result.setFriendTag("申请好友");
+                } else if(user.getSearchStatus() == BiuUserViewEntity.SEARCH_CLOSE_STATUS) {
                     result.setFriendTag("申请好友");
                 }
             }
@@ -478,14 +487,13 @@ public class UserProcessor {
         result.setTitle(user.getTitle());
         result.setIntroduce(user.getIntroduce());
         result.setPriMsgStatus(user.getPriMsgStatus());
+        result.setName(user.getPenName());
         if (hide > 0) {
-            result.setName(userService.createRandomNickName());
             result.setDesc("保密");
             result.setProvince("保密");
             result.setSex("保密");
             result.setAge("保密");
         } else {
-            result.setName(user.getPenName());
             List<String> desc = new ArrayList<>();
             if (!areaService.getArea(user.getProvince()).isEmpty()) {
                 result.setProvince(areaService.getArea(user.getProvince()));
@@ -655,7 +663,11 @@ public class UserProcessor {
         if (bean.getMethod().contains("search_communicate")) {
             userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
         }
-        userService.initUserPenStatus(user);
+        if (bean.getSource() != null && bean.getSource().equals("hole")) {
+
+        } else {
+            userService.initUserPenStatus(user);
+        }
         userService.syncUserIndex(user.getId());
         return new FuncResult(true);
     }
@@ -751,8 +763,23 @@ public class UserProcessor {
             return new FuncResult(false, "不能是同一人");
         }
         if (method.equals(ApplyFriendBean.APPLY)) {
+            BiuUserEntity friendUser = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(friendId);
+            if (friendUser.getSearchStatus() != BiuUserEntity.SEARCH_OPEN_STATUS) {
+                return new FuncResult(false, "笔友未开启寻友模式");
+            }
             userService.applyFriend(userId, friendId, bean.getCommunicate());
             return new FuncResult(true);
+        } else if(method.equals(ApplyFriendBean.ROLL)) {
+            int res = userService.rollFriend(userId, friendId);
+            if (res == 0) {
+                return new FuncResult(false, "非好友申请状态");
+            } else if(res == -1) {
+                return new FuncResult(false, "非发起人本人操作");
+            } else if(res == 1) {
+                return new FuncResult(true);
+            } else {
+                return new FuncResult(false, "操作失败");
+            }
         } else if(method.equals(ApplyFriendBean.COMMUNICATE)) {
             List<FriendCommunicateInfo> list = userService.getFriendCommunicateList(Arrays.asList(userId, friendId));
             return new FuncResult(true, "", list);
@@ -963,43 +990,59 @@ public class UserProcessor {
             return new FuncResult(false, "未开启私信功能");
         }
         long friendRelateId = 0;
+        int isFriend = 0;
         BiuUserFriendEntity friend = userService.getUserFriend(userId, friendId, BiuUserFriendEntity.PASS_STATUS);
         if (friend != null) {
             friendRelateId = friend.getId();
+            isFriend = 1;
+//            Optional<String> optional = Arrays.asList(friend.getUsers().split(",")).stream().filter(item -> !item.equals(String.valueOf(userId))).findFirst();
+//            if (!optional.isPresent()) {
+//                return new FuncResult(false, "好友用户无效");
+//            }
         }
-//        Optional<String> optional = Arrays.asList(friend.getUsers().split(",")).stream().filter(item -> !item.equals(String.valueOf(userId))).findFirst();
-//        if (!optional.isPresent()) {
-//            return new FuncResult(false, "好友用户无效");
-//        }
-//        String messageKey = SystemOption.PRIVATE_MESSAGE_FRIEND_LIMIT.getValue().replace("#DATE#", TimeTool.formatDate(new Date(), TimeFormat.DEFAULT_DATE.getValue()))
-//                                .replace("#USERID#", String.valueOf(userId)).replace("#FRIENDID#", String.valueOf(friendId));
-//        FuncResult redis_result = biuRedisFactory.getBiuRedisTool().getValueOperator().get(messageKey, Integer.class);
-//        if (!redis_result.isStatus()) {
-//            biuRedisFactory.getBiuRedisTool().getValueOperator().set(messageKey, 1, 86400);
-//        } else if (((int) redis_result.getResult()) < 3) {
-//            biuRedisFactory.getBiuRedisTool().getValueOperator().increment(messageKey, 1, 86400);
-//        } else {
-//            return new FuncResult(false, "已超过发送次数");
-//        }
-        userService.addUserMessage(userId, friendId, BiuMessageEntity.PRIVATE_MESSAGE, 0, friendRelateId, bean.getContentType(), "", bean.getContent(), "", bean.getImages());
+        String messageKey = SystemOption.PRIVATE_MESSAGE_FRIEND_LIMIT.getValue().replace("#DATE#", TimeTool.formatDate(new Date(), TimeFormat.DEFAULT_DATE.getValue()))
+                                .replace("#USERID#", String.valueOf(userId)).replace("#FRIENDID#", String.valueOf(friendId));
+        FuncResult redis_result = biuRedisFactory.getBiuRedisTool().getValueOperator().get(messageKey, Integer.class);
+        if (!redis_result.isStatus()) {
+            biuRedisFactory.getBiuRedisTool().getValueOperator().set(messageKey, 1, 86400);
+        } else if (((int) redis_result.getResult()) < 3) {
+            biuRedisFactory.getBiuRedisTool().getValueOperator().increment(messageKey, 1, 86400);
+        } else {
+            return new FuncResult(false, "已超过发送次数");
+        }
+        userService.addUserMessage(userId, friendId, BiuMessageEntity.PRIVATE_MESSAGE, 0, friendRelateId, isFriend, bean.getContentType(), "", bean.getContent(), "", bean.getImages());
         return new FuncResult(true);
     }
 
     /**
      * 获取私信笔友列表
      * @param userId
+     * @param checkIsFriend 0-全部 1-好友 2-陌生
+     * @param read 0-未读 1-已读 2-全部
      * @return
      */
-    public FuncResult getFriendMessageUserList(long userId) {
+    public FuncResult getFriendMessageUserList(long userId, int checkIsFriend, int read) {
         ProviderOption messageWhere = new ProviderOption();
         messageWhere.setColumns("distinct source_id");
         messageWhere.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
         messageWhere.addCondition("dest_id", userId);
+        if (checkIsFriend != 2) {
+            messageWhere.addCondition("is_friend", checkIsFriend);
+        }
+        if (read < 2) {
+            messageWhere.addCondition("read_status", read);
+        }
         List<Long> friendList = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(messageWhere).stream().map(item -> item.getSourceId()).collect(Collectors.toList());
         messageWhere = new ProviderOption();
         messageWhere.setColumns("distinct dest_id");
         messageWhere.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
         messageWhere.addCondition("source_id", userId);
+        if (checkIsFriend != 2) {
+            messageWhere.addCondition("is_friend", checkIsFriend);
+        }
+        if (read < 2) {
+            messageWhere.addCondition("read_status", read);
+        }
         List<Long> destList = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(messageWhere).stream().map(item -> item.getDestId()).collect(Collectors.toList());
         friendList.addAll(destList);
         if (friendList.isEmpty()) {
@@ -1020,6 +1063,7 @@ public class UserProcessor {
             unit.put("name", user.getPenName());
             unit.put("image", userService.parseImage(user.getImage()));
             unit.put("desc", userService.getUserDesc(userView));
+            unit.put("priMsgStatus", userView != null ? userView.getPriMsgStatus() : 0);
             BiuUserFriendEntity friend = userService.getUserFriend(userId, user.getId(), BiuUserFriendEntity.PASS_STATUS);
             if (friend != null) {
                 unit.put("friend", encodeHash(friend.getId()));
@@ -1044,14 +1088,17 @@ public class UserProcessor {
             ProviderOption where = new ProviderOption();
             where.addCondition("users", userService.formatUserFriendMembers(userId, user.getId()));
             where.addOrderby("created_at desc");
-            where.setWriteLog(true);
             BiuMessageEntity message = biuDbFactory.getUserDbFactory().getBiuMessageImpl().single(where);
+//            message.setReadStatus(BiuMessageEntity.READ_OK);
+//            biuDbFactory.getUserDbFactory().getBiuMessageImpl().update(message);
             where.addCondition("read_status", BiuMessageEntity.READ_WAITING);
             long waiting_num = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(where);
             unit.put("waiting_num", waiting_num);
             unit.put("disc", Long.valueOf((new Date().getTime() - message.getCreatedAt().getTime()) / 1000));
             System.out.println(JsonTool.toJson(message));
-            unit.put("content_type", message.getContentType());
+            unit.put("contentType", message.getContentType());
+            unit.put("read_status", message.getReadStatus());
+            unit.put("isFriend", message.getIsFriend());
             if (message.getContentType().equals("image")) {
                 ProviderOption imageWhere = new ProviderOption();
                 imageWhere.addCondition("use_type", BiuUserImageEntity.USE_TYPE_MESSAGE);
@@ -1072,7 +1119,7 @@ public class UserProcessor {
         }});
     }
 
-    public FuncResult getUserFriendMessageList(long userId, long friendId, long page, int size) {
+    public FuncResult getUserFriendMessageList(long userId, long friendId, int checkIsFriend, int read, long page, int size) {
         Map<String, Object> result = new HashMap<String, Object>() {{
             put("page", PageTool.parsePage(page));
             put("size", size);
@@ -1087,10 +1134,16 @@ public class UserProcessor {
         } else {
             option.addCondition("(source_id=" + userId + " or dest_id=" + userId + ")");
         }
+        if (read < 2) {
+            option.addCondition("read_status", read);
+        }
+//        if (checkIsFriend != 2) {
+//            option.addCondition("is_friend", checkIsFriend);
+//        }
 //        option.setWriteLog(true);
         option.setUsePager(true);
         option.setOffset(PageTool.parsePage(page), size + 1);
-        option.addOrderby("created_at asc");
+        option.addOrderby("created_at desc");
         List<BiuMessageEntity> rows = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(option);
         if (rows.size() > size) {
             rows.remove(rows.size() - 1);
@@ -1111,7 +1164,7 @@ public class UserProcessor {
             unit.put("id", encodeHash(item.getSourceId()));
             unit.put("pen_name", user.getPenName());
             unit.put("disc", Long.valueOf((new Date().getTime() - item.getCreatedAt().getTime()) / 1000));
-            unit.put("content_type", item.getContentType());
+            unit.put("contentType", item.getContentType());
             unit.put("read_status", BiuMessageEntity.READ_OK);
             if (userId == item.getSourceId()) {
                 unit.put("image", userService.parseImage(user.getImage()));
@@ -1122,6 +1175,7 @@ public class UserProcessor {
                     unit.put("image", userService.parseImage(sourceUser.getImage()));
                 }
             }
+            unit.put("isFriend", item.getIsFriend());
             if (item.getContentType().equals("image")) {
                 ProviderOption imageWhere = new ProviderOption();
                 imageWhere.addCondition("use_type", BiuUserImageEntity.USE_TYPE_MESSAGE);
@@ -1542,8 +1596,9 @@ public class UserProcessor {
         }
 
         option.setUsePager(true);
+//        option.setWriteLog(true);
         option.addOrderby("id desc");
-        option.setOffset(bean.getPage(), bean.getSize());
+//        option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
         BiuHoleNoteViewImpl viewImpl = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl();
         List<BiuHoleNoteViewEntity> rows = viewImpl.list(option);
@@ -1814,6 +1869,7 @@ public class UserProcessor {
         entity.setNoteId(noteId);
         entity.setContent(content);
         entity.setCommentUserid(note.getUserId());
+        entity.setTopComment(0);
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
         if (userId != note.getUserId()) {
             userService.addNoteCommentMessage(userId, note.getUserId(), note.getId());
@@ -1850,6 +1906,7 @@ public class UserProcessor {
         entity.setCommentId(commentId);
         entity.setContent(content);
         entity.setCommentUserid(comment.getUserId());
+        entity.setTopComment(comment.getTopComment() > 0 ? comment.getTopComment() : comment.getId());
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
         if (userId != comment.getUserId()) {
             userService.addNoteCommentReplyMessage(userId, comment.getUserId(), comment.getId());
@@ -1861,6 +1918,7 @@ public class UserProcessor {
     }
 
     public FuncResult getCommentList(long userId, NoteCommentListBean bean) {
+        BiuUserViewEntity user = userService.getUserView(userId);
         Map<String, Object> result = new HashMap<>();
         result.put("page", PageTool.parsePage(bean.getPage()));
         result.put("size", bean.getSize());
@@ -1888,9 +1946,12 @@ public class UserProcessor {
                 option.addCondition("id>" + last);
             }
         }
+        if (user != null && user.getProtectedUser() != null && !user.getProtectedUser().isEmpty()) {
+            option.addCondition("user_id not in (" + user.getProtectedUser().replaceAll("'", "") + ")");
+        }
         option.setUsePager(true);
         option.addOrderby("id " + bean.getOrderby());
-        option.setOffset(bean.getPage(), bean.getSize());
+//        option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
         BiuHoleNoteCommentViewImpl commentImpl = biuDbFactory.getHoleDbFactory().getHoleNoteCommentViewImpl();
         List<BiuHoleNoteCommentViewEntity> rows = commentImpl.list(option);
@@ -1911,24 +1972,27 @@ public class UserProcessor {
         List<Map> list = new ArrayList<>();
         BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
         rows.forEach(item -> {
-            BiuUserEntity commentUser = userImpl.find(item.getCommentUserid());
             BiuUserEntity user = userImpl.find(item.getUserId());
             Map<String, Object> unit = new HashMap<>();
             unit.put("comment_id", encodeHash(item.getId()));
             unit.put("note_id", encodeHash(item.getNoteId()));
-            if (item.getCommentId() > 0) {
-                if (commentUser.getId() == noteEntity.getUserId() && noteEntity.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
-                    unit.put("title", "@" + userService.createRandomNickName());
-                } else {
-                    unit.put("title", "@" + commentUser.getPenName());
-                }
+            List<String> titleList = new ArrayList<>();
+            if (item.getUserId() == noteEntity.getUserId() && noteEntity.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+                titleList.add(userService.createRandomNickName());
+                unit.put("send_user", userService.createRandomNickName());
             } else {
-                if (item.getUserId() == noteEntity.getUserId() && noteEntity.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
-                    unit.put("title", userService.createRandomNickName());
-                } else {
-                    unit.put("title", user.getPenName());
-                }
+                titleList.add(user.getPenName());
+                unit.put("send_user", user.getPenName());
             }
+            BiuUserEntity commentUser = userImpl.find(item.getCommentUserid());
+            if (item.getUserId() == item.getCommentUserid()) {
+
+            } else  if (commentUser.getId() == noteEntity.getUserId() && noteEntity.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+                titleList.add(userService.createRandomNickName());
+            } else {
+                titleList.add(commentUser.getPenName());
+            }
+            unit.put("title", titleList.stream().collect(Collectors.joining("@")));
             unit.put("content", item.getContent());
             unit.put("create_time", TimeTool.formatDate(item.getCreatedAt(), "yyyy/MM/dd HH:mm:ss"));
             list.add(unit);
@@ -1947,6 +2011,8 @@ public class UserProcessor {
         }
         user.setUseStatus(BiuUserEntity.USER_INVAIL_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        String openidKey = SystemOption.USER_OPENID_KEY.getValue().replace("#OPENID#", user.getOpenid());
+        biuRedisFactory.getBiuRedisTool().delete(Arrays.asList(openidKey));
         // 删除用户树洞相关信息
         removeUserNote(userId);
         // 删除用户好友相关记录

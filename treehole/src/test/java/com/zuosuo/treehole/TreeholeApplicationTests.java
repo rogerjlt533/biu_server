@@ -63,6 +63,12 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+//        sendUpdateMessage();
+        // 评论同步顶级评论
+//        processCommentTop();
+        // 笔友信息同步
+//        processUserIsPen();
+
 //        String users = JsonTool.toJson(userProcessor.getFriendMessageUserList(232));
 //        System.out.println(users);
 //        String sql = "select * from biu_users where use_status=1 and ISNULL(deleted_at) GROUP BY openid HAVING count(*)>1;";
@@ -149,6 +155,52 @@ class TreeholeApplicationTests {
 //        } catch (IOException e) {
 //        }
 //        System.out.println(content);
+    }
+
+    private void sendUpdateMessage() {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("use_status", 1);
+        List<BiuUserEntity> users = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(option);
+        users.forEach(item -> {
+            userService.addUserMessage(0, item.getId(), BiuMessageEntity.PUBLIC_UPDATE, 0, "平台重大更新", "同志们晚上咱们重大更新，各种完善需求，必须得停服才能更新，大约晚上（万一更新崩溃了，估计明个你们看还是老样子，幸运的话各种功能就都有了）\n" +
+                    "祈祷中。。。");
+        });
+    }
+
+    private void processUserIsPen() {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("use_status", 1);
+        option.addCondition("is_penuser", 1);
+        List<BiuUserEntity> users = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(option);
+        users.forEach(item -> {
+            userService.initUserPenStatus(item);
+            userService.execSyncUserIndex(item.getId());
+            System.out.println(item.getId());
+        });
+    }
+
+    private void processCommentTop() {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("comment_id", 0);
+        List<BiuHoleNoteCommentEntity> list = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().list(option);
+        list.forEach(item -> {
+            item.setTopComment(0);
+            biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().update(item);
+            System.out.println(item.getId() + ": " + item.getTopComment());
+            processCommentTree(item, item.getId());
+        });
+    }
+
+    private void processCommentTree(BiuHoleNoteCommentEntity comment, long top) {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("comment_id", comment.getId());
+        List<BiuHoleNoteCommentEntity> list = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().list(option);
+        list.forEach(item -> {
+            item.setTopComment(top);
+            biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().update(item);
+            processCommentTree(item, top);
+            System.out.println(item.getId() + ": " + item.getTopComment());
+        });
     }
 
     private void testAddress() {
