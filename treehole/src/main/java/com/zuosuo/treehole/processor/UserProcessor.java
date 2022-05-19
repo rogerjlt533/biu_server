@@ -616,6 +616,8 @@ public class UserProcessor {
         if (bean.getMethod().contains("province")) {
             user.setProvince(bean.getProvince());
             areas.add(bean.getProvince());
+        } else if (!user.getProvince().isEmpty()) {
+            areas.add(user.getProvince());
         }
         if (bean.getMethod().contains("username")) {
             if (!bean.getUsername().isEmpty() && !keywordService.verifyKeyword(bean.getUsername())) {
@@ -629,14 +631,20 @@ public class UserProcessor {
         if (bean.getMethod().contains("city")) {
             user.setCity(bean.getCity());
             areas.add(bean.getCity());
+        } else if (!user.getCity().isEmpty()) {
+            areas.add(user.getCity());
         }
         if (bean.getMethod().contains("country")) {
             user.setCountry(bean.getCountry());
             areas.add(bean.getCountry());
+        } else if (!user.getCountry().isEmpty()) {
+            areas.add(user.getCountry());
         }
         if (bean.getMethod().contains("street")) {
             user.setStreet(bean.getStreet());
             areas.add(bean.getStreet());
+        } else if (!user.getStreet().isEmpty()) {
+            areas.add(user.getStreet());
         }
         if (!areaService.verifyAreaList(areas)) {
             return new FuncResult(false, "地区选择有误");
