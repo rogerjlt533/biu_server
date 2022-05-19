@@ -612,6 +612,8 @@ public class UserProcessor {
         if (bean.getMethod().contains("nation")) {
             user.setNation(bean.getNation());
             areas.add(bean.getNation());
+        } else if (!user.getNation().isEmpty()) {
+            areas.add(user.getNation());
         }
         if (bean.getMethod().contains("province")) {
             user.setProvince(bean.getProvince());
