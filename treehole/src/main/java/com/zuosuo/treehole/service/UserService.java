@@ -836,20 +836,23 @@ public class UserService {
     public String getUserAddress(long userId) {
         BiuUserViewEntity user = getUserView(userId);
         List<String> address = new ArrayList<>();
-        String province = areaService.getArea(user.getProvince());
-        if (!province.isEmpty()) {
-            address.add(province);
-        }
-        String city = areaService.getArea(user.getCity());
-        if (!city.isEmpty()) {
-            address.add(city);
-        }
-        String country = areaService.getArea(user.getCountry());
-        if (!country.isEmpty()) {
-            address.add(country);
-        }
+//        String province = areaService.getArea(user.getProvince());
+//        if (!province.isEmpty()) {
+//            address.add(province);
+//        }
+//        String city = areaService.getArea(user.getCity());
+//        if (!city.isEmpty()) {
+//            address.add(city);
+//        }
+//        String country = areaService.getArea(user.getCountry());
+//        if (!country.isEmpty()) {
+//            address.add(country);
+//        }
         if (!user.getAddress().isEmpty()) {
             address.add(user.getAddress());
+        }
+        if (!user.getStreet().isEmpty()) {
+            address.add(user.getStreet());
         }
         return String.join("", address);
     }
