@@ -18,6 +18,8 @@ public class BiuInterestEntity extends BaseEntity {
     private long id;
     @EntityProperty(comment = "兴趣爱好标签")
     private String tag = "";
+    @EntityProperty(comment = "兴趣爱好分组")
+    private int tagGroup = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -39,6 +41,14 @@ public class BiuInterestEntity extends BaseEntity {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public int getTagGroup() {
+        return tagGroup;
+    }
+
+    public void setTagGroup(int tagGroup) {
+        this.tagGroup = tagGroup;
     }
 
     public Date getCreatedAt() {

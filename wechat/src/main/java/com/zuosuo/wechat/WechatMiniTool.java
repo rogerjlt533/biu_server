@@ -28,7 +28,7 @@ public class WechatMiniTool {
             return null;
         }
 //        content = "{\"session_key\":\"1122\",\"openid\":\"1122\"}";
-//        content = "{\"session_key\":\"1122\",\"openid\":\"owHl_5J80GHXpCfVXl0J1M6iauXY\"}";
+//        content = "{\"session_key\":\"1122\",\"openid\":\"owHl_5BKDduB2Rdrt5ya2dMbHay0\"}";
         JSONObject obj = JSONObject.parseObject(content);
         int errcode = obj.getInteger("errcode") != null ? obj.getInteger("errcode") : 0;
         String errmsg = obj.getString("errmsg") != null ? obj.getString("errmsg") : "";

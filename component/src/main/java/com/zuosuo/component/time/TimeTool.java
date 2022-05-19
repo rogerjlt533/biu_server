@@ -78,4 +78,33 @@ public class TimeTool {
         }
         return formatDate(date);
     }
+
+    public static final String friendlyMessageTime(Date date) {
+        if (date == null) {
+            return "";
+        }
+        Date now = new Date();
+        long discTime = (now.getTime() - date.getTime()) / 1000;
+        if (discTime < 0) {
+            return "穿越了!";
+        }
+        long discMinutes = Long.parseLong(String.valueOf(discTime / 60));
+        long discHours = Long.parseLong(String.valueOf(discTime / 3600));
+        long discDays = Long.parseLong(String.valueOf(discTime / 86400));
+        if (discTime <= 30) {
+            return "刚刚";
+        } else if(discMinutes < 60) {
+            return discMinutes + "分钟前";
+        } else if(discDays == 0) {
+            return discHours + "小时前";
+        } else if(discDays < 7) {
+            return discDays + "天前";
+        }
+        String dateTime = formatDate(date, TimeFormat.DEFAULT_DATE.getValue());
+        String[] dateList = dateTime.split("-");
+        if (dateList[0].equals(String.valueOf(Calendar.getInstance().get(Calendar.YEAR)))) {
+            return formatDate(date, "MM-dd");
+        }
+        return dateTime;
+    }
 }

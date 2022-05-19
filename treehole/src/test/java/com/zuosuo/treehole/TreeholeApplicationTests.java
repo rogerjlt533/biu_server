@@ -19,6 +19,7 @@ import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.processor.CombineAccountProcessor;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.processor.WechatProcessor;
+import com.zuosuo.treehole.result.UserInterestResult;
 import com.zuosuo.treehole.service.KeywordService;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.task.UserCollectInput;
@@ -63,6 +64,18 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+//        List<List<UserInterestResult>> result = userService.getGroupInterestList(232);
+//        System.out.println(JsonTool.toJson(result));
+//        System.out.println(userProcessor.decodeHash("6akJ"));
+//        userProcessor.removeUserFriendSession(856,232);
+//        Calendar date = Caslendar.getInstance();
+//        String year = String.valueOf(date.get(Calendar.YEAR));
+//        System.out.println(year);
+//        FuncResult res = userProcessor.getFriendMessageUserList(856, 2, 2);
+//        System.out.println(JsonTool.toJson(res));
+//        FuncResult res = userProcessor.getUserFriendMessageList(232, 0, 0, 2, 1, 10);
+//        System.out.println(JsonTool.toJson(res));
+//        processUserFriendMessageRelate();
 //        sendUpdateMessage();
         // 评论同步顶级评论
 //        processCommentTop();
@@ -155,6 +168,31 @@ class TreeholeApplicationTests {
 //        } catch (IOException e) {
 //        }
 //        System.out.println(content);
+    }
+
+    private void processUserFriendMessageRelate() {
+        ProviderOption option = new ProviderOption();
+        option.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
+        List<BiuMessageEntity> list = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(option);
+        list.forEach(item -> {
+            long sourceId = item.getSourceId();
+            long destId = item.getDestId();
+            long messageId = item.getId();
+            Arrays.asList(sourceId, destId).forEach(userId -> {
+                ProviderOption where = new ProviderOption();
+                where.addCondition("user_id", userId);
+                where.addCondition("message_id", messageId);
+                BiuUserFriendMessageEntity relate = biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().single(where);
+                if (relate == null) {
+                    relate = new BiuUserFriendMessageEntity();
+                    relate.setUserId(userId);
+                    relate.setFriendId(item.getFriendId());
+                    relate.setMessageId(messageId);
+                    relate.setUsers(item.getUsers());
+                    biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().insert(relate);
+                }
+            });
+        });
     }
 
     private void sendUpdateMessage() {

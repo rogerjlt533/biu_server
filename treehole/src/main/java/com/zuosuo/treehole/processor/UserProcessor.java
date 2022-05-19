@@ -26,6 +26,7 @@ import com.zuosuo.treehole.tool.HashTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -102,14 +103,14 @@ public class UserProcessor {
         if (ages != null) {
             option.addCondition("age>=" + ages[0] + " and age<=" + ages[1]);
         }
-        BiuUserEntity lastUser = null;
-        String last = bean.getLast();
-        if (!last.isEmpty()) {
-            long lastId = decodeHash(last);
-            if (lastId > 0) {
-                lastUser = userService.find(lastId);
-            }
-        }
+//        BiuUserEntity lastUser = null;
+//        String last = bean.getLast();
+//        if (!last.isEmpty()) {
+//            long lastId = decodeHash(last);
+//            if (lastId > 0) {
+//                lastUser = userService.find(lastId);
+//            }
+//        }
         if(user != null && bean.getMethod() == UserListBean.RECOMMEND) {
             int self_age = user.getAge();
             if (self_age > 0) {
@@ -145,9 +146,9 @@ public class UserProcessor {
         // 两周内登录的
 //        option.addCondition("sort_time>='" + TimeTool.formatDate(TimeTool.getOffsetDate(new Date(), new DiscTime().setDay(-14))) + "'");
         // 最后记录排重
-        if (lastUser != null) {
-            option.addCondition("sort_time<'" + TimeTool.formatDate(lastUser.getSortTime()) + "'");
-        }
+//        if (lastUser != null) {
+//            option.addCondition("sort_time<'" + TimeTool.formatDate(lastUser.getSortTime()) + "'");
+//        }
         option.addOrderby("sort_time desc");
         option.setOffset(PageTool.getOffset(bean.getPage(), bean.getSize()));
         option.setLimit(bean.getSize() + 1);
@@ -664,7 +665,8 @@ public class UserProcessor {
             userService.setUserCommunicate(userId, BiuUserCommunicateEntity.USE_TYPE_SEARCH, bean.getSearch_communicates());
         }
         if (bean.getSource() != null && bean.getSource().equals("hole")) {
-
+            user.setPriMsgStatus(BiuUserEntity.PRIVATE_MSG_OPEN_STATUS);
+            biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         } else {
             userService.initUserPenStatus(user);
         }
@@ -979,6 +981,10 @@ public class UserProcessor {
      * @return
      */
     public FuncResult sendUserFriendMessage(long userId, long friendId, UserFriendMessageBean bean) {
+        BiuUserEntity user = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(userId);
+        if (user.getPriMsgStatus() != 1) {
+            return new FuncResult(false, "未开启私信功能");
+        }
         ProviderOption option = new ProviderOption();
         option.addCondition("id", friendId);
         option.addCondition("use_status", BiuUserEntity.USER_AVAIL_STATUS);
@@ -987,7 +993,7 @@ public class UserProcessor {
             return new FuncResult(false, "无对应好友信息");
         }
         if (friendUser.getPriMsgStatus() != 1) {
-            return new FuncResult(false, "未开启私信功能");
+            return new FuncResult(false, "好友未开启私信功能");
         }
         long friendRelateId = 0;
         int isFriend = 0;
@@ -1022,29 +1028,20 @@ public class UserProcessor {
      * @return
      */
     public FuncResult getFriendMessageUserList(long userId, int checkIsFriend, int read) {
-        ProviderOption messageWhere = new ProviderOption();
-        messageWhere.setColumns("distinct source_id");
-        messageWhere.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
-        messageWhere.addCondition("dest_id", userId);
-        if (checkIsFriend != 2) {
-            messageWhere.addCondition("is_friend", checkIsFriend);
-        }
+        String sql = "select distinct fm.user_id\n" +
+                "from biu_user_friend_messages fm\n" +
+                "left join biu_messages m on fm.message_id=m.id\n" +
+                "left join biu_user_friend_messages s on s.message_id=m.id\n" +
+                "where ISNULL(m.deleted_at) and ISNULL(s.deleted_at) and m.message_type=" + BiuMessageEntity.PRIVATE_MESSAGE + "\n" +
+                "and fm.user_id!=" + userId + " and s.user_id=" + userId;
         if (read < 2) {
-            messageWhere.addCondition("read_status", read);
+            sql += " and s.read_status=" + read;
         }
-        List<Long> friendList = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(messageWhere).stream().map(item -> item.getSourceId()).collect(Collectors.toList());
-        messageWhere = new ProviderOption();
-        messageWhere.setColumns("distinct dest_id");
-        messageWhere.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
-        messageWhere.addCondition("source_id", userId);
         if (checkIsFriend != 2) {
-            messageWhere.addCondition("is_friend", checkIsFriend);
+            sql += " and m.is_friend=" + checkIsFriend;
         }
-        if (read < 2) {
-            messageWhere.addCondition("read_status", read);
-        }
-        List<Long> destList = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(messageWhere).stream().map(item -> item.getDestId()).collect(Collectors.toList());
-        friendList.addAll(destList);
+        List<Map<String, Object>> userList = biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().executeList(sql);
+        List<Long> friendList = userList.stream().map(item -> (long) item.get("user_id")).collect(Collectors.toList());
         if (friendList.isEmpty()) {
             return new FuncResult(true, "", new HashMap<String, Object>() {{
                 put("list", new ArrayList<>());
@@ -1091,31 +1088,27 @@ public class UserProcessor {
             BiuMessageEntity message = biuDbFactory.getUserDbFactory().getBiuMessageImpl().single(where);
 //            message.setReadStatus(BiuMessageEntity.READ_OK);
 //            biuDbFactory.getUserDbFactory().getBiuMessageImpl().update(message);
+            where.addCondition("user_id", userId);
             where.addCondition("read_status", BiuMessageEntity.READ_WAITING);
-            long waiting_num = biuDbFactory.getUserDbFactory().getBiuMessageImpl().count(where);
+            long waiting_num = biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().count(where);
             unit.put("waiting_num", waiting_num);
             unit.put("disc", Long.valueOf((new Date().getTime() - message.getCreatedAt().getTime()) / 1000));
-            System.out.println(JsonTool.toJson(message));
             unit.put("contentType", message.getContentType());
+            unit.put("messageId", encodeHash(message.getId()));
+            unit.put("messageTime", TimeTool.friendlyMessageTime(message.getCreatedAt()));
             unit.put("read_status", message.getReadStatus());
             unit.put("isFriend", message.getIsFriend());
             if (message.getContentType().equals("image")) {
-                ProviderOption imageWhere = new ProviderOption();
-                imageWhere.addCondition("use_type", BiuUserImageEntity.USE_TYPE_MESSAGE);
-                imageWhere.addCondition("relate_id", message.getId());
-                imageWhere.setLimit(1);
-                imageWhere.addOrderby("sort_index asc");
-                List<String> images = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().list(imageWhere).
-                        stream().map(imageItem -> userService.parseImage(imageItem.getFile())).collect(Collectors.toList());
-                unit.put("content", images.isEmpty() ? "" : images.get(0));
+                unit.put("content", "[图片]");
             } else {
                 unit.put("content", message.getContent());
             }
 
             result.add(unit);
         });
+        List<Map<String, Object>> out = result.stream().sorted(Comparator.comparing(item -> (long) item.get("disc"))).collect(Collectors.toList());
         return new FuncResult(true, "", new HashMap<String, Object>() {{
-            put("list", result);
+            put("list", out);
         }});
     }
 
@@ -1126,25 +1119,24 @@ public class UserProcessor {
             put("more", 0);
             put("list", null);
         }};
-        ProviderOption option = new ProviderOption();
-        option.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
+        String sql = "select m.*, fm.read_status as fm_read_status, UNIX_TIMESTAMP(m.created_at) as create_time \n" +
+                "from biu_user_friend_messages fm\n" +
+                "left join biu_messages m on fm.message_id=m.id\n" +
+                "where ISNULL(m.deleted_at) and ISNULL(fm.deleted_at) and m.message_type=" + BiuMessageEntity.PRIVATE_MESSAGE +
+                " and fm.user_id=" + userId + " #CONDITION# order by m.created_at desc #PAGER#;";
+        List<String> condition = new ArrayList<>();
         if (friendId > 0) {
-            option.addCondition("users", userService.formatUserFriendMembers(userId, friendId));
-//            option.addCondition("((source_id=" + userId + " and dest_id=" + friendId + ") or (source_id=" + friendId + " and dest_id=" + userId + "))");
+            condition.add("m.users='" + userService.formatUserFriendMembers(userId, friendId) + "'");
         } else {
-            option.addCondition("(source_id=" + userId + " or dest_id=" + userId + ")");
+            condition.add("(m.source_id=" + userId + " or m.dest_id=" + userId + ")");
         }
-        if (read < 2) {
-            option.addCondition("read_status", read);
-        }
-//        if (checkIsFriend != 2) {
-//            option.addCondition("is_friend", checkIsFriend);
+//        if (read < 2) {
+//            condition.add("fm.read_status=" + read);
 //        }
-//        option.setWriteLog(true);
-        option.setUsePager(true);
-        option.setOffset(PageTool.parsePage(page), size + 1);
-        option.addOrderby("created_at desc");
-        List<BiuMessageEntity> rows = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(option);
+        sql = sql.replace("#CONDITION#", (condition.size() > 0 ? "and " + condition.stream().collect(Collectors.joining(" and ")) : ""));
+        sql = sql.replace("#PAGER#", "limit " + (size + 1) + " offset " + PageTool.getOffset(page, size));
+//        System.out.println(sql);
+        List<Map<String, Object>> rows = biuDbFactory.getUserDbFactory().getBiuMessageImpl().executeList(sql);
         if (rows.size() > size) {
             rows.remove(rows.size() - 1);
             result.put("more", 1);
@@ -1156,41 +1148,49 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    private List<Map> processUserFriendMessageList(List<BiuMessageEntity> list, long userId) {
+    private List<Map> processUserFriendMessageList(List<Map<String, Object>> list, long userId) {
         BiuUserEntity user = userService.find(userId);
         List<Map> result = new ArrayList<>();
         list.forEach(item -> {
             Map<String, Object> unit = new HashMap<>();
-            unit.put("id", encodeHash(item.getSourceId()));
+            long sourceId = (long) item.get("source_id");
+            long messageId = (long) item.get("id");
+            long createTime = (long) item.get("create_time");
+            unit.put("id", encodeHash(sourceId));
             unit.put("pen_name", user.getPenName());
-            unit.put("disc", Long.valueOf((new Date().getTime() - item.getCreatedAt().getTime()) / 1000));
-            unit.put("contentType", item.getContentType());
+            unit.put("disc", Long.valueOf(new Date().getTime() / 1000 - createTime));
+            unit.put("messageId", encodeHash(messageId));
+            unit.put("messageTime", TimeTool.friendlyMessageTime(new Date(createTime * 1000)));
+            unit.put("contentType", item.get("content_type"));
             unit.put("read_status", BiuMessageEntity.READ_OK);
-            if (userId == item.getSourceId()) {
+            if (userId == sourceId) {
                 unit.put("image", userService.parseImage(user.getImage()));
                 unit.put("is_self", 1);
             } else {
-                BiuUserEntity sourceUser = userService.find(item.getSourceId());
+                BiuUserEntity sourceUser = userService.find(sourceId);
                 if (sourceUser != null) {
                     unit.put("image", userService.parseImage(sourceUser.getImage()));
                 }
             }
-            unit.put("isFriend", item.getIsFriend());
-            if (item.getContentType().equals("image")) {
+            unit.put("isFriend", item.get("is_friend"));
+            if (String.valueOf(item.get("content_type")).equals("image")) {
                 ProviderOption imageWhere = new ProviderOption();
                 imageWhere.addCondition("use_type", BiuUserImageEntity.USE_TYPE_MESSAGE);
-                imageWhere.addCondition("relate_id", item.getId());
+                imageWhere.addCondition("relate_id", messageId);
                 imageWhere.setLimit(1);
                 imageWhere.addOrderby("sort_index asc");
                 List<String> images = biuDbFactory.getUserDbFactory().getBiuUserImageImpl().list(imageWhere).
                         stream().map(imageItem -> userService.parseImage(imageItem.getFile())).collect(Collectors.toList());
                 unit.put("content", images.isEmpty() ? "" : images.get(0));
             } else {
-                unit.put("content", item.getContent());
+                unit.put("content", item.get("content"));
             }
-            if (item.getReadStatus() == BiuMessageEntity.READ_WAITING) {
-                item.setReadStatus(BiuMessageEntity.READ_OK);
-                biuDbFactory.getUserDbFactory().getBiuMessageImpl().update(item);
+            if (((int) item.get("fm_read_status")) == BiuMessageEntity.READ_WAITING) {
+                ProviderOption option = new ProviderOption();
+                option.addCondition("message_id", messageId);
+                option.addCondition("user_id", userId);
+                option.setAttribute("read_status", BiuMessageEntity.READ_OK);
+                biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().modify(option);
             }
             result.add(unit);
         });
@@ -1226,11 +1226,9 @@ public class UserProcessor {
         long public_count = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().count(option);
         result.put("public", public_count);
         option = new ProviderOption();
-        option.addCondition("dest_id", userId);
-        types = Arrays.asList(BiuMessageEntity.PRIVATE_MESSAGE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(","));
-        option.addCondition("message_type in (" + types + ")");
+        option.addCondition("user_id", userId);
         option.addCondition("read_status", BiuMessageEntity.READ_WAITING);
-        long private_count = biuDbFactory.getUserDbFactory().getBiuMessageViewImpl().count(option);
+        long private_count = biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().count(option);
         result.put("private", private_count);
         return new FuncResult(true, "", result);
     }
@@ -1587,10 +1585,10 @@ public class UserProcessor {
             result.put("list", new ArrayList<>());
             return new FuncResult(false, "无对应记录", result);
         }
-        if (!bean.getLast().isEmpty()) {
-            long last = decodeHash(bean.getLast());
-            option.addCondition("id<" + last);
-        }
+//        if (!bean.getLast().isEmpty()) {
+//            long last = decodeHash(bean.getLast());
+//            option.addCondition("id<" + last);
+//        }
         if (user != null && user.getProtectedUser() != null && !user.getProtectedUser().isEmpty()) {
             option.addCondition("user_id not in (" + user.getProtectedUser().replaceAll("'", "") + ")");
         }
@@ -1598,7 +1596,7 @@ public class UserProcessor {
         option.setUsePager(true);
 //        option.setWriteLog(true);
         option.addOrderby("id desc");
-//        option.setOffset(bean.getPage(), bean.getSize());
+        option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
         BiuHoleNoteViewImpl viewImpl = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl();
         List<BiuHoleNoteViewEntity> rows = viewImpl.list(option);
@@ -2017,6 +2015,8 @@ public class UserProcessor {
         removeUserNote(userId);
         // 删除用户好友相关记录
         userService.removeUserFriend(userId);
+        // 删除用户私信相关记录
+        userService.removeFriendPrivateMessage(userId);
         // 同步首页状态
         userService.syncUserIndex(user.getId());
         return new FuncResult(true, "");
@@ -2041,5 +2041,31 @@ public class UserProcessor {
         entity.setRelateId(relateId);
         biuDbFactory.getUserDbFactory().getBiuUserReadLogImpl().insert(entity);
         return new FuncResult(true, "");
+    }
+
+    public void removeUserFriendSession(long userId, long friendId) {
+        String users = userService.formatUserFriendMembers(userId, friendId);
+        System.out.println(users);
+        ProviderOption option = new ProviderOption();
+        option.setColumns("id, message_id");
+        option.addCondition("users", users);
+        option.addCondition("user_id", userId);
+        List<BiuUserFriendMessageEntity> list = biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().list(option);
+        if (list.size() > 0) {
+            String ids = list.stream().map(item -> String.valueOf(item.getId())).collect(Collectors.joining(","));
+            option = new ProviderOption();
+            option.addCondition("id in (" + ids + ")");
+            biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().destroy(option);
+            list.forEach(item -> userService.removeFriendPrivateMessageById(item.getMessageId()));
+        }
+    }
+
+    public void removeUserFriendSingleMessage(long userId, long messageId) {
+        ProviderOption option = new ProviderOption();
+        option.setColumns("id, message_id");
+        option.addCondition("message_id", messageId);
+        option.addCondition("user_id", userId);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().destroy(option);
+        userService.removeFriendPrivateMessageById(messageId);
     }
 }

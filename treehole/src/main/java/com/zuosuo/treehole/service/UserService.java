@@ -6,6 +6,7 @@ import com.zuosuo.biudb.impl.BiuHoleNoteLabelImpl;
 import com.zuosuo.biudb.impl.BiuHoleNoteMoodImpl;
 import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.cache.redis.ListOperator;
+import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.time.TimeFormat;
@@ -157,7 +158,7 @@ public class UserService {
             add("id in (" + String.join(",", relates) + ")");
         }}));
         interests.forEach(item -> {
-            result.add(new UserInterestResult(item.getId(), item.getTag(), 1));
+            result.add(new UserInterestResult(item.getId(), item.getTag(), 1, item.getTagGroup()));
         });
         return result;
     }
@@ -179,7 +180,26 @@ public class UserService {
         }
         List<UserInterestResult> result = new ArrayList<>();
         list.forEach(item -> {
-            result.add(new UserInterestResult(item.getId(), item.getTag(), interests.contains(item.getId()) ? 1 : 0));
+            result.add(new UserInterestResult(item.getId(), item.getTag(), interests.contains(item.getId()) ? 1 : 0, item.getTagGroup()));
+        });
+        return result;
+    }
+
+    public List<Map<String, Object>> getGroupInterestList(long userId) {
+        List<UserInterestResult> interestList = getUserInterests(userId);
+        List<Long> interests = interestList.stream().map(UserInterestResult::getId).collect(Collectors.toList());
+        List<BiuInterestEntity> list = biuDbFactory.getUserDbFactory().getBiuInterestImpl().list(new ProviderOption());
+        if (list.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<Map<String, Object>> result = new ArrayList<>();
+        list.forEach(item -> {
+            Map<String, Object> unit = new HashMap<>();
+            unit.put("id", item.getId());
+            unit.put("checked", interests.contains(item.getId()) ? 1 : 0);
+            unit.put("name", item.getTag());
+            unit.put("tag_group", item.getTagGroup());
+            result.add(unit);
         });
         return result;
     }
@@ -563,7 +583,22 @@ public class UserService {
         setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
     }
 
+    /**
+     * 私信消息发送
+     * @param sourceId
+     * @param destId
+     * @param messageType
+     * @param relateId
+     * @param friendId
+     * @param isFriend
+     * @param contentType
+     * @param title
+     * @param content
+     * @param banner
+     * @param images
+     */
     public void addUserMessage(long sourceId, long destId, int messageType, long relateId, long friendId, int isFriend, String contentType, String title, String content, String banner, List<String> images) {
+        String users = formatUserFriendMembers(sourceId, destId);
         BiuMessageEntity message = new BiuMessageEntity();
         message.setSourceId(sourceId);
         message.setDestId(destId);
@@ -571,13 +606,31 @@ public class UserService {
         message.setRelateId(relateId);
         message.setFriendId(friendId);
         message.setContentType(contentType);
-        message.setUsers(formatUserFriendMembers(sourceId, destId));
+        message.setUsers(users);
         message.setTitle(title);
         message.setBanner(banner);
         message.setContent(content);
         message.setIsFriend(isFriend);
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
         setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
+        addUserFriendMessageRelate(message.getId(), friendId, sourceId, users);
+        addUserFriendMessageRelate(message.getId(), friendId, destId, users);
+    }
+
+    /**
+     * 私信用户消息关联
+     * @param messageId
+     * @param friendId
+     * @param userId
+     * @param users
+     */
+    public void addUserFriendMessageRelate(long messageId, long friendId, long userId, String users) {
+        BiuUserFriendMessageEntity relate = new BiuUserFriendMessageEntity();
+        relate.setMessageId(messageId);
+        relate.setFriendId(friendId);
+        relate.setUserId(userId);
+        relate.setUsers(users);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().insert(relate);
     }
 
     public BiuUserFriendMemberEntity getUserFriendMember(long friendId, long userId, int status) {
@@ -615,12 +668,18 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(waiting);
         addUserMessage(userId, friendId, BiuMessageEntity.NOTICE_FRIEND, userId, waiting.getId(), SystemOption.FRIEND_PASS_TITLE.getValue().replace("#NAME#", authUser.getPenName()), "");
         // 陌生私信转好友私信
+        String users = formatUserFriendMembers(userId, friendId);
         ProviderOption option = new ProviderOption();
         option.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
-        option.addCondition("users", formatUserFriendMembers(userId, friendId));
+        option.addCondition("users", users);
         option.setAttribute("is_friend", 1);
         option.setAttribute("friend_id", waiting.getId());
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().modify(option);
+        // 私信关联更新
+        option = new ProviderOption();
+        option.addCondition("users", users);
+        option.setAttribute("friend_id", waiting.getId());
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().modify(option);
         return JsonResult.success();
     }
 
@@ -682,12 +741,43 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
         option = new ProviderOption();
         option.addCondition("friend_id", friendId);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().destroy(option);
+        option = new ProviderOption();
+        option.addCondition("friend_id", friendId);
         option.setColumns("id");
         List<BiuUserFriendCommunicateLogEntity> logs = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().list(option);
         if (!logs.isEmpty()) {
             option = new ProviderOption();
             option.addCondition("message_type in (" + Arrays.asList(BiuMessageEntity.NOTICE_SEND, BiuMessageEntity.NOTICE_RECEIVE).stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
             option.addCondition("relate_id in (" + logs.stream().map(item -> String.valueOf(item.getId())).collect(Collectors.joining(",")) + ")");
+            biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        }
+    }
+
+    public void removeFriendPrivateMessage(long userId) {
+        ProviderOption option = new ProviderOption();
+        option.setColumns("id");
+        option.addCondition("message_type", BiuMessageEntity.PRIVATE_MESSAGE);
+        String condition = "(dest_id=#DEST# or source_id=#SOURCE#)";
+        option.addCondition(condition.replace("#DEST#", String.valueOf(userId)).replace("#SOURCE#", String.valueOf(userId)));
+        List<BiuMessageEntity> list = biuDbFactory.getUserDbFactory().getBiuMessageImpl().list(option);
+        String messageIds = list.stream().map(item -> String.valueOf(item.getId())).collect(Collectors.joining(","));
+        option = new ProviderOption();
+        option.addCondition("id in (" + messageIds + ")");
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
+        option = new ProviderOption();
+        option.addCondition("message_id in (" + messageIds + ")");
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().destroy(option);
+    }
+
+    public void removeFriendPrivateMessageById(long messageId) {
+        ProviderOption option = new ProviderOption();
+        option.setColumns("id");
+        option.addCondition("message_id", messageId);
+        List<BiuUserFriendMessageEntity> list = biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().list(option);
+        if (list.size() == 0) {
+            option = new ProviderOption();
+            option.addCondition("id", messageId);
             biuDbFactory.getUserDbFactory().getBiuMessageImpl().destroy(option);
         }
     }

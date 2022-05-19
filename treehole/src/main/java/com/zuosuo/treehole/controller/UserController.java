@@ -93,6 +93,17 @@ public class UserController {
     }
 
     /**
+     * 用户爱好分组列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/interest/list")
+    @Login(open = true)
+    public JsonDataResult<List> userInterestList(HttpServletRequest request) {
+        return new UserGroupInterestListAction(request, userProcessor).run();
+    }
+
+    /**
      * 用户状态修改
      * @param request
      * @param bean
@@ -357,5 +368,16 @@ public class UserController {
     @Login
     public JsonResult getPrivateMessageUserList(HttpServletRequest request, @RequestBody PrivateMessageUserListBean bean) {
         return new PrivateMessageUserListAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 删除笔友私信
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/friend/message/remove")
+    @Login
+    public JsonResult removeUserPrivateMessage(HttpServletRequest request, @RequestBody RemoveUserFriendMessageBean bean) {
+        return new RemoveUserFriendMessageAction(request, bean, userProcessor).run();
     }
 }
