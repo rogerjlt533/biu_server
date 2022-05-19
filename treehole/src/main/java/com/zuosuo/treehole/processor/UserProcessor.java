@@ -332,9 +332,6 @@ public class UserProcessor {
             unit.setIntroduce(item.getIntroduce());
             unit.setName(item.getPenName());
             List<String> desc = new ArrayList<>();
-            if (!areaService.getArea(item.getNation()).isEmpty()) {
-                desc.add(areaService.getArea(item.getNation()));
-            }
             if (!areaService.getArea(item.getProvince()).isEmpty()) {
                 desc.add(areaService.getArea(item.getProvince()));
             }
@@ -611,11 +608,14 @@ public class UserProcessor {
         if (bean.getMethod().contains("birthday_year")) {
             user.setBirthdayYear(bean.getBirthdayYear());
         }
+        List<String> areas = new ArrayList<>();
         if (bean.getMethod().contains("nation")) {
             user.setNation(bean.getNation());
+            areas.add(bean.getNation());
         }
         if (bean.getMethod().contains("province")) {
             user.setProvince(bean.getProvince());
+            areas.add(bean.getProvince());
         }
         if (bean.getMethod().contains("username")) {
             if (!bean.getUsername().isEmpty() && !keywordService.verifyKeyword(bean.getUsername())) {
@@ -628,12 +628,18 @@ public class UserProcessor {
         }
         if (bean.getMethod().contains("city")) {
             user.setCity(bean.getCity());
+            areas.add(bean.getCity());
         }
         if (bean.getMethod().contains("country")) {
             user.setCountry(bean.getCountry());
+            areas.add(bean.getCountry());
         }
         if (bean.getMethod().contains("street")) {
             user.setStreet(bean.getStreet());
+            areas.add(bean.getStreet());
+        }
+        if (!areaService.verifyAreaList(areas)) {
+            return new FuncResult(false, "地区选择有误");
         }
         if (bean.getMethod().contains("address")) {
             user.setAddress(bean.getAddress());

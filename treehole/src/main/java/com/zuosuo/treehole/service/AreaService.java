@@ -31,4 +31,26 @@ public class AreaService {
         }
         return area.getAreaName();
     }
+
+    public boolean verifyAreaList(List<String> list) {
+        if (list == null) {
+            return true;
+        } else if (list.isEmpty()) {
+            return true;
+        }
+        BiuAreaEntity parent = null;
+        for (String code: list) {
+            ProviderOption option = new ProviderOption();
+            option.addCondition("code", code);
+            BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+            if (area == null) {
+                return false;
+            }
+            if (parent != null && !area.getParentCode().equals(parent.getCode())) {
+                return false;
+            }
+            parent = area;
+        }
+        return true;
+    }
 }
