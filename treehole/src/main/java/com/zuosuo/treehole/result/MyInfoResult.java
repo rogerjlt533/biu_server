@@ -5,13 +5,14 @@ import java.util.List;
 
 public class MyInfoResult {
     private String id = "", desc = "", nick = "", cardno = "", username = "", penName = "", sexTag = "", image = "", title = "", introduce = "", address = "", phone = "", email = "", zipcode = "", street = "";
-    private AreaInfoResult province, city, country;
+    private AreaInfoResult nation, province, city, country;
     private int sex = 0, birthdayYear = 0, startAge = 0, endAge = 0, useStatus = 0, commentStatus = 0, searchStatus = 0, isPenuser = 0, priMsgStatus = 0;
     private List<String> images;
     private MyInfoSingleResult<Integer> communicates, searchCommunicates, searchSexes;
     private MyInfoComboxResult<UserInterestResult> interests;
 
     public MyInfoResult() {
+        nation = new AreaInfoResult();
         province = new AreaInfoResult();
         city = new AreaInfoResult();
         country = new AreaInfoResult();
@@ -140,6 +141,14 @@ public class MyInfoResult {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public AreaInfoResult getNation() {
+        return nation;
+    }
+
+    public void setNation(AreaInfoResult nation) {
+        this.nation = nation;
     }
 
     public AreaInfoResult getProvince() {

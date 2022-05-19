@@ -59,6 +59,8 @@ public class BiuUserEntity extends BaseEntity {
     private String email = "";
     @EntityProperty(comment = "所在省份")
     private String province = "";
+    @EntityProperty(comment = "所在国家")
+    private String nation = "";
     @EntityProperty(comment = "所在城市")
     private String city = "";
     @EntityProperty(comment = "所在区县")
@@ -214,6 +216,14 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getNation() {
+        return nation;
+    }
+
+    public void setNation(String nation) {
+        this.nation = nation;
     }
 
     public String getProvince() {

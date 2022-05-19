@@ -5,7 +5,7 @@ import java.util.List;
 
 public class UserHomeResult {
 
-    private String id, name, desc, image, title, introduce, province, zipcode, sex, age, friendHash, collectTag, friendTag;
+    private String id, name, desc, image, title, introduce, nation, province, zipcode, sex, age, friendHash, collectTag, friendTag;
     private List<String> images;
     private MyInfoSingleResult<Integer> communicate;
     private List<UserInterestResult> interests;
@@ -63,6 +63,14 @@ public class UserHomeResult {
 
     public void setIntroduce(String introduce) {
         this.introduce = introduce;
+    }
+
+    public String getNation() {
+        return nation != null? nation.trim(): "";
+    }
+
+    public void setNation(String nation) {
+        this.nation = nation;
     }
 
     public String getProvince() {

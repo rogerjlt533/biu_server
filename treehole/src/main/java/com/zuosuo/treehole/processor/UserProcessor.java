@@ -185,6 +185,9 @@ public class UserProcessor {
             unit.setIntroduce(item.getIntroduce());
             unit.setName(item.getPenName());
             List<String> desc = new ArrayList<>();
+            if (!areaService.getArea(item.getNation()).isEmpty()) {
+                desc.add(areaService.getArea(item.getNation()));
+            }
             if (!areaService.getArea(item.getProvince()).isEmpty()) {
                 desc.add(areaService.getArea(item.getProvince()));
             }
@@ -329,6 +332,9 @@ public class UserProcessor {
             unit.setIntroduce(item.getIntroduce());
             unit.setName(item.getPenName());
             List<String> desc = new ArrayList<>();
+            if (!areaService.getArea(item.getNation()).isEmpty()) {
+                desc.add(areaService.getArea(item.getNation()));
+            }
             if (!areaService.getArea(item.getProvince()).isEmpty()) {
                 desc.add(areaService.getArea(item.getProvince()));
             }
@@ -377,6 +383,8 @@ public class UserProcessor {
         result.setSexTag(user.getSexTag());
         result.setImage(userService.parseImage(user.getImage()));
         result.setBirthdayYear(user.getBirthdayYear());
+        result.getNation().setCode(user.getNation());
+        result.getNation().setName(areaService.getArea(user.getNation()));
         result.getProvince().setCode(user.getProvince());
         result.getProvince().setName(areaService.getArea(user.getProvince()));
         result.getCity().setCode(user.getCity());
@@ -491,11 +499,16 @@ public class UserProcessor {
         result.setName(user.getPenName());
         if (hide > 0) {
             result.setDesc("保密");
+            result.setNation("保密");
             result.setProvince("保密");
             result.setSex("保密");
             result.setAge("保密");
         } else {
             List<String> desc = new ArrayList<>();
+            if (!areaService.getArea(user.getNation()).isEmpty()) {
+                result.setNation(areaService.getArea(user.getNation()));
+                desc.add(result.getNation());
+            }
             if (!areaService.getArea(user.getProvince()).isEmpty()) {
                 result.setProvince(areaService.getArea(user.getProvince()));
                 desc.add(result.getProvince());
@@ -597,6 +610,9 @@ public class UserProcessor {
         }
         if (bean.getMethod().contains("birthday_year")) {
             user.setBirthdayYear(bean.getBirthdayYear());
+        }
+        if (bean.getMethod().contains("nation")) {
+            user.setNation(bean.getNation());
         }
         if (bean.getMethod().contains("province")) {
             user.setProvince(bean.getProvince());

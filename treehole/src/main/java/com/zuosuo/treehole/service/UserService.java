@@ -836,6 +836,10 @@ public class UserService {
     public String getUserAddress(long userId) {
         BiuUserViewEntity user = getUserView(userId);
         List<String> address = new ArrayList<>();
+        String nation = areaService.getArea(user.getNation());
+        if (!nation.isEmpty()) {
+            address.add(nation);
+        }
         String province = areaService.getArea(user.getProvince());
         if (!province.isEmpty()) {
             address.add(province);
@@ -851,7 +855,7 @@ public class UserService {
         if (!user.getAddress().isEmpty()) {
             address.add(user.getAddress());
         }
-        return String.join("", address);
+        return String.join(" ", address);
     }
 
     public String encodeHash(long number) {
@@ -1375,6 +1379,7 @@ public class UserService {
         indexEntity.setMatchEndAge(user.getMatchEndAge());
         indexEntity.setPhone(user.getPhone());
         indexEntity.setEmail(user.getEmail());
+        indexEntity.setNation(user.getNation());
         indexEntity.setProvince(user.getProvince());
         indexEntity.setCity(user.getCity());
         indexEntity.setCountry(user.getCountry());
@@ -1436,26 +1441,34 @@ public class UserService {
         if (user.getAddress() != null && !user.getAddress().isEmpty()) {
             ProviderOption option = new ProviderOption();
             Map<String, String> areaInfo = AddressTool.addressResolution(user.getAddress());
-            if (areaInfo.containsKey("county") && !areaInfo.get("county").isEmpty()) {
-                option.addCondition("area_name", areaInfo.get("county"));
-                option.addCondition("area_type", 3);
+            if (areaInfo.size() == 0) {
+                option.addCondition("locate(area_name, '" + user.getAddress() + "'");
                 BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
                 if (area != null) {
                     code = area.getCode();
                 }
-            } else if (areaInfo.containsKey("city") && !areaInfo.get("city").isEmpty()) {
-                option.addCondition("area_name", areaInfo.get("city"));
-                option.addCondition("area_type", 2);
-                BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
-                if (area != null) {
-                    code = area.getCode();
-                }
-            } else if (areaInfo.containsKey("province") && !areaInfo.get("province").isEmpty()) {
-                option.addCondition("area_name", areaInfo.get("province"));
-                option.addCondition("area_type", 1);
-                BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
-                if (area != null) {
-                    code = area.getCode();
+            } else {
+                if (areaInfo.containsKey("county") && !areaInfo.get("county").isEmpty()) {
+                    option.addCondition("area_name", areaInfo.get("county"));
+                    option.addCondition("area_type", 3);
+                    BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+                    if (area != null) {
+                        code = area.getCode();
+                    }
+                } else if (areaInfo.containsKey("city") && !areaInfo.get("city").isEmpty()) {
+                    option.addCondition("area_name", areaInfo.get("city"));
+                    option.addCondition("area_type", 2);
+                    BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+                    if (area != null) {
+                        code = area.getCode();
+                    }
+                } else if (areaInfo.containsKey("province") && !areaInfo.get("province").isEmpty()) {
+                    option.addCondition("area_name", areaInfo.get("province"));
+                    option.addCondition("area_type", 1);
+                    BiuAreaEntity area = biuDbFactory.getCommonDbFactory().getBiuAreaImpl().single(option);
+                    if (area != null) {
+                        code = area.getCode();
+                    }
                 }
             }
         }
@@ -1466,6 +1479,8 @@ public class UserService {
                 code = user.getCity();
             } else if(user.getProvince() != null && !user.getProvince().isEmpty()) {
                 code = user.getProvince();
+            } else if (user.getNation() != null && !user.getNation().isEmpty()) {
+                code = user.getNation();
             }
         }
         if (code.isEmpty()) {

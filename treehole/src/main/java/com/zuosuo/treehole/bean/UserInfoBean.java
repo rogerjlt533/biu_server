@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class UserInfoBean extends BaseVerifyBean {
 
-    private String method, nick, image, penName, username, phone, email, zipcode, title, introduce, address, province, city,
+    private String method, nick, image, penName, username, phone, email, zipcode, title, introduce, address, nation, province, city,
             country, street, images, search_sexes, communicates, search_communicates, interests, source;
     private int sex, birthdayYear, startAge, endAge;
 
@@ -106,8 +106,16 @@ public class UserInfoBean extends BaseVerifyBean {
         this.address = address;
     }
 
+    public String getNation() {
+        return nation == null ? "" : nation.trim();
+    }
+
+    public void setNation(String nation) {
+        this.nation = nation;
+    }
+
     public String getProvince() {
-        return province;
+        return province == null ? "" : province.trim();
     }
 
     public void setProvince(String province) {
@@ -115,7 +123,7 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public String getCity() {
-        return city;
+        return city == null ? "" : city.trim();
     }
 
     public void setCity(String city) {
@@ -123,7 +131,7 @@ public class UserInfoBean extends BaseVerifyBean {
     }
 
     public String getCountry() {
-        return country;
+        return country == null ? "" : country.trim();
     }
 
     public void setCountry(String country) {
