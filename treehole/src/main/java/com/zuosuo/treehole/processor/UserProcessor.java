@@ -648,9 +648,10 @@ public class UserProcessor {
         } else if (!user.getStreet().isEmpty()) {
             areas.add(user.getStreet());
         }
-        if (!areaService.verifyAreaList(areas)) {
-            return new FuncResult(false, "地区选择有误");
-        }
+//        if (!areaService.verifyAreaList(areas)) {
+//            System.out.println("地址错误");
+//            return new FuncResult(false, "地区选择有误");
+//        }
         if (bean.getMethod().contains("address")) {
             user.setAddress(bean.getAddress());
         }
@@ -678,7 +679,7 @@ public class UserProcessor {
         if (bean.getMethod().contains("match_end_age")) {
             user.setMatchEndAge(bean.getEndAge());
         }
-        user = userService.initUserZipcode(user);
+//        user = userService.initUserZipcode(user);
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
         if (bean.getMethod().contains("images")) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_INTRODUCE, 0, bean.getImages());
