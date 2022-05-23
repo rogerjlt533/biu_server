@@ -185,11 +185,15 @@ public class UserProcessor {
             unit.setIntroduce(item.getIntroduce());
             unit.setName(item.getPenName());
             List<String> desc = new ArrayList<>();
+            List<String> areas = new ArrayList<>();
             if (!areaService.getArea(item.getNation()).isEmpty()) {
-                desc.add(areaService.getArea(item.getNation()));
+                areas.add(areaService.getArea(item.getNation()));
             }
             if (!areaService.getArea(item.getProvince()).isEmpty()) {
-                desc.add(areaService.getArea(item.getProvince()));
+                areas.add(areaService.getArea(item.getProvince()));
+            }
+            if (areas.size() > 0) {
+                desc.add(areas.stream().collect(Collectors.joining("-")));
             }
             if (!item.getSexTag().isEmpty()) {
                 desc.add(item.getSexTag());
