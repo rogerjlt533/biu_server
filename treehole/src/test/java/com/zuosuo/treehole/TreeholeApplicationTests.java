@@ -12,6 +12,7 @@ import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.treehole.bean.NoteCommentGroupBean;
 import com.zuosuo.treehole.bean.UserFriendMessageBean;
 import com.zuosuo.treehole.config.MiniWechatConfig;
 import com.zuosuo.treehole.config.SystemOption;
@@ -20,6 +21,7 @@ import com.zuosuo.treehole.processor.CombineAccountProcessor;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.processor.WechatProcessor;
 import com.zuosuo.treehole.result.UserInterestResult;
+import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.KeywordService;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.task.UserCollectInput;
@@ -61,9 +63,19 @@ class TreeholeApplicationTests {
     private UserProcessor userProcessor;
     @Autowired
     private CombineAccountProcessor combineAccountProcessor;
+    @Autowired
+    private AreaService areaService;
 
     @Test
     void contextLoads() {
+//        processUserAddress();
+
+//        NoteCommentGroupBean bean = new NoteCommentGroupBean();
+//        bean.setComment_id("qVlZ");
+//        FuncResult res = userProcessor.getCommentGroupList(232, bean);
+//        System.out.println(JsonTool.toJson(res));
+
+
 //        List<List<UserInterestResult>> result = userService.getGroupInterestList(232);
 //        System.out.println(JsonTool.toJson(result));
 //        System.out.println(userProcessor.decodeHash("6akJ"));
@@ -168,6 +180,40 @@ class TreeholeApplicationTests {
 //        } catch (IOException e) {
 //        }
 //        System.out.println(content);
+    }
+
+    /**
+     * 批处理用户地址
+     */
+    private void processUserAddress() {
+        ProviderOption option = new ProviderOption();
+        List<BiuUserEntity> list = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(option);
+        list.forEach(user -> {
+            String address = user.getAddress();
+            if (!user.getProvince().isEmpty()) {
+                user.setNation("1");
+            }
+            if (address.contains("北京市") || address.contains("天津市") || address.contains("重庆市") || address.contains("省") || address.contains("自治区") || address.contains("上海市") || address.contains("行政区") || address.contains("台湾")) {
+
+            } else {
+                String province = user.getProvince();
+                String city = user.getCity();
+                String country = user.getCountry();
+                Map<String, String> result = areaService.correctArea(province, city, country);
+                if (!result.get("prefix").isEmpty()) {
+                    user.setAddress(result.get("prefix") + user.getAddress());
+                    ProviderOption where = new ProviderOption();
+                    where.addCondition("user_id", user.getId());
+                    BiuUserIndexViewEntity view = biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().single(where);
+                    if (view != null) {
+                        view.setNation(user.getNation());
+                        view.setAddress(user.getAddress());
+                        biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().update(view);
+                    }
+                }
+            }
+            biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        });
     }
 
     private void processUserFriendMessageRelate() {

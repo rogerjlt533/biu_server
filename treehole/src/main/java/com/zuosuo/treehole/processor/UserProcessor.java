@@ -506,13 +506,17 @@ public class UserProcessor {
             result.setAge("保密");
         } else {
             List<String> desc = new ArrayList<>();
+            List<String> addr = new ArrayList<>();
             if (!areaService.getArea(user.getNation()).isEmpty()) {
                 result.setNation(areaService.getArea(user.getNation()));
-                desc.add(result.getNation());
+                addr.add(result.getNation());
             }
             if (!areaService.getArea(user.getProvince()).isEmpty()) {
                 result.setProvince(areaService.getArea(user.getProvince()));
-                desc.add(result.getProvince());
+                addr.add(result.getProvince());
+            }
+            if (!addr.isEmpty()) {
+                desc.add(addr.stream().collect(Collectors.joining("-")));
             }
             if (!user.getSexTag().isEmpty()) {
                 result.setSex(user.getSexTag());
@@ -1088,6 +1092,11 @@ public class UserProcessor {
         option.setColumns("id, pen_name, image");
         option.addCondition("id in (" + friendList.stream().map(friend -> String.valueOf(friend)).collect(Collectors.joining(",")) + ")");
         List<BiuUserEntity> users = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(option);
+        if (users == null) {
+            return new FuncResult(true, "", new HashMap<String, Object>() {{
+                put("list", new ArrayList<>());
+            }});
+        }
         List<Map<String, Object>> result = new ArrayList<>();
         users.forEach(user -> {
             BiuUserViewEntity userView = userService.getUserView(user.getId());
@@ -1129,21 +1138,33 @@ public class UserProcessor {
             where.addCondition("read_status", BiuMessageEntity.READ_WAITING);
             long waiting_num = biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().count(where);
             unit.put("waiting_num", waiting_num);
-            unit.put("disc", Long.valueOf((new Date().getTime() - message.getCreatedAt().getTime()) / 1000));
-            unit.put("contentType", message.getContentType());
-            unit.put("messageId", encodeHash(message.getId()));
-            unit.put("messageTime", TimeTool.friendlyMessageTime(message.getCreatedAt()));
-            unit.put("read_status", message.getReadStatus());
-            unit.put("isFriend", message.getIsFriend());
-            if (message.getContentType().equals("image")) {
-                unit.put("content", "[图片]");
+            if (message != null) {
+                unit.put("disc", Long.valueOf((new Date().getTime() - message.getCreatedAt().getTime()) / 1000));
+                unit.put("contentType", message.getContentType());
+                unit.put("messageId", encodeHash(message.getId()));
+                unit.put("messageTime", TimeTool.friendlyMessageTime(message.getCreatedAt()));
+                unit.put("read_status", message.getReadStatus());
+                unit.put("isFriend", message.getIsFriend());
+                if (message.getContentType().equals("image")) {
+                    unit.put("content", "[图片]");
+                } else {
+                    unit.put("content", message.getContent());
+                }
             } else {
-                unit.put("content", message.getContent());
+                unit.put("disc", 0);
+                unit.put("contentType", "text");
+                unit.put("messageId", "");
+                unit.put("messageTime", "");
+                unit.put("read_status", 0);
+                unit.put("isFriend", 0);
+                unit.put("content", "");
             }
-
             result.add(unit);
         });
-        List<Map<String, Object>> out = result.stream().sorted(Comparator.comparing(item -> (long) item.get("disc"))).collect(Collectors.toList());
+//        System.out.println(JsonTool.toJson(result));
+        List<Map<String, Object>> out = result.stream()
+                .sorted(Comparator.comparing(item -> Long.valueOf(String.valueOf(item.get("disc")))))
+                .collect(Collectors.toList());
         return new FuncResult(true, "", new HashMap<String, Object>() {{
             put("list", out);
         }});
@@ -1950,6 +1971,62 @@ public class UserProcessor {
         Map<String, Object> result = new HashMap<>();
         result.put("comment_num", noteInfo.getCommentNum());
         return new JsonDataResult<>(ResponseConfig.SUCCESS_CODE, "", result);
+    }
+
+    public FuncResult getCommentGroupList(long userId, NoteCommentGroupBean bean) {
+        BiuUserViewEntity user = userService.getUserView(userId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("page", PageTool.parsePage(bean.getPage()));
+        result.put("size", bean.getSize());
+        result.put("more", 0);
+        result.put("list", new ArrayList<Map>());
+        long noteId = bean.getNote().isEmpty() ? 0 : decodeHash(bean.getNote());
+        long commentId = bean.getComment_id().isEmpty() ? 0 : decodeHash(bean.getComment_id());
+        ProviderOption option = new ProviderOption();
+        BiuHoleNoteEntity noteEntity;
+        if (commentId > 0) {
+            option.addCondition("top_comment", commentId);
+            BiuHoleNoteCommentEntity commentEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().find(commentId);
+            if (commentEntity == null) {
+                result.put("list", new ArrayList<>());
+                return new FuncResult(false, "无对应记录", result);
+            }
+            noteEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(commentEntity.getNoteId());
+        } else if (noteId > 0) {
+            option.addCondition("note_id", noteId);
+            option.addCondition("top_comment", 0);
+            noteEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
+        } else {
+            result.put("list", new ArrayList<>());
+            return new FuncResult(false, "无对应记录", result);
+        }
+        if (noteEntity == null) {
+            result.put("list", new ArrayList<>());
+            return new FuncResult(false, "无对应记录", result);
+        }
+        if (bean.getMine() > 0) {
+            // 我的评论
+            option.addCondition("user_id", userId);
+        }
+        if (user != null && user.getProtectedUser() != null && !user.getProtectedUser().isEmpty()) {
+            option.addCondition("user_id not in (" + user.getProtectedUser().replaceAll("'", "") + ")");
+        }
+        option.setUsePager(true);
+        option.addOrderby("id " + bean.getOrderby());
+        option.setOffset(bean.getPage(), bean.getSize());
+        option.setLimit(bean.getSize() + 1);
+        BiuHoleNoteCommentViewImpl commentImpl = biuDbFactory.getHoleDbFactory().getHoleNoteCommentViewImpl();
+        List<BiuHoleNoteCommentViewEntity> rows = commentImpl.list(option);
+        if (rows.size() > bean.getSize()) {
+            rows.remove(rows.size() - 1);
+            result.put("more", 1);
+        }
+        if (rows.isEmpty()) {
+            return new FuncResult(false, "无对应记录", result);
+        }
+        List<Map> list = processCommentList(rows, noteEntity);
+        result.put("list", list);
+        return new FuncResult(true, "", result);
     }
 
     public FuncResult getCommentList(long userId, NoteCommentListBean bean) {

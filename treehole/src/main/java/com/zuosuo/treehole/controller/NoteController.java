@@ -160,6 +160,38 @@ public class NoteController {
     }
 
     /**
+     * 树洞消息评论分组
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/comment/group")
+    @Login
+    public JsonDataResult<Map> commentGroupList(HttpServletRequest request, @RequestBody NoteCommentGroupBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<>(verify.getMessage());
+        }
+        return new NoteCommentGroupAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 树洞消息评论分组明细
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/hole/note/comment/items")
+    @Login
+    public JsonDataResult<Map> commentGroupItem(HttpServletRequest request, @RequestBody NoteCommentGroupBean bean) {
+        VerifyResult verify = bean.verify();
+        if (!verify.isStatus()) {
+            return new JsonDataResult<>(verify.getMessage());
+        }
+        return new NoteCommentGroupAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 操作树洞标签
      * @param request
      * @param bean

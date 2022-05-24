@@ -1021,9 +1021,17 @@ public class UserService {
 
     public String getUserDesc(BiuUserViewEntity user) {
         List<String> descList = new ArrayList<>();
+        List<String> areas = new ArrayList<>();
+        String nation = areaService.getArea(user.getNation());
+        if (!nation.isEmpty()) {
+            areas.add(nation);
+        }
         String province = areaService.getArea(user.getProvince());
         if (!province.isEmpty()) {
-            descList.add(province);
+            areas.add(province);
+        }
+        if (!areas.isEmpty()) {
+            descList.add(areas.stream().collect(Collectors.joining("-")));
         }
         String sex = user.getSexTag();
         if (!sex.isEmpty()) {
