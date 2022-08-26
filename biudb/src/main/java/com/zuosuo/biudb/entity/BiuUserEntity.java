@@ -93,6 +93,8 @@ public class BiuUserEntity extends BaseEntity {
     private int priMsgStatus = 0;
     @EntityProperty(comment = "是否发送笔友注册信息 0-否 1-是")
     private int penPubMsg = 0;
+    @EntityProperty(comment = "锁定开关状态 0-否 1-是")
+    private int lockStatus = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
@@ -405,6 +407,14 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setPenPubMsg(int penPubMsg) {
         this.penPubMsg = penPubMsg;
+    }
+
+    public int getLockStatus() {
+        return lockStatus;
+    }
+
+    public void setLockStatus(int lockStatus) {
+        this.lockStatus = lockStatus;
     }
 
     // 性别标签

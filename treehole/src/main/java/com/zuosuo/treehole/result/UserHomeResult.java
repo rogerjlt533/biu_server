@@ -9,6 +9,7 @@ public class UserHomeResult {
     private List<String> images;
     private MyInfoSingleResult<Integer> communicate;
     private List<UserInterestResult> interests;
+    private UserFriendCommunicateInfo communicateInfo;
     private int self, collect, black, friend, allowCollect, allowFriend, cancelFriend, rollFriend, allowOperateApply, priMsgStatus;
 
     public UserHomeResult() {
@@ -231,5 +232,13 @@ public class UserHomeResult {
 
     public void setPriMsgStatus(int priMsgStatus) {
         this.priMsgStatus = priMsgStatus;
+    }
+
+    public UserFriendCommunicateInfo getCommunicateInfo() {
+        return communicateInfo;
+    }
+
+    public void setCommunicateInfo(UserFriendCommunicateInfo communicateInfo) {
+        this.communicateInfo = communicateInfo;
     }
 }

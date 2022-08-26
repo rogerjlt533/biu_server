@@ -613,7 +613,7 @@ public class UserService {
         message.setIsFriend(isFriend);
         biuDbFactory.getUserDbFactory().getBiuMessageImpl().insert(message);
         setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
-        addUserFriendMessageRelate(message.getId(), friendId, sourceId, users);
+        addUserFriendMessageRelate(message.getId(), friendId, sourceId, users, 1);
         addUserFriendMessageRelate(message.getId(), friendId, destId, users);
     }
 
@@ -624,14 +624,20 @@ public class UserService {
      * @param userId
      * @param users
      */
-    public void addUserFriendMessageRelate(long messageId, long friendId, long userId, String users) {
+    public void addUserFriendMessageRelate(long messageId, long friendId, long userId, String users, int readStatus) {
         BiuUserFriendMessageEntity relate = new BiuUserFriendMessageEntity();
         relate.setMessageId(messageId);
         relate.setFriendId(friendId);
         relate.setUserId(userId);
+        relate.setReadStatus(readStatus);
         relate.setUsers(users);
         biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().insert(relate);
     }
+
+    public void addUserFriendMessageRelate(long messageId, long friendId, long userId, String users) {
+        addUserFriendMessageRelate(messageId, friendId, userId, users, 0);
+    }
+
 
     public BiuUserFriendMemberEntity getUserFriendMember(long friendId, long userId, int status) {
         ProviderOption option = new ProviderOption();
@@ -1326,6 +1332,10 @@ public class UserService {
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
             return ;
         }
+        if (user.getLockStatus() > 0) {
+            biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
+            return ;
+        }
         if (new Date().getTime() - user.getSortTime().getTime() >= 86400 * 14 * 1000) {
             biuDbFactory.getUserDbFactory().getBiuUserIndexViewImpl().destroy(option);
             return ;
@@ -1407,6 +1417,7 @@ public class UserService {
         indexEntity.setAge(user.getAge());
         indexEntity.setCollectNum(user.getCollectNum());
         indexEntity.setSelfInterest(user.getSelfInterest());
+        indexEntity.setLockStatus(user.getLockStatus());
         String search_communicate = user.getSearchCommunicate();
         if (search_communicate != null && !search_communicate.isEmpty()) {
             indexEntity.setSearchCommunicate(Arrays.asList(search_communicate.replace("'", "").split(",")).stream().mapToInt(Integer::parseInt).reduce(Integer::sum).orElse(0));

@@ -102,6 +102,8 @@ public class BiuUserViewEntity extends BaseEntity {
     private String searchCommunicate = "";
     private String searchSex = "";
     private String protectedUser = "";
+    @EntityProperty(comment = "锁定开关状态 0-否 1-是")
+    private int lockStatus = 0;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -467,6 +469,14 @@ public class BiuUserViewEntity extends BaseEntity {
 
     public void setPenPubMsg(int penPubMsg) {
         this.penPubMsg = penPubMsg;
+    }
+
+    public int getLockStatus() {
+        return lockStatus;
+    }
+
+    public void setLockStatus(int lockStatus) {
+        this.lockStatus = lockStatus;
     }
 
     // 性别标签

@@ -12,7 +12,10 @@ import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.JwtTool;
+import com.zuosuo.wechat.AccessTokenInfo;
 import com.zuosuo.wechat.SessionInfo;
+import com.zuosuo.wechat.WechatConfig;
+import com.zuosuo.wechat.WechatMiniTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -95,5 +98,24 @@ public class WechatProcessor {
         }
         userService.syncUserIndex(user.getId());
         return new FuncResult(true, "", result);
+    }
+
+    /**
+     * 获取微信access_token
+     * @param config
+     * @return
+     */
+    public FuncResult accessToken(WechatConfig config) {
+        String tokenKey = SystemOption.MINI_ACCESSS_TOKEN_KEY.getValue().replace("#APPID#", config.appid());
+        FuncResult tokenCache = biuRedisFactory.getBiuRedisTool().getValueOperator().get(tokenKey, String.class);
+        if (tokenCache.isStatus()) {
+            return new FuncResult(true, "", String.valueOf(tokenCache.getResult()));
+        }
+        AccessTokenInfo tokenInfo = WechatMiniTool.getAccessToken(miniWechatConfig);
+        if (tokenInfo.getAccessToken().equals("")) {
+            return new FuncResult(false, "获取token失败", "");
+        }
+        biuRedisFactory.getBiuRedisTool().getValueOperator().set(tokenKey, tokenInfo.getAccessToken(), tokenInfo.getExpiresIn());
+        return new FuncResult(true, "", tokenInfo.getAccessToken());
     }
 }

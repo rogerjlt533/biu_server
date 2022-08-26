@@ -5,7 +5,7 @@ import java.util.Arrays;
 public class NoteCommentGroupBean extends BaseVerifyBean {
 
     private String note, comment_id, last, orderby;
-    private int mine;
+    private int mine, all;
 
     public String getNote() {
         return note != null ? note.trim() : "";
@@ -45,6 +45,14 @@ public class NoteCommentGroupBean extends BaseVerifyBean {
 
     public void setOrderby(String orderby) {
         this.orderby = orderby;
+    }
+
+    public int getAll() {
+        return all;
+    }
+
+    public void setAll(int all) {
+        this.all = all;
     }
 
     @Override

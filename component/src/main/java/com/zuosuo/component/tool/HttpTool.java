@@ -1,10 +1,17 @@
 package com.zuosuo.component.tool;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.zuosuo.component.response.FuncResult;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
@@ -13,6 +20,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 public class HttpTool {
 
@@ -30,6 +38,44 @@ public class HttpTool {
             result.setMessage("请求错误!!");
         } catch (IOException e) {
             result.setMessage("请求错误!!!");
+        }
+        return result;
+    }
+
+    public static FuncResult post(String url, Map<String, Object> params, String charset){
+        FuncResult result = new FuncResult();
+        CloseableHttpClient client = HttpClients.createDefault();
+        try {
+            HttpPost httpPost = new HttpPost(url);
+            if (params != null && !params.isEmpty()) {
+                StringEntity se = new StringEntity(JsonTool.toJson(params), charset);
+                se.setContentType("text/json");
+                httpPost.setEntity(se);
+            }
+            httpPost.setHeader("Content-Type", "application/json;charset=" + charset);
+            httpPost.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
+            CloseableHttpResponse response = client.execute(httpPost);
+            result.setStatus(true);
+            result.setResult(response.getEntity());
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.setMessage("请求错误!!!");
+        }
+        return result;
+    }
+
+    public static FuncResult postJson(String url, Map<String, Object> params, String charset){
+        FuncResult result = post(url, params, charset);
+        if (!result.isStatus()) {
+            return result;
+        }
+        HttpEntity entity = (HttpEntity) result.getResult();
+        try {
+            JSONObject obj = JSON.parseObject(entity.getContent(), Object.class, Feature.AllowArbitraryCommas);
+            result.setResult(obj);
+        } catch (IOException e) {
+            result.setStatus(false);
+            result.setMessage("请求格式解析失败");
         }
         return result;
     }
