@@ -248,12 +248,12 @@ class TreeholeApplicationTests {
         option.addCondition("use_status", 1);
         List<BiuUserEntity> users = biuDbFactory.getUserDbFactory().getBiuUserImpl().list(option);
         List<String> images = new ArrayList<>();
-        images.add("http://biuimage.juqihui.cn/question_1.png");
-        images.add("http://biuimage.juqihui.cn/question_2.png");
-        images.add("http://biuimage.juqihui.cn/question_3.png");
-        images.add("http://biuimage.juqihui.cn/question_4.png");
+        images.add("http://biuimage.meetme.cool/question_1.png");
+        images.add("http://biuimage.meetme.cool/question_2.png");
+        images.add("http://biuimage.meetme.cool/question_3.png");
+        images.add("http://biuimage.meetme.cool/question_4.png");
         users.forEach(item -> {
-            userService.addUserMessage(0, item.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "", "", "http://biuimage.juqihui.cn/questiontou.jpg", images);
+            userService.addUserMessage(0, item.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "", "", "http://biuimage.meetme.cool/questiontou.jpg", images);
 //            userService.addUserMessage(0, item.getId(), BiuMessageEntity.PUBLIC_NOTICE, 0, "温馨提示", "同志们，在交心的时候千万不要忘了保护自己奥，个人敏感信息最好不要轻易透露。千万记得保护自己，遇到奇怪的人，比方说恶心撩骚的，黄赌毒的，一定要举报，只要举报了我一定会根据情况处理。可以在林间树洞里面找我举报（行什），也可以给我打电话（13687618626），更可以在后台举报。反正一定要谨慎谨慎。");
         });
     }
