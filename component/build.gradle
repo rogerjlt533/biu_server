@@ -17,6 +17,7 @@ dependencies {
     implementation 'com.alibaba:fastjson:1.2.58'
     implementation 'org.apache.tomcat.embed:tomcat-embed-core:9.0.41'
     implementation 'org.springframework:spring-core:5.2.12.RELEASE'
+    implementation 'org.springframework:spring-web:5.2.12.RELEASE'
     implementation 'org.assertj:assertj-core:3.16.1'
     implementation 'org.hashids:hashids:1.0.3'
     compile group: 'org.sction', name: 'phprpc', version: '3.0.2'

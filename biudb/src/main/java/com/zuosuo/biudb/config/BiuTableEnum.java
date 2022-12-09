@@ -9,7 +9,7 @@ public enum BiuTableEnum {
     USER_BLACKLIST("biu_user_blacklist"), USER_FRIEND("biu_user_friends"), USER_FRIEND_MEMBER("biu_user_friend_members"), USER_FRIEND_MESSAGE("biu_user_friend_messages"),
     USER_FRIEND_COMMUNICATE("biu_user_friend_communicates"), USER_FRIEND_COMMUNICATE_LOG("biu_user_friend_communicate_logs"),
     USER_READ_LOG("biu_user_read_logs"), HOLE_NOTE_COMMENT_VIEW("biu_hole_note_comment_views"), MESSAGE_VIEW("biu_message_views"),
-    KEYWORD("biu_keywords");
+    KEYWORD("biu_keywords"), WECHAT_FILTER_TRACE("biu_wechat_filter_traces");
 
     private String value;
 

@@ -111,6 +111,15 @@ public class WechatProcessor {
         if (tokenCache.isStatus()) {
             return new FuncResult(true, "", String.valueOf(tokenCache.getResult()));
         }
+        return refreshAccessToken(tokenKey);
+    }
+
+    /**
+     * 刷新token
+     * @param tokenKey
+     * @return
+     */
+    public FuncResult refreshAccessToken(String tokenKey) {
         AccessTokenInfo tokenInfo = WechatMiniTool.getAccessToken(miniWechatConfig);
         if (tokenInfo.getAccessToken().equals("")) {
             return new FuncResult(false, "获取token失败", "");

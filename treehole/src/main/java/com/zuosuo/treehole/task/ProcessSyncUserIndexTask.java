@@ -20,6 +20,9 @@ public class ProcessSyncUserIndexTask {
     public void execute() {
         String key = TaskOption.USER_INDEX_SYNC.getValue();
         ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
+        if (!operator.getRedisTool().exists(key)) {
+            return ;
+        }
         long size = operator.size(key);
         for (long i = 0; i < size; i++) {
             String userId = operator.leftPop(key);

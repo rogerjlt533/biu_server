@@ -27,8 +27,8 @@ public enum SystemOption {
             "4）血腥，暴力，恐怖，色情等一系列令人不适的图片<br>" +
             "如发现以上严禁内容会视其严重程度，BIU平台将给予不同程度的禁言或冻结账号惩罚。"),
     APPLY_TITLE("您正在向笔友【#NAME#】提交笔友申请"),
-    FAVOR_TITLE("笔友【#NAME#】点赞了你的树洞信"),
-//    FAVOR_TITLE("笔友【#NAME#】给了你一个抱抱"),
+//    FAVOR_TITLE("笔友【#NAME#】点赞了你的树洞信"),
+    FAVOR_TITLE("笔友【#NAME#】给了你一个抱抱"),
     COMMENT_TITLE("笔友【#NAME#】评论了您的树洞信"),
     COMMENT_REPLY_TITLE("笔友【#NAME#】回复了您的消息"),
     SEND_MAIL_TITLE("笔友【#NAME#】已寄出邮件"),

@@ -11,16 +11,23 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class HttpTool {
 
@@ -80,6 +87,42 @@ public class HttpTool {
         return result;
     }
 
+    public static FuncResult upload(String url, MultipartFile file) {
+        FuncResult result = new FuncResult();
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.addHeader("Content-Type", "application/octet-stream");
+        try {
+            InputStream inputStream = file.getInputStream();
+            byte[] byt = new byte[inputStream.available()];
+            inputStream.read(byt);
+            httpPost.setEntity(new ByteArrayEntity(byt, ContentType.create(file.getContentType())));
+            CloseableHttpResponse response = client.execute(httpPost);
+            result.setStatus(true);
+            result.setResult(response.getEntity());
+        } catch (IOException e) {
+            e.printStackTrace();e.printStackTrace();
+            result.setMessage("请求错误!!!");
+        }
+        return result;
+    }
+
+    public static FuncResult uploadJson(String url, MultipartFile file){
+        FuncResult result = upload(url, file);
+        if (!result.isStatus()) {
+            return result;
+        }
+        HttpEntity entity = (HttpEntity) result.getResult();
+        try {
+            JSONObject obj = JSON.parseObject(entity.getContent(), Object.class, Feature.AllowArbitraryCommas);
+            result.setResult(obj);
+        } catch (IOException e) {
+            result.setStatus(false);
+            result.setMessage("请求格式解析失败");
+        }
+        return result;
+    }
+
     public static String getIpAddr(HttpServletRequest request) {
         String ipAddress = null;
         try {
@@ -113,5 +156,15 @@ public class HttpTool {
             ipAddress="";
         }
         return ipAddress;
+    }
+
+    public static String getResponseContent(HttpEntity entity) {
+        String content = null;
+        try {
+            content = new BufferedReader(new InputStreamReader(entity.getContent())).lines().parallel().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return content;
     }
 }

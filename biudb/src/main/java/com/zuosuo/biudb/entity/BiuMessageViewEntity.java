@@ -219,8 +219,8 @@ public class BiuMessageViewEntity extends BaseEntity {
         } else if (messageType == MESSAGE_COMMENT) {
             return "评论";
         } else if (messageType == MESSAGE_FAVOR) {
-            return "点赞";
-//            return "抱抱";
+//            return "点赞";
+            return "抱抱";
         } else if (messageType == MESSAGE_REPLY) {
             return "回复";
         } else if (messageType == PRIVATE_MESSAGE) {

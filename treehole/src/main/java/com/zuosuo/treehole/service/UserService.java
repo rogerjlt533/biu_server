@@ -18,11 +18,16 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.result.*;
+import com.zuosuo.treehole.task.ProcessWechatFilterTask;
+import com.zuosuo.treehole.task.SendUserWechatMessageTask;
 import com.zuosuo.treehole.task.UserCollectInput;
 import com.zuosuo.treehole.tool.AddressTool;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
+import com.zuosuo.treehole.tool.WechatTool;
+import jdk.nashorn.internal.objects.annotations.Property;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -41,6 +46,10 @@ public class UserService {
     private HashTool hashTool;
     @Autowired
     private BiuRedisFactory biuRedisFactory;
+    @Autowired
+    private WechatTool wechatTool;
+    @Value("${biu.env}")
+    private String env;
 
     public String createRandomNickName() {
         return "BIU笔友" + StringTool.random(4);
@@ -281,6 +290,7 @@ public class UserService {
                 image.setHashCode(relate.getHashCode());
                 image.setSortIndex(sort);
                 biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
+                filterByWechat(ProcessWechatFilterTask.FILTER_MEDIA, userId, ProcessWechatFilterTask.MEDIA_IMAGE_TYPE, image.getId(), type, relateId);
                 return image;
             } else {
                 file = originUrl;
@@ -291,6 +301,7 @@ public class UserService {
         image.setHashCode("");
         image.setSortIndex(sort);
         biuDbFactory.getUserDbFactory().getBiuUserImageImpl().update(image);
+        filterByWechat(ProcessWechatFilterTask.FILTER_MEDIA, userId, ProcessWechatFilterTask.MEDIA_IMAGE_TYPE, image.getId(), type, relateId);
         return image;
     }
 
@@ -505,6 +516,7 @@ public class UserService {
         friend.setConfirmStatus(BiuUserFriendEntity.WAITING_STATUS);
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().insert(friend);
         createFriendMember(userId, friendId, friend);
+        sendMiniMessage(SendUserWechatMessageTask.APPLY_FRIEND_TYPE, friendId, userId, friend.getId());
         return friend;
     }
 
@@ -615,6 +627,8 @@ public class UserService {
         setUserImage(0, BiuUserImageEntity.USE_TYPE_MESSAGE, message.getId(), images);
         addUserFriendMessageRelate(message.getId(), friendId, sourceId, users, 1);
         addUserFriendMessageRelate(message.getId(), friendId, destId, users);
+        sendMiniMessage(SendUserWechatMessageTask.PRIVATE_MESSAGE_TYPE, destId, sourceId, message.getId());
+//        filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, sourceId, ProcessWechatFilterTask.CONTENT_MESSAGE_TYPE, message.getId());
     }
 
     /**
@@ -982,6 +996,7 @@ public class UserService {
         biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().update(friend);
         BiuUserViewEntity sender = getUserView(sendUser);
         addUserMessage(sendUser, receiveUser, BiuMessageEntity.NOTICE_SEND, log.getId(), SystemOption.SEND_MAIL_TITLE.getValue().replace("#NAME#", sender.getPenName()), "");
+        sendMiniMessage(SendUserWechatMessageTask.LETTER_REPLY_TYPE, receiveUser, sendUser, log.getId());
         result.put("allow_receive", 0);
         result.put("label", "邮件已寄出");
         result.put("log", encodeHash(log.getId()));
@@ -1156,6 +1171,9 @@ public class UserService {
     }
 
     public JsonDataResult<Map> addLabel(long userId, String name) {
+        if (!wechatTool.filterContent(userId, name, 1).isStatus()) {
+            return new JsonDataResult<>("输入信息违规");
+        }
         ProviderOption option = new ProviderOption();
         option.addCondition("user_id", userId);
         option.addCondition("tag", name);
@@ -1500,5 +1518,22 @@ public class UserService {
             user.setZipcode(area.getZipcode());
         }
         return user;
+    }
+
+    public void sendMiniMessage(long... values) {
+        String message_value = Arrays.stream(values).boxed().map(item -> String.valueOf(item)).collect(Collectors.joining("_"));
+        String key = TaskOption.USER_WECHAT_MESSAGE.getValue();
+        ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
+        operator.rightPush(key, message_value);
+    }
+
+    public void filterByWechat(long... values) {
+        if (env != null && env.equals("dev")) {
+            return ;
+        }
+        String message_value = Arrays.stream(values).boxed().map(item -> String.valueOf(item)).collect(Collectors.joining("_"));
+        String key = TaskOption.WECHAT_FILTER.getValue();
+        ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
+        operator.rightPush(key, message_value);
     }
 }

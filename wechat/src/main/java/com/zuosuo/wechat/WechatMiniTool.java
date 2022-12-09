@@ -16,7 +16,11 @@ public class WechatMiniTool {
 
     public static final String SESSION_CODE_URL = "https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code";
     public static final String TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=SECRET";
-    public static final String MESSAGE_URL = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/uniform_send?access_token=ACCESS_TOKEN";
+//    public static final String MESSAGE_URL = "https://api.weixin.qq.com/cgi-bin/message/wxopen/template/uniform_send?access_token=ACCESS_TOKEN";
+    public static final String MESSAGE_URL = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=ACCESS_TOKEN";
+    public static final String MESSAGE_FILTER_URL = "https://api.weixin.qq.com/wxa/msg_sec_check?access_token=ACCESS_TOKEN";
+    public static final String MEDIA_FILTER_URL = "https://api.weixin.qq.com/wxa/media_check_async?access_token=ACCESS_TOKEN";
+    public static final String MEDIA_ASYNC_FILTER_URL = "https://api.weixin.qq.com/wxa/img_sec_check?access_token=ACCESS_TOKEN";
 
     public static SessionInfo code2Session(String code, WechatConfig config) {
         String url = SESSION_CODE_URL.replace("APPID", config.appid()).replace("SECRET", config.appsecret()).replace("JSCODE", code);
@@ -32,7 +36,7 @@ public class WechatMiniTool {
             return null;
         }
 //        content = "{\"session_key\":\"1122\",\"openid\":\"1122\"}";
-//        content = "{\"session_key\":\"1122\",\"openid\":\"owHl_5J80GHXpCfVXl0J1M6iauXY\"}";
+//        content = "{\"session_key\":\"1122\",\"openid\":\"owHl_5ElyxxP314do0GG0tYWm3Sw\"}";
         JSONObject obj = JSONObject.parseObject(content);
         int errcode = obj.getInteger("errcode") != null ? obj.getInteger("errcode") : 0;
         String errmsg = obj.getString("errmsg") != null ? obj.getString("errmsg") : "";
@@ -65,37 +69,46 @@ public class WechatMiniTool {
         return new AccessTokenInfo(access_token, expires_in);
     }
 
-    /**
-     * 推送模板消息
-     * @param config
-     * @param token
-     * @param openid
-     * @param template
-     * @param params
-     */
-    public static void sendTemplateMessage(WechatConfig config, String token, String openid, TemplateInfo template, Map<String, Object> params) {
-        String url = MESSAGE_URL.replace("ACCESS_TOKEN", token);
-        int type = template.getType();
-        Map<String, Object> body = new HashMap<String, Object>() {{
-            put("touser", openid);
-        }};
-        Map<String, Object> message = new HashMap<>();
-        if (type == 1) {
-            // 小程序
-            message.put("template_id", template.getId());
-            message.put("form_id", params.getOrDefault("formid", ""));
-            message.put("page", params.getOrDefault("page", ""));
-            message.put("data", params.getOrDefault("data", new HashMap<>()));
-            body.put("weapp_template_msg", message);
-            HttpTool.post(url, body, "utf-8");
-        } else if (type == 2) {
-            // 公众号
-//            message.put("appid", config.appid());
-//            message.put("template_id", template.getId());
-//            message.put("form_id", template.getForm());
-//            message.put("page", params.getOrDefault("page", ""));
-//            message.put("data", params.getOrDefault("data", new HashMap<>()));
-//            body.put("mp_template_msg", message);
-        }
+//    /**
+//     * 推送模板消息
+//     * @param token
+//     * @param openid
+//     * @param template_id
+//     * @param params
+//     */
+//    public static void sendMiniTemplateMessage(String token, String openid, String template_id, Map<String, Object> params) {
+//        String url = MESSAGE_URL.replace("ACCESS_TOKEN", token);
+//        Map<String, Object> body = new HashMap<>();
+//        // 小程序
+//        body.put("touser", openid);
+//        body.put("template_id", template_id);
+//        body.put("page", params.getOrDefault("page", ""));
+//        body.put("data", params.getOrDefault("data", new HashMap<>()));
+//        FuncResult result = HttpTool.postJson(url, body, "utf-8");
+////        if (result.isStatus()) {
+////            JSONObject object = (JSONObject) result.getResult();
+////            if (object.containsKey("errcode") && object.getInteger("errcode") == 40001) {
+////
+////            }
+////        }
+//        System.out.println(HttpTool.getResponseContent((HttpEntity) result.getResult()));
+//    }
+
+    public static FuncResult filterMedia(String token, String openid, String media_url, int media_type, int version, long scene) {
+        String url = MEDIA_FILTER_URL.replace("ACCESS_TOKEN", token);
+        Map<String, Object> body = new HashMap<>();
+        body.put("openid", openid);
+        body.put("scene", scene);
+        body.put("version", version);
+        body.put("media_url", media_url);
+        body.put("media_type", media_type);
+        FuncResult result = HttpTool.postJson(url, body, "utf-8");
+//        if (result.isStatus()) {
+//            JSONObject object = (JSONObject) result.getResult();
+//            if (object.containsKey("errcode") && object.getInteger("errcode") == 40001) {
+//
+//            }
+//        }
+        return result;
     }
 }

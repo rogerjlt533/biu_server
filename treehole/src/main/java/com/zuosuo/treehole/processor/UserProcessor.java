@@ -17,16 +17,19 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.config.SystemOption;
+import com.zuosuo.treehole.config.TemplateOption;
 import com.zuosuo.treehole.result.*;
 import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.KeywordService;
 import com.zuosuo.treehole.service.UserCollectService;
 import com.zuosuo.treehole.service.UserService;
+import com.zuosuo.treehole.task.ProcessWechatFilterTask;
+import com.zuosuo.treehole.task.SendUserWechatMessageTask;
 import com.zuosuo.treehole.tool.HashTool;
+import com.zuosuo.treehole.tool.WechatTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,6 +48,8 @@ public class UserProcessor {
     private AreaService areaService;
     @Autowired
     private KeywordService keywordService;
+    @Autowired
+    private WechatTool wechatTool;
     @Autowired
     private BiuRedisFactory biuRedisFactory;
 
@@ -607,6 +612,7 @@ public class UserProcessor {
     }
 
     public FuncResult updateInfo(long userId, UserInfoBean bean) {
+        System.out.println(JsonTool.toJson(bean));
         BiuUserEntity user = userService.find(userId);
         if (user == null) {
             return new FuncResult(false, "用户信息不存在");
@@ -617,13 +623,16 @@ public class UserProcessor {
         if (bean.getMethod().contains("image")) {
             String imageUrl = bean.getImage().isEmpty() ? SystemOption.USER_IMAGE.getValue() : bean.getImage();
             BiuUserImageEntity image = userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_AVATOR, 0, imageUrl, 0);
+            userService.filterByWechat(ProcessWechatFilterTask.FILTER_MEDIA, userId, ProcessWechatFilterTask.MEDIA_AVATOR_TYPE, image.getId());
             user.setImage(image.getFile());
         }
         if (bean.getMethod().contains("pen_name")) {
-            if (!bean.getPenName().isEmpty() && !keywordService.verifyKeyword(bean.getPenName())) {
-                return new FuncResult(false, "请查看是否有敏感词");
+            System.out.println("pen_name:" + bean.getPenName() + "|" + bean.getPenName().isEmpty() + "|" + wechatTool.filterContent(user, bean.getPenName(), 1).isStatus() + "|" + (!bean.getPenName().isEmpty() && !wechatTool.filterContent(user, bean.getPenName(), 1).isStatus()));
+            if (!bean.getPenName().isEmpty() && !wechatTool.filterContent(user, bean.getPenName(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setPenName(bean.getPenName().trim());
             }
-            user.setPenName(bean.getPenName().trim());
         }
         if (bean.getMethod().contains("sex")) {
             user.setSex(bean.getSex() > 2 ? 0 : bean.getSex());
@@ -645,10 +654,12 @@ public class UserProcessor {
             areas.add(user.getProvince());
         }
         if (bean.getMethod().contains("username")) {
-            if (!bean.getUsername().isEmpty() && !keywordService.verifyKeyword(bean.getUsername())) {
-                return new FuncResult(false, "请查看是否有敏感词");
+            System.out.println("username:" + bean.getUsername() + "|" + bean.getUsername().isEmpty() + "|" + wechatTool.filterContent(user, bean.getUsername(), 1).isStatus() + "|" + (!bean.getUsername().isEmpty() && !wechatTool.filterContent(user, bean.getUsername(), 1).isStatus()));
+            if (!bean.getUsername().isEmpty() && !wechatTool.filterContent(user, bean.getUsername(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setUsername(bean.getUsername());
             }
-            user.setUsername(bean.getUsername());
         }
         if (bean.getMethod().contains("phone")) {
             user.setPhone(bean.getPhone());
@@ -685,16 +696,20 @@ public class UserProcessor {
             user.setZipcode(bean.getZipcode());
         }
         if (bean.getMethod().contains("title")) {
-            if (!bean.getTitle().isEmpty() && !keywordService.verifyKeyword(bean.getTitle())) {
-                return new FuncResult(false, "请查看是否有敏感词");
+            System.out.println("title:" + bean.getTitle() + "|" + bean.getTitle().isEmpty() + "|" + wechatTool.filterContent(user, bean.getTitle(), 1).isStatus() + "|" + (!bean.getTitle().isEmpty() && !wechatTool.filterContent(user, bean.getTitle(), 1).isStatus()));
+            if (!bean.getTitle().isEmpty() && !wechatTool.filterContent(user, bean.getTitle(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setTitle(bean.getTitle());
             }
-            user.setTitle(bean.getTitle());
         }
         if (bean.getMethod().contains("introduce")) {
-            if (!bean.getIntroduce().isEmpty() && !keywordService.verifyKeyword(bean.getIntroduce())) {
-                return new FuncResult(false, "请查看是否有敏感词");
+            System.out.println("introduce:" + bean.getIntroduce() + "|" + bean.getIntroduce().isEmpty() + "|" + wechatTool.filterContent(user, bean.getIntroduce(), 1).isStatus() + "|" + (!bean.getIntroduce().isEmpty() && !wechatTool.filterContent(user, bean.getIntroduce(), 1).isStatus()));
+            if (!bean.getIntroduce().isEmpty() && !wechatTool.filterContent(user, bean.getIntroduce(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setIntroduce(bean.getIntroduce());
             }
-            user.setIntroduce(bean.getIntroduce());
         }
         if (bean.getMethod().contains("match_start_age")) {
             user.setMatchStartAge(bean.getStartAge());
@@ -969,6 +984,7 @@ public class UserProcessor {
         option = new ProviderOption();
         option.addCondition("id in (" + friendIdList + ")");
         option.addCondition("confirm_status", BiuUserFriendEntity.PASS_STATUS);
+        option.addOrderby("created_at desc");
         List<BiuUserFriendEntity> friends = biuDbFactory.getUserDbFactory().getBiuUserFriendImpl().list(option);
         if (friends.isEmpty()) {
             return new FuncResult(false, "无对应记录", new ArrayList<UserFriendResult>());
@@ -1037,6 +1053,30 @@ public class UserProcessor {
     }
 
     /**
+     * 撤销用户私信
+     * @param userId
+     * @param messageId
+     * @return
+     */
+    public FuncResult cancelUserFriendMessage(long userId, long messageId) {
+        BiuMessageEntity messageEntity = biuDbFactory.getUserDbFactory().getBiuMessageImpl().find(messageId);
+        if (messageEntity == null) {
+            return new FuncResult(false, "消息记录不存在");
+        }
+        if (messageEntity.getMessageType() != BiuMessageEntity.PRIVATE_MESSAGE) {
+            return new FuncResult(false, "非私信消息");
+        }
+        if (messageEntity.getSourceId() != userId) {
+            return new FuncResult(false, "非私信发起人");
+        }
+        ProviderOption option = new ProviderOption();
+        option.addCondition("message_id", messageId);
+        biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().destroy(option);
+        biuDbFactory.getUserDbFactory().getBiuMessageImpl().delete(messageEntity);
+        return new FuncResult(true, "");
+    }
+
+    /**
      * 发送好友私信
      * @param userId
      * @param friendId
@@ -1047,6 +1087,9 @@ public class UserProcessor {
         BiuUserEntity user = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(userId);
         if (user.getPriMsgStatus() != 1) {
             return new FuncResult(false, "未开启私信功能");
+        }
+        if (!wechatTool.filterContent(user, bean.getContent(), 1).isStatus()) {
+            return new FuncResult(false, "输入信息违规");
         }
         ProviderOption option = new ProviderOption();
         option.addCondition("id", friendId);
@@ -1532,6 +1575,15 @@ public class UserProcessor {
      * @return
      */
     public FuncResult createHoleNote(long userId, CreateNoteBean bean) {
+        if (!wechatTool.filterContent(userId, bean.getContent(), 1).isStatus()) {
+            return new FuncResult(false, "输入信息违规");
+        }
+        if (bean.getLabel() > 0) {
+            BiuLabelEntity labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(bean.getLabel());
+            if (labelEntity != null && !wechatTool.filterContent(userId, labelEntity.getTag(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            }
+        }
         BiuHoleNoteEntity note = new BiuHoleNoteEntity();
         note.setUserId(userId);
         note.setContent(bean.getContent());
@@ -1542,6 +1594,7 @@ public class UserProcessor {
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().insert(note);
         if (note.getId() > 0) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
+//            userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, userId, ProcessWechatFilterTask.CONTENT_NOTE_TYPE, note.getId());
         }
         return new FuncResult(true, "", new HashMap<>());
     }
@@ -1553,6 +1606,15 @@ public class UserProcessor {
      * @return
      */
     public FuncResult editHoleNote(long userId, CreateNoteBean bean) {
+        if (!wechatTool.filterContent(userId, bean.getContent(), 1).isStatus()) {
+            return new FuncResult(false, "输入信息违规");
+        }
+        if (bean.getLabel() > 0) {
+            BiuLabelEntity labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(bean.getLabel());
+            if (labelEntity != null && !wechatTool.filterContent(userId, labelEntity.getTag(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            }
+        }
         long noteId = decodeHash(bean.getId());
         if (noteId <= 0) {
             return new FuncResult(false, "无对应记录");
@@ -1572,6 +1634,7 @@ public class UserProcessor {
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().update(note);
         if (note.getId() > 0) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
+//            userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, userId, ProcessWechatFilterTask.CONTENT_NOTE_TYPE, note.getId());
         }
         return new FuncResult(true, "");
     }
@@ -1938,6 +2001,9 @@ public class UserProcessor {
      * @return
      */
     public JsonDataResult<Map> commentNote(long userId, long noteId, String content) {
+        if (!wechatTool.filterContent(userId, content, 2).isStatus()) {
+            return new JsonDataResult<>("输入信息违规");
+        }
         BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
         if (note == null) {
             return new JsonDataResult<>("树洞信不见了");
@@ -1952,10 +2018,12 @@ public class UserProcessor {
         entity.setContent(content);
         entity.setCommentUserid(note.getUserId());
         entity.setTopComment(0);
-        biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
+        BiuHoleNoteCommentEntity commentEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
         if (userId != note.getUserId()) {
             userService.addNoteCommentMessage(userId, note.getUserId(), note.getId());
         }
+//        userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, userId, ProcessWechatFilterTask.CONTENT_COMMENT_TYPE, commentEntity.getId());
+//        userService.sendMiniMessage(SendUserWechatMessageTask.COMMENT_TYPE, entity.getCommentUserid(), entity.getUserId(), commentEntity.getId());
         BiuHoleNoteViewEntity noteInfo = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl().find(noteId);
         Map<String, Object> result = new HashMap<>();
         result.put("comment_num", noteInfo.getCommentNum());
@@ -1970,6 +2038,9 @@ public class UserProcessor {
      * @return
      */
     public JsonDataResult<Map> replyComment(long userId, long commentId, String content) {
+        if (!wechatTool.filterContent(userId, content, 2).isStatus()) {
+            return new JsonDataResult<>("输入信息违规");
+        }
         BiuHoleNoteCommentEntity comment = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().find(commentId);
         if (comment == null) {
             return new JsonDataResult<>("树洞评论不见了");
@@ -1989,10 +2060,12 @@ public class UserProcessor {
         entity.setContent(content);
         entity.setCommentUserid(comment.getUserId());
         entity.setTopComment(comment.getTopComment() > 0 ? comment.getTopComment() : comment.getId());
-        biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
+        BiuHoleNoteCommentEntity commentEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
         if (userId != comment.getUserId()) {
             userService.addNoteCommentReplyMessage(userId, comment.getUserId(), comment.getId());
         }
+//        userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, userId, ProcessWechatFilterTask.CONTENT_COMMENT_TYPE, commentEntity.getId());
+//        userService.sendMiniMessage(SendUserWechatMessageTask.COMMENT_TYPE, entity.getCommentUserid(), entity.getUserId(), commentEntity.getId());
         BiuHoleNoteViewEntity noteInfo = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl().find(comment.getNoteId());
         Map<String, Object> result = new HashMap<>();
         result.put("comment_num", noteInfo.getCommentNum());
@@ -2139,14 +2212,16 @@ public class UserProcessor {
             unit.put("comment_id", encodeHash(item.getId()));
             unit.put("note_id", encodeHash(item.getNoteId()));
             List<String> titleList = new ArrayList<>();
+            unit.put("is_nickname", 0);
             if (item.getUserId() == noteEntity.getUserId() && noteEntity.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
                 titleList.add(userService.createRandomNickName());
                 unit.put("send_user", userService.createRandomNickName());
-                unit.put("user_image", SystemOption.USER_IMAGE);
+                unit.put("user_image", SystemOption.USER_IMAGE.getValue());
+                unit.put("is_nickname", 1);
             } else {
                 titleList.add(user.getPenName());
                 unit.put("send_user", user.getPenName());
-                unit.put("user_image", user.getImage() != null && !user.getImage().isEmpty() ? userService.parseImage(user.getImage()) : SystemOption.USER_IMAGE);
+                unit.put("user_image", user.getImage() != null && !user.getImage().isEmpty() ? userService.parseImage(user.getImage()) : SystemOption.USER_IMAGE.getValue());
             }
             unit.put("send_userid", encodeHash(item.getUserId()));
             unit.put("subList", new ArrayList<Map>());
@@ -2244,5 +2319,22 @@ public class UserProcessor {
         option.addCondition("user_id", userId);
         biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().destroy(option);
         userService.removeFriendPrivateMessageById(messageId);
+    }
+
+    public List getNoticeAuthList(long userId) {
+        List<Map> auth_list = new ArrayList<>();
+        auth_list.add(new HashMap<String, String>() {{
+            put("name", TemplateOption.WAITING_PRIVATE_MESSAGE_TEMPLATE.getDesc());
+            put("value", TemplateOption.WAITING_PRIVATE_MESSAGE_TEMPLATE.getId());
+        }});
+        auth_list.add(new HashMap<String, String>() {{
+            put("name", TemplateOption.LETTER_REPLY_TEMPLATE.getDesc());
+            put("value", TemplateOption.LETTER_REPLY_TEMPLATE.getId());
+        }});
+        auth_list.add(new HashMap<String, String>() {{
+            put("name", TemplateOption.FRIEND_APPLY_TEMPLATE.getDesc());
+            put("value", TemplateOption.FRIEND_APPLY_TEMPLATE.getId());
+        }});
+        return auth_list;
     }
 }

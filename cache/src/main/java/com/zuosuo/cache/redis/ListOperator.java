@@ -16,6 +16,10 @@ public class ListOperator {
         return operations;
     }
 
+    public AbstractRedisTool getRedisTool() {
+        return redisTool;
+    }
+
     public long size(String key) {
         return operations.size(key);
     }

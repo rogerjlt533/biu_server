@@ -2,6 +2,7 @@ package com.zuosuo.treehole.action.user;
 
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonResult;
+import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.treehole.action.BaseAction;
 import com.zuosuo.treehole.bean.UserInfoBean;
 import com.zuosuo.treehole.processor.UserProcessor;
@@ -27,6 +28,7 @@ public class UpdateInfoAction extends BaseAction {
         System.out.println("update user:" + getLoginInfoBean().getUserId());
         FuncResult loginResult = userProcessor.updateInfo(getLoginInfoBean().getUserId(), bean);
         if (!loginResult.isStatus()) {
+            System.out.println(JsonTool.toJson(new JsonResult(loginResult.getMessage())));
             return new JsonResult(loginResult.getMessage());
         }
         return JsonResult.success();

@@ -1,5 +1,6 @@
 package com.zuosuo.treehole;
 
+import com.alibaba.fastjson.JSONObject;
 import com.qiniu.util.Json;
 import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
@@ -17,6 +18,7 @@ import com.zuosuo.treehole.bean.UserFriendMessageBean;
 import com.zuosuo.treehole.config.MiniWechatConfig;
 import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.config.TaskOption;
+import com.zuosuo.treehole.config.TemplateOption;
 import com.zuosuo.treehole.processor.CombineAccountProcessor;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.processor.WechatProcessor;
@@ -24,10 +26,13 @@ import com.zuosuo.treehole.result.UserInterestResult;
 import com.zuosuo.treehole.service.AreaService;
 import com.zuosuo.treehole.service.KeywordService;
 import com.zuosuo.treehole.service.UserService;
+import com.zuosuo.treehole.task.ProcessWechatFilterTask;
 import com.zuosuo.treehole.task.UserCollectInput;
 import com.zuosuo.treehole.tool.AddressTool;
 import com.zuosuo.treehole.tool.HashTool;
 import com.zuosuo.treehole.tool.QiniuTool;
+import com.zuosuo.treehole.tool.WechatTool;
+import com.zuosuo.wechat.WechatMiniTool;
 import net.coobird.thumbnailator.Thumbnails;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +70,17 @@ class TreeholeApplicationTests {
     private CombineAccountProcessor combineAccountProcessor;
     @Autowired
     private AreaService areaService;
+    @Autowired
+    private WechatProcessor wechatProcessor;
+    @Autowired
+    private WechatTool wechatTool;
 
     @Test
     void contextLoads() {
+//        userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, 233, ProcessWechatFilterTask.CONTENT_NOTE_TYPE, 169);
+        testFilterMessage();
+//        userService.sendMiniMessage(1,2,3,4,5);
+//        testSendMessage();
 //        System.out.println(userProcessor.encodeHash(775));
 //        System.out.println(loginProcessor.accessToken(miniWechatConfig).getResult());
 //        processUserAddress();
@@ -182,6 +195,63 @@ class TreeholeApplicationTests {
 //        } catch (IOException e) {
 //        }
 //        System.out.println(content);
+    }
+
+    private void testFilterMessage() {
+//        owHl_5ElyxxP314do0GG0tYWm3Sw
+//        String token = String.valueOf(wechatProcessor.accessToken(miniWechatConfig).getResult());
+//        FuncResult result = WechatMiniTool.filterMedia(token, "owHl_5ElyxxP314do0GG0tYWm3Sw", "http://biuimage.juqihui.cn/upload/tou.png", 2, 2, 1);
+//
+//        JSONObject object = (JSONObject) result.getResult();
+//        if (object.containsKey("errcode") && object.getInteger("errcode") == 0 && object.containsKey("trace_id")) {
+//            BiuWechatFilterTraceEntity entity = new BiuWechatFilterTraceEntity();
+//            entity.setFilterType(ProcessWechatFilterTask.FILTER_MEDIA);
+//            entity.setUseType(2);
+//            entity.setUserId(2242);
+//            entity.setTraceId(object.getString("trace_id"));
+////            entity.setImageId(imageId);
+//            entity.setResult("");
+//            entity.setDetail("");
+//            biuDbFactory.getUserDbFactory().getBiuWechatFilterTraceImpl().insert(entity);
+//        }
+//        FuncResult result = WechatMiniTool.filterContent(token, "owHl_5ElyxxP314do0GG0tYWm3Sw", 1, 2, "三级片这个词会被屏蔽", null);
+//        System.out.println(JsonTool.toJson(result));
+//        JSONObject object = (JSONObject) result.getResult();
+//        System.out.println(object.containsKey("errcode"));
+//        System.out.println(object.getInteger("errcode"));
+//        System.out.println(object.containsKey("result"));
+//        System.out.println(JsonTool.toJson(object));
+//        if (object.containsKey("errcode") && object.getInteger("errcode") == 0 && object.containsKey("trace_id")) {
+//            String responseResult = object.containsKey("result") ? JsonTool.toJson(object.getJSONObject("result")) : "";
+//            String responseDetail = object.containsKey("detail") ? JsonTool.toJson(object.getJSONArray("detail")) : "";
+//            BiuWechatFilterTraceEntity entity = new BiuWechatFilterTraceEntity();
+//            entity.setFilterType(ProcessWechatFilterTask.FILTER_CONTENT);
+//            entity.setUseType(1);
+//            entity.setUserId(1);
+//            entity.setTraceId(object.getString("trace_id"));
+////                if (noteId > 0) {
+////                    entity.setNoteId(noteId);
+////                }
+////                if (commentId > 0) {
+////                    entity.setCommentId(commentId);
+////                }
+////                if (messageId > 0) {
+////                    entity.setMessageId(messageId);
+////                }
+//            entity.setResult(responseResult);
+//            entity.setDetail(responseDetail);
+//            biuDbFactory.getUserDbFactory().getBiuWechatFilterTraceImpl().insert(entity);
+    }
+
+    private void testSendMessage() {
+        String access_token = String.valueOf(wechatProcessor.accessToken(miniWechatConfig).getResult());
+        Map<String, Object> params = new HashMap<>();
+        params.put("page", "pages/index/index");
+        Map<String, Object> data = new HashMap<>();
+        data.put("thing3", new HashMap<String, String>(){{put("value", "name");}});
+        data.put("time2", new HashMap<String, String>(){{put("value", "2022-07-01");}});
+        params.put("data", data);
+        wechatTool.sendMiniTemplateMessage(access_token, "owHl_5EtGVWj5NEMHsjoCekl0qQY", TemplateOption.WAITING_PRIVATE_MESSAGE_TEMPLATE.getId(), params);
     }
 
     /**

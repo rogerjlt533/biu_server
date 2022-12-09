@@ -43,6 +43,8 @@ public class BiuUserDbFactory {
     private BiuUserIndexViewImpl biuUserIndexViewImpl;
     @Autowired
     private BiuUserFriendMessageImpl biuUserFriendMessageImpl;
+    @Autowired
+    private BiuWechatFilterTraceImpl biuWechatFilterTraceImpl;
 
     public BiuUserImpl getBiuUserImpl() {
         return biuUserImpl;
@@ -114,5 +116,9 @@ public class BiuUserDbFactory {
 
     public BiuUserFriendMessageImpl getBiuUserFriendMessageImpl() {
         return biuUserFriendMessageImpl;
+    }
+
+    public BiuWechatFilterTraceImpl getBiuWechatFilterTraceImpl() {
+        return biuWechatFilterTraceImpl;
     }
 }

@@ -3,7 +3,8 @@ package com.zuosuo.biudb.redis;
 import com.zuosuo.cache.redis.BaseRedisProperity;
 
 public enum BiuRedisProperty implements BaseRedisProperity {
-    BIU("localhost", 6379, "", 1);
+    // 2-测试 3-新的正式 1-老的正式
+    BIU("localhost", 6379, "", 3);
 
     private String host;
     private int port;

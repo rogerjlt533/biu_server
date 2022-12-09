@@ -348,6 +348,18 @@ public class UserController {
     }
 
     /**
+     * 撤销用户好友私信
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/friend/message/cancel")
+    @Login
+    public JsonResult cancelUserFriendMessage(HttpServletRequest request, @RequestBody CancelUserFriendMessageBean bean) {
+        return new CancelUserFriendMessageAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 用户好友私信列表
      * @param request
      * @param bean
@@ -379,5 +391,16 @@ public class UserController {
     @Login
     public JsonResult removeUserPrivateMessage(HttpServletRequest request, @RequestBody RemoveUserFriendMessageBean bean) {
         return new RemoveUserFriendMessageAction(request, bean, userProcessor).run();
+    }
+
+    /**
+     * 用户通知模板列表
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/user/notice/auth/list")
+//    @Login
+    public JsonResult userNoticeAuthList(HttpServletRequest request) {
+        return new UserNoticeAuthListAction(request, userProcessor).run();
     }
 }

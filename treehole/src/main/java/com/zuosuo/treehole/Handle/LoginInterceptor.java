@@ -3,10 +3,13 @@ package com.zuosuo.treehole.Handle;
 import com.zuosuo.auth.jwt.JWTResult;
 import com.zuosuo.biudb.entity.BiuUserEntity;
 import com.zuosuo.biudb.factory.BiuDbFactory;
+import com.zuosuo.biudb.redis.BiuRedisFactory;
+import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.LoginInfoBean;
+import com.zuosuo.treehole.config.SystemOption;
 import com.zuosuo.treehole.service.UserService;
 import com.zuosuo.treehole.tool.JwtTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +26,12 @@ import java.util.Date;
 public class LoginInterceptor implements HandlerInterceptor {
 
     private BiuDbFactory biuDbFactory;
+    private BiuRedisFactory biuRedisFactory;
     private UserService userService;
 
-    public LoginInterceptor(BiuDbFactory biuDbFactory, UserService userService) {
+    public LoginInterceptor(BiuDbFactory biuDbFactory, BiuRedisFactory biuRedisFactory, UserService userService) {
         this.biuDbFactory = biuDbFactory;
+        this.biuRedisFactory = biuRedisFactory;
         this.userService = userService;
     }
 
@@ -53,6 +58,16 @@ public class LoginInterceptor implements HandlerInterceptor {
                 return error(response, "用户信息不存在");
             } else if(user.getUseStatus() == BiuUserEntity.USER_INVAIL_STATUS) {
                 return error(response, "用户状态异常");
+            }
+            String openidKey = SystemOption.USER_OPENID_KEY.getValue().replace("#OPENID#", user.getOpenid());
+            FuncResult opencache = biuRedisFactory.getBiuRedisTool().getValueOperator().get(openidKey, Long.class);
+            if (opencache.isStatus() && (long) opencache.getResult() > 0) {
+
+            } else {
+                response.setStatus(500);
+                PrintWriter out = response.getWriter();
+                out.flush();
+                return false;
             }
             userService.setUserSortTime(user.getId());
             userService.syncUserIndex(user.getId());
