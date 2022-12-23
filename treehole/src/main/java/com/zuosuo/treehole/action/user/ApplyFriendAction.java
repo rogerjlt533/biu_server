@@ -9,6 +9,7 @@ import com.zuosuo.treehole.bean.ApplyFriendBean;
 import com.zuosuo.treehole.processor.UserProcessor;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 public class ApplyFriendAction extends BaseAction {
 
@@ -27,7 +28,16 @@ public class ApplyFriendAction extends BaseAction {
         long friendId = bean.getFriend().isEmpty() ? 0 : userProcessor.decodeHash(bean.getFriend());
         FuncResult processResult = userProcessor.processFriend(getLoginInfoBean().getUserId(), friendId, bean);
         if (!processResult.isStatus()) {
-            return new JsonResult(processResult.getMessage());
+            if (processResult.getResult() != null) {
+                Map<String, String> result = (Map<String, String>) processResult.getResult();
+                if (result.containsKey("errcode") && result.get("errcode").equals("504")) {
+                    return new JsonResult(504, processResult.getMessage());
+                } else {
+                    return new JsonResult(processResult.getMessage());
+                }
+            } else {
+                return new JsonResult(processResult.getMessage());
+            }
         }
         if (bean.getMethod().equals(ApplyFriendBean.COMMUNICATE)) {
             return new JsonDataResult<>(ResponseConfig.SUCCESS_CODE, "", processResult.getResult());

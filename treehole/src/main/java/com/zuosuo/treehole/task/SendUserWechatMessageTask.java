@@ -127,7 +127,13 @@ public class SendUserWechatMessageTask {
         params.put("page", "pages/index/index");
         Map<String, Object> data = new HashMap<>();
         data.put("thing1", new HashMap<String, String>(){{put("value", sender.getPenName());}});
-        data.put("thing2", new HashMap<String, String>(){{put("value", messageEntity.getContent());}});
+        if (messageEntity.getContentType().equals("image")) {
+            data.put("thing2", new HashMap<String, String>(){{put("value", "【图片】");}});
+        } else if (!messageEntity.getContent().isEmpty()) {
+            data.put("thing2", new HashMap<String, String>(){{put("value", messageEntity.getContent());}});
+        } else {
+            return ;
+        }
         data.put("time3", new HashMap<String, String>(){{put("value", TimeTool.formatDate(messageEntity.getCreatedAt(), "yyyy/MM/dd HH:mm"));}});
         params.put("data", data);
         wechatTool.sendMiniTemplateMessage(getAccessToken(), receiver.getOpenid(), TemplateOption.WAITING_PRIVATE_MESSAGE_TEMPLATE.getId(), params);

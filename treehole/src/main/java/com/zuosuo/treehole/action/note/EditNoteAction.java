@@ -29,7 +29,11 @@ public class EditNoteAction extends BaseAction {
         }
         FuncResult processResult = userProcessor.editHoleNote(getLoginInfoBean().getUserId(), bean);
         if (!processResult.isStatus()) {
-            return new JsonResult(processResult.getMessage());
+            if (processResult.getMessage() != null && processResult.getMessage().equals("输入信息违规")) {
+                return new JsonResult(503, processResult.getMessage());
+            } else {
+                return new JsonResult(processResult.getMessage());
+            }
         }
         return JsonResult.success();
     }

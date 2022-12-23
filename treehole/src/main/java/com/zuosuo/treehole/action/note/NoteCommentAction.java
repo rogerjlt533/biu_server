@@ -28,7 +28,11 @@ public class NoteCommentAction extends BaseAction {
         }
         FuncResult processResult = userProcessor.processNoteComment(getLoginInfoBean().getUserId(), bean);
         if (!processResult.isStatus()) {
-            return new JsonDataResult<>(processResult.getMessage());
+            if (processResult.getMessage() != null && processResult.getMessage().equals("输入信息违规")) {
+                return new JsonDataResult<>(503, processResult.getMessage());
+            } else {
+                return new JsonDataResult<>(processResult.getMessage());
+            }
         }
         return JsonDataResult.success((Map) processResult.getResult());
     }

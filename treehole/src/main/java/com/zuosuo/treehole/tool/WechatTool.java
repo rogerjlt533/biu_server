@@ -115,7 +115,7 @@ public class WechatTool {
         String token = String.valueOf(wechatProcessor.accessToken(miniWechatConfig).getResult());
         String url = WechatMiniTool.MEDIA_ASYNC_FILTER_URL.replace("ACCESS_TOKEN", token);
         FuncResult result = HttpTool.uploadJson(url, file);
-        System.out.println(JsonTool.toJson(result));
+        System.out.println(JsonTool.toJson(result) + "|| asyncFilterMedia");
         if (!result.isStatus()) {
             return new FuncResult(false, "过滤请求失败");
         }
@@ -161,5 +161,9 @@ public class WechatTool {
                 }
             }
         }
+    }
+
+    public String getAccessToken() {
+        return String.valueOf(wechatProcessor.accessToken(miniWechatConfig).getResult());
     }
 }

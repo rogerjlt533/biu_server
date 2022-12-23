@@ -51,6 +51,10 @@ public class LoginInterceptor implements HandlerInterceptor {
         System.out.println("user_id:" + loginInfo.getUserId());
         if (!loginAnnotation.open() && loginInfo.getUserId() == 0) {
             return error(response, "未登录");
+//            response.setStatus(500);
+//            PrintWriter out = response.getWriter();
+//            out.flush();
+//            return false;
         }
         if (loginInfo.getUserId() > 0) {
             BiuUserEntity user = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(loginInfo.getUserId());
@@ -86,11 +90,16 @@ public class LoginInterceptor implements HandlerInterceptor {
         if (token.isEmpty()) {
             return new LoginInfoBean();
         }
-        JWTResult jwt = new JwtTool().getResult(token);
-        if (jwt.getExpireAt().compareTo(new Date()) <= 0) {
+        try {
+            JWTResult jwt = new JwtTool().getResult(token);
+            if (jwt.getExpireAt().compareTo(new Date()) <= 0) {
+                return new LoginInfoBean();
+            }
+            return new LoginInfoBean(Long.parseLong(jwt.getData("user_id")));
+        } catch (Exception e) {
+            System.out.println("login_token:" + token);
             return new LoginInfoBean();
         }
-        return new LoginInfoBean(Long.parseLong(jwt.getData("user_id")));
     }
 
     private boolean error(HttpServletResponse response, String message) throws IOException {
@@ -103,6 +112,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         PrintWriter out = response.getWriter();
         out.flush();
         out.println(JsonTool.toJson(new JsonResult(code, message)));
+        System.out.println(JsonTool.toJson(new JsonResult(code, message)));
         return false;
     }
 }

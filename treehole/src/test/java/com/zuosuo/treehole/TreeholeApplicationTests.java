@@ -13,6 +13,7 @@ import com.zuosuo.component.time.TimeTool;
 import com.zuosuo.component.tool.JsonTool;
 import com.zuosuo.mybatis.provider.CheckStatusEnum;
 import com.zuosuo.mybatis.provider.ProviderOption;
+import com.zuosuo.treehole.bean.ApplyFriendBean;
 import com.zuosuo.treehole.bean.NoteCommentGroupBean;
 import com.zuosuo.treehole.bean.UserFriendMessageBean;
 import com.zuosuo.treehole.config.MiniWechatConfig;
@@ -77,8 +78,17 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+//        UserFriendMessageBean bean = new UserFriendMessageBean();
+//        bean.setContentType("text");
+//        bean.setContent("你好。");
+//        FuncResult result = userProcessor.sendUserFriendMessage(232, 4635, bean);
+//        ApplyFriendBean applyFriendBean = new ApplyFriendBean();
+//        applyFriendBean.setMethod(ApplyFriendBean.APPLY);
+//        applyFriendBean.setFriend(userProcessor.encodeHash(4659));
+//        FuncResult processResult = userProcessor.processFriend(4205, 4659, applyFriendBean);
+//        System.out.println(JsonTool.toJson(processResult));
 //        userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, 233, ProcessWechatFilterTask.CONTENT_NOTE_TYPE, 169);
-        testFilterMessage();
+//        testFilterMessage();
 //        userService.sendMiniMessage(1,2,3,4,5);
 //        testSendMessage();
 //        System.out.println(userProcessor.encodeHash(775));
@@ -200,6 +210,7 @@ class TreeholeApplicationTests {
     private void testFilterMessage() {
 //        owHl_5ElyxxP314do0GG0tYWm3Sw
 //        String token = String.valueOf(wechatProcessor.accessToken(miniWechatConfig).getResult());
+//        FuncResult result = wechatTool.asyncFilterMedia()
 //        FuncResult result = WechatMiniTool.filterMedia(token, "owHl_5ElyxxP314do0GG0tYWm3Sw", "http://biuimage.juqihui.cn/upload/tou.png", 2, 2, 1);
 //
 //        JSONObject object = (JSONObject) result.getResult();

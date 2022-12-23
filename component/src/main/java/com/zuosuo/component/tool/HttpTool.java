@@ -101,7 +101,7 @@ public class HttpTool {
             result.setStatus(true);
             result.setResult(response.getEntity());
         } catch (IOException e) {
-            e.printStackTrace();e.printStackTrace();
+            e.printStackTrace();
             result.setMessage("请求错误!!!");
         }
         return result;

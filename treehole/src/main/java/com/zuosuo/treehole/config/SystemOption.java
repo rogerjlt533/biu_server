@@ -38,7 +38,8 @@ public enum SystemOption {
     RECEIVE_APPLY_TITLE("笔友【#NAME#】申请与您成为笔友"),
     PRIVATE_MESSAGE_FRIEND_LIMIT("user:private:message:#DATE#:#USERID#:#FRIENDID#"),
     USER_OPENID_KEY("user:openid:#OPENID#"),
-    MINI_ACCESSS_TOKEN_KEY("mini:access_token:#APPID#");
+    MINI_ACCESSS_TOKEN_KEY("mini:access_token:#APPID#"),
+    USER_FRIEND_APPLY_LIMIT("biu:user:friend:apply:#USERID#:#DATE#");
 
     private String value;
 

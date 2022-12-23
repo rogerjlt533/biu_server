@@ -1,5 +1,6 @@
 package com.zuosuo.treehole.action.user;
 
+import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.BaseAction;
@@ -13,11 +14,13 @@ public class UserFriendMessageAction extends BaseAction {
 
     private UserFriendMessageBean bean;
     private UserProcessor userProcessor;
+    private BiuRedisFactory biuRedisFactory;
 
-    public UserFriendMessageAction(HttpServletRequest request, UserFriendMessageBean bean, UserProcessor userProcessor) {
+    public UserFriendMessageAction(HttpServletRequest request, UserFriendMessageBean bean, UserProcessor userProcessor, BiuRedisFactory biuRedisFactory) {
         super(request);
         this.bean = bean;
         this.userProcessor = userProcessor;
+        this.biuRedisFactory = biuRedisFactory;
     }
 
     @Override

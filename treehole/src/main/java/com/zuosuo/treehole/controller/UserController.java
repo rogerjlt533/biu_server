@@ -1,5 +1,6 @@
 package com.zuosuo.treehole.controller;
 
+import com.zuosuo.biudb.redis.BiuRedisFactory;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
 import com.zuosuo.treehole.action.user.*;
@@ -7,6 +8,7 @@ import com.zuosuo.treehole.annotation.Login;
 import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.processor.UserProcessor;
 import com.zuosuo.treehole.result.*;
+import com.zuosuo.treehole.tool.WechatTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +23,10 @@ public class UserController {
 
     @Autowired
     private UserProcessor userProcessor;
+    @Autowired
+    private WechatTool wechatTool;
+    @Autowired
+    private BiuRedisFactory biuRedisFactory;
 
     /**
      * 用户登录信息初始化
@@ -314,6 +320,18 @@ public class UserController {
     }
 
     /**
+     * 全部消息标记已读
+     * @param request
+     * @param bean
+     * @return
+     */
+    @PostMapping("/api/user/message/all/read")
+    @Login
+    public JsonResult readAllMessage(HttpServletRequest request, @RequestBody UserMessageAllReadBean bean) {
+        return new UserMessageAllReadAction(request, bean, userProcessor).run();
+    }
+
+    /**
      * 删除用户消息
      * @param request
      * @return
@@ -344,7 +362,7 @@ public class UserController {
     @PostMapping("/api/user/friend/message/send")
     @Login
     public JsonResult sendUserFriendMessage(HttpServletRequest request, @RequestBody UserFriendMessageBean bean) {
-        return new UserFriendMessageAction(request, bean, userProcessor).run();
+        return new UserFriendMessageAction(request, bean, userProcessor, biuRedisFactory).run();
     }
 
     /**
@@ -402,5 +420,16 @@ public class UserController {
 //    @Login
     public JsonResult userNoticeAuthList(HttpServletRequest request) {
         return new UserNoticeAuthListAction(request, userProcessor).run();
+    }
+
+    /**
+     * 获取access_token
+     * @param request
+     * @return
+     */
+    @PostMapping("/api/access_token")
+    @Login
+    public JsonResult getAccessToken(HttpServletRequest request) {
+        return new GetAccessTokenAction(request, wechatTool).run();
     }
 }

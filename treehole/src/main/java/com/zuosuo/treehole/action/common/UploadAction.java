@@ -38,8 +38,9 @@ public class UploadAction extends BaseAction {
     @Override
     public JsonDataResult<Map> run() {
         FuncResult filterResult = wechatTool.asyncFilterMedia(file);
+//        FuncResult filterResult = new FuncResult(false);
         if (!filterResult.isStatus()) {
-            return new JsonDataResult<>("输入信息违规");
+            return new JsonDataResult<>(503, "输入信息违规");
         }
         String uuid = UUID.randomUUID().toString().replaceAll("-","");
         String ext = FileTool.fileExt(file.getOriginalFilename());
@@ -53,7 +54,7 @@ public class UploadAction extends BaseAction {
             file.transferTo(destFile);
         } catch (IOException e) {
             destFile.delete();
-            return new JsonDataResult<>(501, "上传失败");
+            return new JsonDataResult<>("上传失败");
         }
         try {
             Thumbnails.of(dest).size(750, 1000).toFile(dest);
@@ -83,7 +84,7 @@ public class UploadAction extends BaseAction {
             return JsonDataResult.success(result);
         } else {
             destFile.delete();
-            return new JsonDataResult<>(501, "上传失败!");
+            return new JsonDataResult<>("上传失败!");
         }
     }
 }

@@ -265,6 +265,15 @@ public class UserService {
     public BiuUserImageEntity setUserImage(long userId, int type, long relateId, String file, int sort) {
         boolean isQiniu = false;
         String originUrl = file;
+        if (file == null) {
+            return null;
+        }
+        if (file.isEmpty()) {
+            return null;
+        }
+        if (file.contains("wxfile://")) {
+            return null;
+        }
         if (file.contains("/upload")) {
             file = file.substring(file.indexOf("/upload") + 1);
             isQiniu = true;

@@ -29,7 +29,11 @@ public class UpdateInfoAction extends BaseAction {
         FuncResult loginResult = userProcessor.updateInfo(getLoginInfoBean().getUserId(), bean);
         if (!loginResult.isStatus()) {
             System.out.println(JsonTool.toJson(new JsonResult(loginResult.getMessage())));
-            return new JsonResult(loginResult.getMessage());
+            if (loginResult.getMessage() != null && loginResult.getMessage().equals("输入信息违规")) {
+                return new JsonResult(503, loginResult.getMessage());
+            } else {
+                return new JsonResult(loginResult.getMessage());
+            }
         }
         return JsonResult.success();
     }

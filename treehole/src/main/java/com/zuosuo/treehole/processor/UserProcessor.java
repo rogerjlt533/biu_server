@@ -72,11 +72,16 @@ public class UserProcessor {
         if (user == null) {
             return new FuncResult(false, "无对应用户记录");
         }
-        user.setNick(bean.getNick().trim());
+        if (!bean.getNick().isEmpty() && !wechatTool.filterContent(user, bean.getNick(), 1).isStatus()) {
+            return new FuncResult(false, "输入信息违规");
+        } else {
+            user.setNick(bean.getNick().trim());
+        }
         user.setImage(bean.getImage().trim());
         BiuUserImageEntity image = userService.setUserImage(id, BiuUserImageEntity.USE_TYPE_AVATOR, 0, bean.getImage(), 0);
         user.setImage(image.getFile());
         biuDbFactory.getUserDbFactory().getBiuUserImpl().update(user);
+        getUserService().filterByWechat(ProcessWechatFilterTask.FILTER_MEDIA, id, ProcessWechatFilterTask.MEDIA_AVATOR_TYPE, image.getId());
         return new FuncResult(true);
     }
 
@@ -618,13 +623,19 @@ public class UserProcessor {
             return new FuncResult(false, "用户信息不存在");
         }
         if (bean.getMethod().contains("nick")) {
-            user.setNick(bean.getNick());
+            if (!bean.getNick().isEmpty() && !wechatTool.filterContent(user, bean.getNick(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setNick(bean.getNick());
+            }
         }
         if (bean.getMethod().contains("image")) {
             String imageUrl = bean.getImage().isEmpty() ? SystemOption.USER_IMAGE.getValue() : bean.getImage();
             BiuUserImageEntity image = userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_AVATOR, 0, imageUrl, 0);
-            userService.filterByWechat(ProcessWechatFilterTask.FILTER_MEDIA, userId, ProcessWechatFilterTask.MEDIA_AVATOR_TYPE, image.getId());
-            user.setImage(image.getFile());
+            if (image != null) {
+                userService.filterByWechat(ProcessWechatFilterTask.FILTER_MEDIA, userId, ProcessWechatFilterTask.MEDIA_AVATOR_TYPE, image.getId());
+                user.setImage(image.getFile());
+            }
         }
         if (bean.getMethod().contains("pen_name")) {
             System.out.println("pen_name:" + bean.getPenName() + "|" + bean.getPenName().isEmpty() + "|" + wechatTool.filterContent(user, bean.getPenName(), 1).isStatus() + "|" + (!bean.getPenName().isEmpty() && !wechatTool.filterContent(user, bean.getPenName(), 1).isStatus()));
@@ -687,13 +698,25 @@ public class UserProcessor {
 //            return new FuncResult(false, "地区选择有误");
 //        }
         if (bean.getMethod().contains("address")) {
-            user.setAddress(bean.getAddress());
+            if (!bean.getAddress().isEmpty() && !wechatTool.filterContent(user, bean.getAddress(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setAddress(bean.getAddress());
+            }
         }
         if (bean.getMethod().contains("email")) {
-            user.setEmail(bean.getEmail());
+            if (!bean.getEmail().isEmpty() && !wechatTool.filterContent(user, bean.getEmail(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setEmail(bean.getEmail());
+            }
         }
         if (bean.getMethod().contains("zipcode")) {
-            user.setZipcode(bean.getZipcode());
+            if (!bean.getZipcode().isEmpty() && !wechatTool.filterContent(user, bean.getZipcode(), 1).isStatus()) {
+                return new FuncResult(false, "输入信息违规");
+            } else {
+                user.setZipcode(bean.getZipcode());
+            }
         }
         if (bean.getMethod().contains("title")) {
             System.out.println("title:" + bean.getTitle() + "|" + bean.getTitle().isEmpty() + "|" + wechatTool.filterContent(user, bean.getTitle(), 1).isStatus() + "|" + (!bean.getTitle().isEmpty() && !wechatTool.filterContent(user, bean.getTitle(), 1).isStatus()));
@@ -749,6 +772,9 @@ public class UserProcessor {
         BiuUserEntity user = userService.find(userId);
         if (user == null) {
             return new FuncResult(false, "用户信息不存在");
+        }
+        if (content != null && !content.isEmpty() && !wechatTool.filterContent(user, content, 1).isStatus()) {
+            return new FuncResult(false, "输入信息违规");
         }
         BiuUserReportEntity entity = new BiuUserReportEntity();
         entity.setReportType(type);
@@ -836,6 +862,23 @@ public class UserProcessor {
             return new FuncResult(false, "不能是同一人");
         }
         if (method.equals(ApplyFriendBean.APPLY)) {
+            String date = TimeTool.formatDate(new Date(), "yyyyMMdd");
+            String key = SystemOption.USER_FRIEND_APPLY_LIMIT.getValue().replace("#USERID#", String.valueOf(userId)).replace("#DATE#", date);
+            if (!biuRedisFactory.getBiuRedisTool().getValueOperator().setnx(key, 1, 86400)) {
+                FuncResult limitCache = biuRedisFactory.getBiuRedisTool().getValueOperator().get(key, Integer.class);
+                if (limitCache.isStatus()) {
+                    int limit = (int) limitCache.getResult();
+                    if (limit >= 3) {
+                        Map<String, String> result = new HashMap<>();
+                        result.put("errcode", "504");
+                        return new FuncResult(false, "每日可提交笔友申请三次,已超过申请次数", result);
+                    } else {
+                        biuRedisFactory.getBiuRedisTool().getValueOperator().set(key, limit + 1, 86400);
+                    }
+                } else {
+                    biuRedisFactory.getBiuRedisTool().getValueOperator().set(key, 1, 86400);
+                }
+            }
             BiuUserEntity applyUser = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(userId);
             if (applyUser.getLockStatus() > 0) {
                 return new FuncResult(false, "您未开启寻友模式!");
@@ -1088,7 +1131,7 @@ public class UserProcessor {
         if (user.getPriMsgStatus() != 1) {
             return new FuncResult(false, "未开启私信功能");
         }
-        if (!wechatTool.filterContent(user, bean.getContent(), 1).isStatus()) {
+        if (!bean.getContent().isEmpty() && !wechatTool.filterContent(user, bean.getContent(), 1).isStatus()) {
             return new FuncResult(false, "输入信息违规");
         }
         ProviderOption option = new ProviderOption();
@@ -1546,6 +1589,28 @@ public class UserProcessor {
     }
 
     /**
+     * 标记全部消息已读
+     * @param userId
+     * @param type
+     * @param subList
+     * @return
+     */
+    public FuncResult readAllMessage(long userId, String type, List<Integer> subList) {
+        ProviderOption options = new ProviderOption();
+        if (type.equals("private")) {
+            options.addCondition("user_id", userId);
+            options.setAttribute("read_status", 1);
+            biuDbFactory.getUserDbFactory().getBiuUserFriendMessageImpl().modify(options);
+        } else {
+            options.addCondition("dest_id", userId);
+            options.addCondition("message_type in (" + subList.stream().map(item -> String.valueOf(item)).collect(Collectors.joining(",")) + ")");
+            options.setAttribute("read_status", BiuMessageEntity.READ_OK);
+            biuDbFactory.getUserDbFactory().getBiuMessageImpl().modify(options);
+        }
+        return new FuncResult(true);
+    }
+
+    /**
      * 删除消息
      * @param userId
      * @param messageId
@@ -1976,6 +2041,9 @@ public class UserProcessor {
      * @return
      */
     public FuncResult processNoteComment(long userId, NoteCommentBean bean) {
+        if (!wechatTool.filterContent(userId, bean.getContent(), 2).isStatus()) {
+            return new FuncResult(false, "输入信息违规");
+        }
         JsonDataResult<Map> result = null;
         if (bean.getMethod().equals(NoteCommentBean.NOTE)) {
             long noteId = decodeHash(bean.getNote());
@@ -1985,10 +2053,10 @@ public class UserProcessor {
             result = replyComment(userId, commentId, bean.getContent());
         }
         if (result == null) {
-            return new FuncResult(false, "", "参数错误");
+            return new FuncResult(false, "参数错误");
         }
         if (result.getCode() != ResponseConfig.SUCCESS_CODE) {
-            return new FuncResult(false, "", result.getMessage());
+            return new FuncResult(false, result.getMessage());
         }
         return new FuncResult(true, "", result.getData());
     }
@@ -2001,9 +2069,6 @@ public class UserProcessor {
      * @return
      */
     public JsonDataResult<Map> commentNote(long userId, long noteId, String content) {
-        if (!wechatTool.filterContent(userId, content, 2).isStatus()) {
-            return new JsonDataResult<>("输入信息违规");
-        }
         BiuHoleNoteEntity note = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().find(noteId);
         if (note == null) {
             return new JsonDataResult<>("树洞信不见了");
@@ -2038,9 +2103,6 @@ public class UserProcessor {
      * @return
      */
     public JsonDataResult<Map> replyComment(long userId, long commentId, String content) {
-        if (!wechatTool.filterContent(userId, content, 2).isStatus()) {
-            return new JsonDataResult<>("输入信息违规");
-        }
         BiuHoleNoteCommentEntity comment = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().find(commentId);
         if (comment == null) {
             return new JsonDataResult<>("树洞评论不见了");
