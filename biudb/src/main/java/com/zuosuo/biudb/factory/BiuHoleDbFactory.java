@@ -24,6 +24,8 @@ public class BiuHoleDbFactory {
     @Autowired
     private BiuHoleNoteViewImpl holeNoteViewImpl;
     @Autowired
+    private BiuHoleNoteListViewImpl holeNoteListViewImpl;
+    @Autowired
     private BiuHoleNoteCommentViewImpl holeNoteCommentViewImpl;
 
     public BiuHoleNoteImpl getBiuHoleNoteImpl() {
@@ -56,6 +58,10 @@ public class BiuHoleDbFactory {
 
     public BiuHoleNoteViewImpl getHoleNoteViewImpl() {
         return holeNoteViewImpl;
+    }
+
+    public BiuHoleNoteListViewImpl getHoleNoteListViewImpl() {
+        return holeNoteListViewImpl;
     }
 
     public BiuHoleNoteCommentViewImpl getHoleNoteCommentViewImpl() {

@@ -4,6 +4,7 @@ import com.zuosuo.biudb.entity.*;
 import com.zuosuo.biudb.factory.BiuDbFactory;
 import com.zuosuo.biudb.impl.*;
 import com.zuosuo.biudb.redis.BiuRedisFactory;
+import com.zuosuo.cache.redis.ListOperator;
 import com.zuosuo.component.response.FuncResult;
 import com.zuosuo.component.response.JsonDataResult;
 import com.zuosuo.component.response.JsonResult;
@@ -17,12 +18,12 @@ import com.zuosuo.mybatis.provider.ProviderOption;
 import com.zuosuo.mybatis.tool.PageTool;
 import com.zuosuo.treehole.bean.*;
 import com.zuosuo.treehole.config.SystemOption;
+import com.zuosuo.treehole.config.TaskOption;
 import com.zuosuo.treehole.config.TemplateOption;
+import com.zuosuo.treehole.factory.CacheFactory;
+import com.zuosuo.treehole.factory.NoteCache;
 import com.zuosuo.treehole.result.*;
-import com.zuosuo.treehole.service.AreaService;
-import com.zuosuo.treehole.service.KeywordService;
-import com.zuosuo.treehole.service.UserCollectService;
-import com.zuosuo.treehole.service.UserService;
+import com.zuosuo.treehole.service.*;
 import com.zuosuo.treehole.task.ProcessWechatFilterTask;
 import com.zuosuo.treehole.task.SendUserWechatMessageTask;
 import com.zuosuo.treehole.tool.HashTool;
@@ -52,6 +53,8 @@ public class UserProcessor {
     private WechatTool wechatTool;
     @Autowired
     private BiuRedisFactory biuRedisFactory;
+    @Autowired
+    private HoleService holeService;
 
     public UserService getUserService() {
         return userService;
@@ -1659,6 +1662,7 @@ public class UserProcessor {
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().insert(note);
         if (note.getId() > 0) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
+            pushNoteCacheTask(note.getId());
 //            userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, userId, ProcessWechatFilterTask.CONTENT_NOTE_TYPE, note.getId());
         }
         return new FuncResult(true, "", new HashMap<>());
@@ -1699,6 +1703,7 @@ public class UserProcessor {
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().update(note);
         if (note.getId() > 0) {
             userService.setUserImage(userId, BiuUserImageEntity.USE_TYPE_NOTE, note.getId(), bean.getImages());
+            pushNoteCacheTask(note.getId());
 //            userService.filterByWechat(ProcessWechatFilterTask.FILTER_CONTENT, userId, ProcessWechatFilterTask.CONTENT_NOTE_TYPE, note.getId());
         }
         return new FuncResult(true, "");
@@ -1734,6 +1739,7 @@ public class UserProcessor {
         biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().delete(note);
         removeHoleNoteMessage(noteId);
         removeHoleNoteComment(noteId);
+        CacheFactory.noteCacheList.remove(noteId);
         return new FuncResult(true, "");
     }
 
@@ -1810,8 +1816,8 @@ public class UserProcessor {
         option.addOrderby("id desc");
         option.setOffset(bean.getPage(), bean.getSize());
         option.setLimit(bean.getSize() + 1);
-        BiuHoleNoteViewImpl viewImpl = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl();
-        List<BiuHoleNoteViewEntity> rows = viewImpl.list(option);
+        BiuHoleNoteListViewImpl viewImpl = biuDbFactory.getHoleDbFactory().getHoleNoteListViewImpl();
+        List<BiuHoleNoteListViewEntity> rows = viewImpl.list(option);
         if (rows.size() > bean.getSize()) {
             rows.remove(rows.size() - 1);
             result.put("more", 1);
@@ -1825,7 +1831,7 @@ public class UserProcessor {
         return new FuncResult(true, "", result);
     }
 
-    public List<Map> processNoteList(List<BiuHoleNoteViewEntity> rows, long userId) {
+    public List<Map> processNoteList(List<BiuHoleNoteListViewEntity> rows, long userId) {
         List<Map> list = new ArrayList<>();
         BiuUserImpl userImpl = biuDbFactory.getUserDbFactory().getBiuUserImpl();
         BiuUserEntity user = userImpl.find(userId);
@@ -1836,76 +1842,123 @@ public class UserProcessor {
             } else {
                 noteUser = userImpl.find(item.getUserId());
             }
-            BiuMoodEntity moodEntity = null;
-            BiuLabelEntity labelEntity = null;
-            if (!item.getMoodCode().isEmpty()) {
-                ProviderOption option = new ProviderOption();
-                option.addCondition("code", item.getMoodCode());
-                moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().single(option);
-            }
-            if (item.getLabelId() > 0) {
-                labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(item.getLabelId());
-            }
-            Map<String, Object> unit = new HashMap<>();
-            unit.put("id", encodeHash(item.getId()));
-            unit.put("user", encodeHash(noteUser.getId()));
-            if (item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
+            NoteCache noteCache = getNoteCache(item.getId());
+            if (noteCache != null) {
+                BiuMoodEntity moodEntity = noteCache.mood;
+                BiuLabelEntity labelEntity = noteCache.label;
+                Map<String, Object> unit = new HashMap<>();
+                unit.put("id", encodeHash(item.getId()));
+                unit.put("user", encodeHash(noteUser.getId()));
+                if (item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
 //            if (((user != null && user.getId() != noteUser.getId()) || user == null) && item.getNickShow() == BiuHoleNoteEntity.NICK_YES) {
-                unit.put("name", userService.createRandomNickName());
-                unit.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
-            } else {
-                unit.put("name", noteUser.getPenName());
-                unit.put("image", userService.parseImage(noteUser.getImage()));
-            }
-            unit.put("mood_code", item.getMoodCode());
-            unit.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
-            unit.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
-            unit.put("label", labelEntity != null ? labelEntity.getId() : 0);
-            unit.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
-            unit.put("content", item.getContent());
-            unit.put("favor_num", item.getFavorNum());
-            unit.put("comment_num", item.getCommentNum());
-            unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
-            unit.put("list_time", TimeTool.formatDate(item.getCreatedAt(), "MM/dd"));
-            if (user != null) {
-                unit.put("is_favor", userService.isFavored(user.getId(), item.getId()) ? 1 : 0);
-                unit.put("is_commented", userService.isCommented(user.getId(), item.getId()) ? 1 : 0);
-            } else {
-                unit.put("is_favor", 0);
-                unit.put("is_commented", 0);
-            }
-            unit.put("is_collect", 0);
-            unit.put("allow_report", 0);
-            unit.put("allow_remove", 0);
-            unit.put("is_private", item.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
-            unit.put("nick_show", item.getRealShow());
-            if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
-                if (user != null && user.getId() != noteUser.getId()) {
-                    unit.put("allow_comment", 1);
-                }
-            } else {
-                unit.put("allow_comment", 0);
-            }
-            if (user != null) {
-                if (user.getId() != noteUser.getId()) {
-                    unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
-                    unit.put("allow_report", 1);
+                    unit.put("name", userService.createRandomNickName());
+                    unit.put("image", userService.parseImage(SystemOption.USER_IMAGE.getValue()));
                 } else {
-                    unit.put("allow_remove", 1);
+                    unit.put("name", noteUser.getPenName());
+                    unit.put("image", userService.parseImage(noteUser.getImage()));
                 }
+                unit.put("mood_code", item.getMoodCode());
+                unit.put("mood_emoj", moodEntity != null ? moodEntity.getEmoj() : "");
+                unit.put("mood_tag", moodEntity != null ? moodEntity.getTag() : "");
+                unit.put("label", labelEntity != null ? labelEntity.getId() : 0);
+                unit.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
+                unit.put("content", item.getContent());
+                unit.put("favor_num", noteCache.favors.get("number"));
+                unit.put("comment_num", noteCache.comments.count);
+                unit.put("create_time", TimeTool.friendlyTime(item.getCreatedAt()));
+                unit.put("list_time", TimeTool.formatDate(item.getCreatedAt(), "MM/dd"));
+                List<Long> favorUsers = (List<Long>) noteCache.favors.get("users");
+                List<String> favorImages = (List<String>) noteCache.favors.get("images");
+                List<Long> commentUsers = noteCache.comments.list;
+                if (user != null) {
+                    unit.put("is_favor", favorUsers != null ? (favorUsers.contains(user.getId()) ? 1 : 0) : 0);
+                    unit.put("is_commented", commentUsers != null ? (commentUsers.contains(user.getId()) ? 1 : 0) : 0);
+                } else {
+                    unit.put("is_favor", 0);
+                    unit.put("is_commented", 0);
+                }
+                unit.put("is_collect", 0);
+                unit.put("allow_report", 0);
+                unit.put("allow_remove", 0);
+                unit.put("is_private", item.getIsPrivate() > 0 ? BiuHoleNoteEntity.PRIVATE_NO : BiuHoleNoteEntity.PRIVATE_YES);
+                unit.put("nick_show", item.getRealShow());
+                if (noteUser.getCommentStatus() == BiuUserEntity.COMMUNICATE_OPEN_STATUS) {
+                    if (user != null && user.getId() != noteUser.getId()) {
+                        unit.put("allow_comment", 1);
+                    }
+                } else {
+                    unit.put("allow_comment", 0);
+                }
+                if (user != null) {
+                    if (user.getId() != noteUser.getId()) {
+                        unit.put("is_collect", userCollectService.isCollected(user.getId(), noteUser.getId()) ? 1 : 0);
+                        unit.put("allow_report", 1);
+                    } else {
+                        unit.put("allow_remove", 1);
+                    }
+                }
+                unit.put("favor_images", favorImages != null ? favorImages : new ArrayList<>());
+                unit.put("images", noteCache.images);
+                list.add(unit);
             }
-            Map favorResult = userService.getNoteFavorCondition(item.getId());
-            unit.put("favor_images", favorResult.get("images"));
-            unit.put("images", userService.getNoteImages(item.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
-            list.add(unit);
         });
         return list;
+    }
+
+    public NoteCache setNoteCache(long noteId) {
+        BiuHoleNoteListViewEntity entity = biuDbFactory.getHoleDbFactory().getHoleNoteListViewImpl().find(noteId);
+        return setNoteCache(entity);
+    }
+
+    public NoteCache setNoteCache(BiuHoleNoteListViewEntity entity) {
+        long noteId = entity.getId();
+        NoteCache note = null;
+        if (CacheFactory.noteCacheList.containsKey(noteId)) {
+            note = CacheFactory.noteCacheList.get(noteId);
+            note.init(entity);
+        } else {
+            note = new NoteCache(entity);
+        }
+        note.images = userService.getNoteImages(noteId, BiuUserImageEntity.USE_TYPE_NOTE, 0);
+        if (!entity.getMoodCode().isEmpty()) {
+            ProviderOption option = new ProviderOption();
+            option.addCondition("code", entity.getMoodCode());
+            note.mood = biuDbFactory.getHoleDbFactory().getMoodImpl().single(option);
+        }
+        if (entity.getLabelId() > 0) {
+            note.label = biuDbFactory.getHoleDbFactory().getLabelImpl().find(entity.getLabelId());
+        }
+        note.favors = userService.getNoteFavorCondition(noteId);
+        note.comments = holeService.getNoteCommentListCount(noteId);
+        CacheFactory.noteCacheList.put(noteId, note);
+        return note;
+    }
+
+    public NoteCache getNoteCache(long noteId) {
+        if (noteId == 0) {
+            return null;
+        }
+        if (CacheFactory.noteCacheList.containsKey(noteId)) {
+            return CacheFactory.noteCacheList.get(noteId);
+        }
+        BiuHoleNoteListViewEntity entity = biuDbFactory.getHoleDbFactory().getHoleNoteListViewImpl().find(noteId);
+        return setNoteCache(entity);
+    }
+
+    public boolean pushNoteCacheTask(long noteId) {
+        if (noteId <= 0) {
+            return false;
+        }
+        String key = TaskOption.NOTE_CACHE_PROCESS.getValue();
+        ListOperator operator = biuRedisFactory.getBiuRedisTool().getListOperator();
+        operator.rightPush(key, String.valueOf(noteId));
+        return true;
     }
 
     public FuncResult noteInfo(long userId, NoteInfoBean bean) {
         Map<String, Object> result = new HashMap<>();
         long id = decodeHash(bean.getId());
-        BiuHoleNoteViewEntity note = biuDbFactory.getHoleDbFactory().getHoleNoteViewImpl().find(id);
+        BiuHoleNoteListViewEntity note = biuDbFactory.getHoleDbFactory().getHoleNoteListViewImpl().find(id);
         if (note == null) {
             return new FuncResult(false, "无对应记录");
         }
@@ -1914,16 +1967,12 @@ public class UserProcessor {
         if (noteUser == null) {
             return new FuncResult(false, "树洞信已丢失");
         }
-        BiuMoodEntity moodEntity = null;
-        BiuLabelEntity labelEntity = null;
-        if (!note.getMoodCode().isEmpty()) {
-            ProviderOption option = new ProviderOption();
-            option.addCondition("code", note.getMoodCode());
-            moodEntity = biuDbFactory.getHoleDbFactory().getMoodImpl().single(option);
+        NoteCache noteCache = getNoteCache(note.getId());
+        if (noteCache == null) {
+            return new FuncResult(false, "树洞信已丢失");
         }
-        if (note.getLabelId() > 0) {
-            labelEntity = biuDbFactory.getHoleDbFactory().getLabelImpl().find(note.getLabelId());
-        }
+        BiuMoodEntity moodEntity = noteCache.mood;
+        BiuLabelEntity labelEntity = noteCache.label;
         result.put("id", encodeHash(note.getId()));
         result.put("user", encodeHash(note.getUserId()));
         result.put("self", note.getUserId() == userId ? 1 : 0);
@@ -1940,12 +1989,15 @@ public class UserProcessor {
         result.put("label", labelEntity != null ? labelEntity.getId() : 0);
         result.put("label_tag", labelEntity != null ? labelEntity.getTag() : "");
         result.put("content", note.getContent());
-        result.put("favor_num", note.getFavorNum());
-        result.put("comment_num", note.getCommentNum());
+        result.put("favor_num", noteCache.favors.get("number"));
+        result.put("comment_num", noteCache.comments.count);
         result.put("create_time", TimeTool.friendlyTime(note.getCreatedAt()));
+        List<Long> favorUsers = (List<Long>) noteCache.favors.get("users");
+        List<String> favorImages = (List<String>) noteCache.favors.get("images");
+        List<Long> commentUsers = noteCache.comments.list;
         if (userId > 0) {
-            result.put("is_favor", userService.isFavored(userId, note.getId()) ? 1 : 0);
-            result.put("is_commented", userService.isCommented(userId, note.getId()) ? 1 : 0);
+            result.put("is_favor", favorUsers != null ? (favorUsers.contains(userId) ? 1 : 0) : 0);
+            result.put("is_commented", commentUsers != null ? (commentUsers.contains(userId) ? 1 : 0) : 0);
         } else {
             result.put("is_favor", 0);
             result.put("is_commented", 0);
@@ -1970,9 +2022,8 @@ public class UserProcessor {
                 result.put("allow_remove", 1);
             }
         }
-        Map favorResult = userService.getNoteFavorCondition(note.getId());
-        result.put("favor_images", favorResult.get("images"));
-        result.put("images", userService.getNoteImages(note.getId(), BiuUserImageEntity.USE_TYPE_NOTE, 0));
+        result.put("favor_images", favorImages != null ? favorImages : new ArrayList<>());
+        result.put("images", noteCache.images);
         return new FuncResult(true, "", result);
     }
 
@@ -2007,6 +2058,7 @@ public class UserProcessor {
         } else {
             biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().delete(favor);
         }
+        pushNoteCacheTask(id);
         Map favorResult = userService.getNoteFavorCondition(id);
         result.put("favor_num", favorResult.get("number"));
         result.put("images", favorResult.get("images"));
@@ -2025,6 +2077,15 @@ public class UserProcessor {
             result = userService.addLabel(userId, bean.getTag());
         } else if(bean.getId() > 0) {
             result = userService.removeLabel(userId, bean.getId());
+            if (result.getCode() == ResponseConfig.SUCCESS_CODE) {
+                ProviderOption option = new ProviderOption();
+                option.addCondition("label_id", bean.getId());
+                option.setColumns("id");
+                List<BiuHoleNoteEntity> notes = biuDbFactory.getHoleDbFactory().getBiuHoleNoteImpl().list(option);
+                notes.forEach(item -> {
+                    pushNoteCacheTask(item.getId());
+                });
+            }
         } else {
             result = new JsonDataResult<>("操作错误");
         }
@@ -2084,6 +2145,7 @@ public class UserProcessor {
         entity.setCommentUserid(note.getUserId());
         entity.setTopComment(0);
         BiuHoleNoteCommentEntity commentEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
+        pushNoteCacheTask(noteId);
         if (userId != note.getUserId()) {
             userService.addNoteCommentMessage(userId, note.getUserId(), note.getId());
         }
@@ -2123,6 +2185,7 @@ public class UserProcessor {
         entity.setCommentUserid(comment.getUserId());
         entity.setTopComment(comment.getTopComment() > 0 ? comment.getTopComment() : comment.getId());
         BiuHoleNoteCommentEntity commentEntity = biuDbFactory.getHoleDbFactory().getBiuHoleNoteCommentImpl().insert(entity);
+        pushNoteCacheTask(comment.getNoteId());
         if (userId != comment.getUserId()) {
             userService.addNoteCommentReplyMessage(userId, comment.getUserId(), comment.getId());
         }

@@ -1223,8 +1223,10 @@ public class UserService {
     public Map getFavorCondition(ProviderOption option) {
         Map<String, Object> result = new HashMap<>();
         List<String> images = new ArrayList<>();
+        List<Long> usersList = new ArrayList<>();
         result.put("number", 0);
         result.put("images", images);
+        result.put("users", usersList);
         List<BiuUserFavorEntity> favorList = biuDbFactory.getHoleDbFactory().getBiuUserFavorImpl().list(option);
         if (favorList == null) {
             return result;
@@ -1240,6 +1242,7 @@ public class UserService {
         userList.forEach(item -> {
             if (item.getUseStatus() == BiuUserEntity.USER_AVAIL_STATUS) {
                 images.add(parseImage(item.getImage()));
+                usersList.add(item.getId());
             }
         });
         result.put("number", images.size());
