@@ -78,6 +78,9 @@ class TreeholeApplicationTests {
 
     @Test
     void contextLoads() {
+//        File file = new File("C:/fallen/test.jpg");
+//        FuncResult filterResult = wechatTool.asyncFilterMedia(file);
+//        System.out.println(JsonTool.toJson(filterResult));
 //        UserFriendMessageBean bean = new UserFriendMessageBean();
 //        bean.setContentType("text");
 //        bean.setContent("你好。");

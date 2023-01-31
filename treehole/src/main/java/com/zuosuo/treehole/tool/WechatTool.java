@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,10 +47,12 @@ public class WechatTool {
             entity.setResult(responseResult);
             entity.setDetail(responseDetail);
             biuDbFactory.getUserDbFactory().getBiuWechatFilterTraceImpl().insert(entity);
-            if (responseResult.contains("risky") || responseResult.contains("review")) {
+            if (responseResult.contains("risky")) {
+//            if (responseResult.contains("risky") || responseResult.contains("review")) {
                 return new FuncResult(false, "请核对内容");
             }
-            if (responseDetail.contains("risky") || responseDetail.contains("review")) {
+            if (responseDetail.contains("risky")) {
+//            if (responseDetail.contains("risky") || responseDetail.contains("review")) {
                 return new FuncResult(false, "请核对内容");
             }
         }
@@ -109,6 +112,21 @@ public class WechatTool {
             }
         }
         return result;
+    }
+
+    public FuncResult asyncFilterMedia(File file) {
+        String token = String.valueOf(wechatProcessor.accessToken(miniWechatConfig).getResult());
+        String url = WechatMiniTool.MEDIA_ASYNC_FILTER_URL.replace("ACCESS_TOKEN", token);
+        FuncResult result = HttpTool.uploadJson(url, file);
+        System.out.println(JsonTool.toJson(result) + "|| asyncFilterMedia");
+        if (!result.isStatus()) {
+            return new FuncResult(false, "过滤请求失败");
+        }
+        JSONObject object = (JSONObject) result.getResult();
+        if (object.containsKey("errcode") && object.getInteger("errcode") == 0 && object.containsKey("errmsg") && object.getString("errmsg").equals("ok")) {
+            return new FuncResult(true);
+        }
+        return new FuncResult(false, "请核对内容");
     }
 
     public FuncResult asyncFilterMedia(MultipartFile file) {

@@ -14,15 +14,14 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
@@ -96,6 +95,7 @@ public class HttpTool {
             InputStream inputStream = file.getInputStream();
             byte[] byt = new byte[inputStream.available()];
             inputStream.read(byt);
+//            System.out.println(file.getContentType());
             httpPost.setEntity(new ByteArrayEntity(byt, ContentType.create(file.getContentType())));
             CloseableHttpResponse response = client.execute(httpPost);
             result.setStatus(true);
@@ -107,7 +107,48 @@ public class HttpTool {
         return result;
     }
 
+    public static FuncResult upload(String url, File file) {
+        FuncResult result = new FuncResult();
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+        httpPost.addHeader("Content-Type", "application/octet-stream");
+//        httpPost.addHeader("Content-Type","data/binary");
+        try {
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            builder.addBinaryBody("media", file);
+            httpPost.setEntity(builder.build());
+//            FileInputStream inputStream = new FileInputStream(file);
+//            byte[] byt = new byte[inputStream.available()];
+//            inputStream.read(byt);
+//            httpPost.setEntity(new ByteArrayEntity(byt, ContentType.create(file.getContentType())));
+            CloseableHttpResponse response = client.execute(httpPost);
+            result.setStatus(true);
+            result.setResult(response.getEntity());
+        } catch (IOException e) {
+            e.printStackTrace();
+            result.setMessage("请求错误!!!");
+        }
+        return result;
+    }
+
     public static FuncResult uploadJson(String url, MultipartFile file){
+        FuncResult result = upload(url, file);
+        if (!result.isStatus()) {
+            return result;
+        }
+        HttpEntity entity = (HttpEntity) result.getResult();
+        try {
+            JSONObject obj = JSON.parseObject(entity.getContent(), Object.class, Feature.AllowArbitraryCommas);
+            result.setResult(obj);
+        } catch (IOException e) {
+            result.setStatus(false);
+            result.setMessage("请求格式解析失败");
+        }
+        return result;
+    }
+
+    public static FuncResult uploadJson(String url, File file){
         FuncResult result = upload(url, file);
         if (!result.isStatus()) {
             return result;

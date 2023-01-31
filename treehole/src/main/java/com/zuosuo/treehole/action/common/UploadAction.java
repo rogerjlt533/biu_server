@@ -37,11 +37,6 @@ public class UploadAction extends BaseAction {
 
     @Override
     public JsonDataResult<Map> run() {
-        FuncResult filterResult = wechatTool.asyncFilterMedia(file);
-//        FuncResult filterResult = new FuncResult(false);
-        if (!filterResult.isStatus()) {
-            return new JsonDataResult<>(503, "输入信息违规");
-        }
         String uuid = UUID.randomUUID().toString().replaceAll("-","");
         String ext = FileTool.fileExt(file.getOriginalFilename());
         File dir = new File("upload");
@@ -60,6 +55,11 @@ public class UploadAction extends BaseAction {
             Thumbnails.of(dest).size(750, 1000).toFile(dest);
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        }
+        FuncResult filterResult = wechatTool.asyncFilterMedia(destFile);
+        if (!filterResult.isStatus()) {
+            destFile.delete();
+            return new JsonDataResult<>(503, "输入信息违规");
         }
         String fileHash = FileTool.fileMD5(dest);
         Map<String, String> result = new HashMap<>();
