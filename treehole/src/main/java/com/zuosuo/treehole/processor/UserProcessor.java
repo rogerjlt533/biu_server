@@ -2022,6 +2022,7 @@ public class UserProcessor {
                 result.put("allow_remove", 1);
             }
         }
+        result.put("list_time", TimeTool.formatDate(note.getCreatedAt(), "MM/dd"));
         result.put("favor_images", favorImages != null ? favorImages : new ArrayList<>());
         result.put("images", noteCache.images);
         return new FuncResult(true, "", result);
