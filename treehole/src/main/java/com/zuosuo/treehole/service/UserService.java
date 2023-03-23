@@ -950,7 +950,8 @@ public class UserService {
             if (member != null && member.getUseStatus() == BiuUserEntity.USER_AVAIL_STATUS) {
                 unit.setName(member.getPenName());
                 unit.setImage(parseImage(member.getImage()));
-                unit.setDesc(getUserDesc(member));
+                unit.setDesc(TimeTool.friendlyTime(member.getLastLogin(), "yyyy/MM/dd"));
+//                unit.setDesc(getUserDesc(member));
                 initFriendCommunicate(friend, member, unit.getCommunicateInfo());
                 if (friend.getLastLog() > 0) {
                     BiuUserFriendCommunicateLogEntity log = biuDbFactory.getUserDbFactory().getBiuUserFriendCommunicateLogImpl().find(friend.getLastLog());
