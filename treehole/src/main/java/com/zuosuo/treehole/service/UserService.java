@@ -950,7 +950,7 @@ public class UserService {
             if (member != null && member.getUseStatus() == BiuUserEntity.USER_AVAIL_STATUS) {
                 unit.setName(member.getPenName());
                 unit.setImage(parseImage(member.getImage()));
-                unit.setDesc(TimeTool.friendlyTime(member.getLastLogin(), "yyyy/MM/dd"));
+                unit.setDesc(TimeTool.friendlyTime(member.getSortTime(), "yyyy/MM/dd"));
 //                unit.setDesc(getUserDesc(member));
                 initFriendCommunicate(friend, member, unit.getCommunicateInfo());
                 if (friend.getLastLog() > 0) {
