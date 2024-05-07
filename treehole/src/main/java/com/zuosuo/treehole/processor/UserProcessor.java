@@ -865,13 +865,15 @@ public class UserProcessor {
             return new FuncResult(false, "不能是同一人");
         }
         if (method.equals(ApplyFriendBean.APPLY)) {
+            BiuUserEntity applyUser = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(userId);
             String date = TimeTool.formatDate(new Date(), "yyyyMMdd");
             String key = SystemOption.USER_FRIEND_APPLY_LIMIT.getValue().replace("#USERID#", String.valueOf(userId)).replace("#DATE#", date);
             if (!biuRedisFactory.getBiuRedisTool().getValueOperator().setnx(key, 1, 86400)) {
                 FuncResult limitCache = biuRedisFactory.getBiuRedisTool().getValueOperator().get(key, Integer.class);
                 if (limitCache.isStatus()) {
                     int limit = (int) limitCache.getResult();
-                    if (limit >= 3) {
+                    int apply_limit = applyUser.getApplyFriendLimit() > 0 ? applyUser.getApplyFriendLimit() : 3;
+                    if (limit >= apply_limit) {
                         Map<String, String> result = new HashMap<>();
                         result.put("errcode", "504");
                         return new FuncResult(false, "每日可提交笔友申请三次,已超过申请次数", result);
@@ -882,7 +884,6 @@ public class UserProcessor {
                     biuRedisFactory.getBiuRedisTool().getValueOperator().set(key, 1, 86400);
                 }
             }
-            BiuUserEntity applyUser = biuDbFactory.getUserDbFactory().getBiuUserImpl().find(userId);
             if (applyUser.getLockStatus() > 0) {
                 return new FuncResult(false, "您未开启寻友模式!");
             }
@@ -1208,8 +1209,7 @@ public class UserProcessor {
                 put("list", new ArrayList<>());
             }});
         }
-        List<Map<String, Object>> result = new ArrayList<>();
-        users.forEach(user -> {
+        List<Map<String, Object>> result = users.stream().parallel().map(user -> {
             BiuUserViewEntity userView = userService.getUserView(user.getId());
             UserFriendCommunicateInfo communicateInfo = new UserFriendCommunicateInfo();
             Map<String, Object> unit = new HashMap<>();
@@ -1274,8 +1274,8 @@ public class UserProcessor {
                 unit.put("isFriend", 0);
                 unit.put("content", "");
             }
-            result.add(unit);
-        });
+            return unit;
+        }).collect(Collectors.toList());
 //        System.out.println(JsonTool.toJson(result));
         List<Map<String, Object>> out = result.stream()
                 .sorted(Comparator.comparing(item -> Long.valueOf(String.valueOf(item.get("disc")))))

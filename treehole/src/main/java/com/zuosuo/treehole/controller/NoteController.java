@@ -191,19 +191,4 @@ public class NoteController {
         return new NoteCommentGroupAction(request, bean, userProcessor).run();
     }
 
-    /**
-     * 操作树洞标签
-     * @param request
-     * @param bean
-     * @return
-     */
-    @PostMapping("/api/hole/label/operate")
-    @Login
-    public JsonResult operateLabel(HttpServletRequest request, @RequestBody OperateLabelBean bean) {
-        VerifyResult verify = bean.verify();
-        if (!verify.isStatus()) {
-            return new JsonDataResult<>(verify.getMessage());
-        }
-        return new OperateLabelAction(request, bean, userProcessor).run();
-    }
 }

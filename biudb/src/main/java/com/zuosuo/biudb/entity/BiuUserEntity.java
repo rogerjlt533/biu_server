@@ -95,6 +95,8 @@ public class BiuUserEntity extends BaseEntity {
     private int penPubMsg = 0;
     @EntityProperty(comment = "锁定开关状态 0-否 1-是")
     private int lockStatus = 0;
+    @EntityProperty(comment = "每日笔友申请次数限制 0-默认3次 其他-对应次数")
+    private int applyFriendLimit = 0;
     @EntityProperty(comment = "最后登录时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
@@ -338,6 +340,14 @@ public class BiuUserEntity extends BaseEntity {
 
     public void setAnonymous(int anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public int getApplyFriendLimit() {
+        return applyFriendLimit;
+    }
+
+    public void setApplyFriendLimit(int applyFriendLimit) {
+        this.applyFriendLimit = applyFriendLimit;
     }
 
     public Date getLastLogin() {
